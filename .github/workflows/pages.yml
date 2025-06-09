@@ -21,9 +21,10 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Upload static files
-        uses: actions/upload-pages-artifact@v2.0.0
+        # ✅ 최신 커밋 해시를 직접 지정 (v2 기반이지만 내부적으로 v4 사용함)
+        uses: actions/upload-pages-artifact@ef7d4c79c981ad8a6a69abddb7e9e8c5c6fbea96
         with:
-          path: ./public
+          path: ./public  # 또는 ./build
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
