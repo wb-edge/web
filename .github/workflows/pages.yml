@@ -21,7 +21,7 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Upload static files
-        uses: actions/upload-pages-artifact@v2.0.0  # ✅ 안정된 공식 릴리스 버전 사용
+        uses: actions/upload-artifact@v4
         with:
           path: .  # index.html이 루트에 있을 경우
 
