@@ -1,3 +1,34 @@
+const allCharacters = [
+  {
+    name: "카단",
+    server: "루페온",
+    class: "블레이드",
+    itemLevel: 1620,
+    icon: "https://via.placeholder.com/48?text=BLD"
+  },
+  {
+    name: "아제나",
+    server: "실리안",
+    class: "소서리스",
+    itemLevel: 1605,
+    icon: "https://via.placeholder.com/48?text=SOR"
+  },
+  {
+    name: "루테란",
+    server: "루페온",
+    class: "기공사",
+    itemLevel: 1580,
+    icon: "https://via.placeholder.com/48?text=GIG"
+  },
+  {
+    name: "카단2",
+    server: "루페온",
+    class: "도화가",
+    itemLevel: 1540,
+    icon: "https://via.placeholder.com/48?text=ART"
+  }
+];
+
 // 검색창에서 엔터 입력 시 그룹 주소로 이동
 function handleSearch(event) {
   if (event.key === 'Enter') {
@@ -12,17 +43,9 @@ function handleSearch(event) {
 function renderCardsFromURL() {
   const params = new URLSearchParams(window.location.search);
   const keyword = params.get("q");
-
   if (!keyword) return;
 
   const resultsContainer = document.querySelector(".results");
-
-  // 예시 데이터 (나중에 API 연동 가능)
-  const allCharacters = [
-    { name: "카단", class: "블레이드", server: "루페온" },
-    { name: "아제나", class: "소서리스", server: "실리안" },
-    { name: "루테란", class: "기공사", server: "루페온" }
-  ];
 
   const matched = allCharacters.filter(c =>
     c.name.includes(keyword)
@@ -33,22 +56,22 @@ function renderCardsFromURL() {
     return;
   }
 
-  resultsContainer.innerHTML = ""; // 기존 내용 비우기
+  resultsContainer.innerHTML = ""; // 초기화
 
   matched.forEach(char => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      <img src="https://via.placeholder.com/250x150.png?text=${char.name}" alt="${char.name} 이미지" />
+      <img class="class-icon" src="${char.icon}" alt="${char.class}" />
       <h3>${char.name}</h3>
-      <p>클래스: ${char.class}</p>
       <p>서버: ${char.server}</p>
+      <p>템레벨: ${char.itemLevel}</p>
     `;
     resultsContainer.appendChild(card);
   });
 }
 
-// 실행 트리거
+// 페이지 로드 시 카드 렌더링
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.pathname.includes("/group")) {
     renderCardsFromURL();

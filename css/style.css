@@ -1,30 +1,20 @@
-/* 기본 설정 */
 body {
   margin: 0;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   background-color: #121212;
   color: #ffffff;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* 네비게이션 바 */
 .navbar {
-  background-color: #1a1a1a;
-  padding: 12px 20px;
-  position: fixed;
-  width: 100%;
+  background-color: #1e1e1e;
+  padding: 1rem 2rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 .nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -32,66 +22,52 @@ a {
 }
 
 .logo {
+  font-size: 1.5rem;
   font-weight: bold;
   color: #00bfff;
-  font-size: 1.3rem;
-  flex-shrink: 0;
 }
 
-/* 검색창 */
-#searchInput {
-  flex: 1;
-  max-width: 400px;
-  margin: 10px 20px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  font-size: 1rem;
-  background-color: #2a2a2a;
-  color: white;
-}
-
-#searchInput::placeholder {
-  color: #aaaaaa;
-}
-
-/* 메뉴 링크 */
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 20px;
-  margin: 0;
-  padding: 0;
-  flex-shrink: 0;
+  gap: 1.5rem;
 }
 
-.nav-links li a {
-  color: #ffffff;
+.nav-links a {
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
+  color: #ffffff;
+  transition: color 0.3s;
 }
 
-.nav-links li a:hover {
+.nav-links a:hover {
   color: #00bfff;
 }
 
-/* 검색 결과 카드 영역 */
-.results {
-  margin-top: 110px;
-  padding: 30px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
+#searchInput {
+  flex: 1;
+  margin: 0 2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  max-width: 400px;
+  background-color: #2a2a2a;
+  color: #fff;
 }
 
-/* 캐릭터 카드 */
+.results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 2rem;
+  justify-content: center;
+}
+
 .card {
   background-color: #1f1f1f;
   padding: 20px;
   border-radius: 12px;
-  width: 250px;
+  width: 220px;
   text-align: center;
   box-shadow: 0 0 8px rgba(0, 191, 255, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
@@ -102,65 +78,27 @@ a {
   box-shadow: 0 0 12px rgba(0, 191, 255, 0.5);
 }
 
-.card img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 10px;
+.class-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 12px;
 }
 
-.card h3 {
-  margin: 10px 0 5px;
-  font-size: 1.1rem;
-}
-
-.card p {
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-/* 푸터 */
-footer {
-  text-align: center;
-  padding: 20px;
-  background-color: #1a1a1a;
-  color: #888;
-  font-size: 0.9rem;
-}
-
-/* 📱 반응형 설정 */
-@media (max-width: 768px) {
+/* 반응형 */
+@media (max-width: 600px) {
   .nav-container {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .nav-links {
-    justify-content: center;
-    margin-top: 10px;
-  }
-
   #searchInput {
+    margin: 1rem 0;
     width: 100%;
-    margin: 10px 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .card {
-    width: 90%;
   }
 
-  .logo {
-    text-align: center;
-    width: 100%;
-    margin-bottom: 8px;
-  }
-
-  .nav-links {
+  .results {
     flex-direction: column;
     align-items: center;
-    gap: 10px;
   }
 }
