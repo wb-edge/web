@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # main 브랜치에 푸시될 때 실행
 
 permissions:
   contents: read
@@ -21,10 +21,9 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Upload static files
-        # ✅ 최신 커밋 해시를 직접 지정 (v2 기반이지만 내부적으로 v4 사용함)
-        uses: actions/upload-pages-artifact@ef7d4c79c981ad8a6a69abddb7e9e8c5c6fbea96
+        uses: actions/upload-pages-artifact@ef7d4c79c981ad8a6a69abddb7e9e8c5c6fbea96  # ✅ 최신 커밋 해시 (v4 내부사용)
         with:
-          path: ./public  # 또는 ./build
+          path: .  # ← 프로젝트 루트에서 index.html을 배포
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
