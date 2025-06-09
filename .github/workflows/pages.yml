@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # main 브랜치에 push 될 때 실행
+      - main
 
 permissions:
   contents: read
@@ -21,9 +21,9 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Upload static files
-        uses: actions/upload-pages-artifact@v2  # ✅ 최신 버전 사용 중
+        uses: actions/upload-pages-artifact@v2.0.0
         with:
-          path: ./public  # 또는 배포할 정적 파일 경로 (ex: build, dist 등)
+          path: ./public
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
