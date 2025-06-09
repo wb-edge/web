@@ -8,53 +8,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <!-- 🧭 상단 고정 메뉴바 -->
+  <!-- 🔝 네비게이션 바 -->
   <nav class="navbar">
     <div class="nav-container">
       <div class="logo">Edge LOA</div>
+
+      <input type="text" id="searchInput" placeholder="캐릭터 검색..." />
+
       <ul class="nav-links">
         <li><a href="#home">홈</a></li>
-        <li><a href="#about">소개</a></li>
-        <li><a href="#features">특징</a></li>
         <li><a href="#contact">연락</a></li>
       </ul>
     </div>
   </nav>
 
-  <!-- 🏠 히어로 영역 -->
-  <header id="home" class="hero">
-    <div class="overlay">
-      <div class="hero-content">
-        <h1>Edge LOA</h1>
-        <p>게임, 커뮤니티, 그리고 엣로아의 모든 것</p>
-        <a href="#about" class="btn">더 알아보기</a>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <section id="about" class="section">
-      <h2>소개</h2>
-      <p>Edge LOA(엣로아)는 최신 게임 콘텐츠, 커뮤니티 활동, 그리고 창작을 중심으로 운영되는 사이트입니다.</p>
-    </section>
-
-    <section id="features" class="section alt">
-      <h2>특징</h2>
-      <ul>
-        <li>모던한 다크 테마 디자인</li>
-        <li>반응형 구조로 모든 디바이스에 최적화</li>
-        <li>간결하고 빠른 정적 웹</li>
-      </ul>
-    </section>
-
-    <section id="contact" class="section">
-      <h2>연락</h2>
-      <p>문의: edge.loa@example.com</p>
-    </section>
+  <!-- 📦 캐릭터 카드 결과 -->
+  <main id="results" class="results">
+    <p style="text-align:center;">검색어를 입력해 캐릭터를 찾아보세요!</p>
   </main>
 
   <footer>
-    <p>&copy; 2025 Edge LOA. All rights reserved.</p>
+    <p>&copy; 2025 Edge LOA</p>
   </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
