@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # main 브랜치에 push 될 때 실행
 
 permissions:
   contents: read
@@ -14,14 +14,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v3
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2  # ✅ 최신 버전
+      - name: Upload static files
+        uses: actions/upload-pages-artifact@v2  # ✅ 최신 버전 사용 중
+        with:
+          path: ./public  # 또는 배포할 정적 파일 경로 (ex: build, dist 등)
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
