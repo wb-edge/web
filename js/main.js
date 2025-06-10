@@ -1,125 +1,148 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const query = params.get("q");
+  if (query) {
+    fetchCharacters(query);
+  }
+});
+
 function handleSearch(event) {
-  if (event.key === 'Enter') {
-    const keyword = document.getElementById('searchInput').value.trim();
+  if (event.key === "Enter") {
+    const keyword = event.target.value.trim();
     if (keyword) {
-      window.location.href = `/web/?character=${encodeURIComponent(keyword)}`;
+      window.location.href = `/web/group.html?q=${encodeURIComponent(keyword)}`;
     }
   }
 }
 
-function getCharacterQuery() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("character");
-}
+// 클래스명 → 아이콘 URL 매핑
+const classIconMap = {
+  '워로드': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/warlord_m.png',
+  '디스트로이어': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/destroyer_m.png',
+  '버서커': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/berserker_m.png',
+  '홀리나이트': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/holyknight_m.png',
+  '슬레이어': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/berserker_female.png',
+  '인파이터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/infighter_m.png',
+  '배틀마스터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/battle_master_m.png',
+  '기공사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/force_master_m.png',
+  '창술사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/lance_master_m.png',
+  '스트라이커': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/battle_master_male_m.png',
+  '브레이커': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/battle_master_male_m.png',
+  '데빌헌터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/devil_hunter_m.png',
+  '블래스터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/blaster_m.png',
+  '호크아이': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/hawk_eye_m.png',
+  '스카우터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/scouter_m.png',
+  '건슬링어': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/devil_hunter_female_m.png',
+  '아르카나': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/arcana_m.png',
+  '서머너': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/summoner_m.png',
+  '바드': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/bard_m.png',
+  '소서리스': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/elemental_master_m.png',
+  '데모닉': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/demonic_m.png',
+  '블레이드': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/blade_m.png',
+  '리퍼': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/reaper_m.png',
+  '소울이터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/soul_eater.png',
+  '도화가': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/yinyangshi_m.png',
+  '기상술사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/weather_artist_m.png',
+  '환수사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/alchemist.png',
+};
 
-function getApiKey() {
-  return localStorage.getItem("LOA_API_KEY");
-}
-
-function fetchCharacterData(name) {
+function fetchCharacters(keyword) {
   const apiKey = getApiKey();
   if (!apiKey) {
-    alert("API KEY가 설정되지 않았습니다.");
+    alert("API Key가 설정되지 않았습니다.");
     return;
   }
 
-  fetch(`https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(name)}/siblings`, {
+  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(keyword)}/siblings`, {
     headers: {
-      "Authorization": `Bearer ${apiKey}`,
+      Authorization: `bearer ${apiKey}`,
     },
   })
-    .then((res) => {
-      if (!res.ok) throw new Error("검색 실패");
-      return res.json();
+    .then(res => res.json())
+    .then(data => {
+      renderGroupedCharacters(data);
     })
-    .then((data) => {
-      displayResults(data);
-    })
-    .catch((err) => {
-      console.error(err);
-      alert("캐릭터 정보를 가져오지 못했습니다.");
+    .catch(err => {
+      console.error("데이터 불러오기 오류:", err);
+      alert("검색 결과를 불러올 수 없습니다.");
     });
 }
 
-function displayResults(characters) {
-  const container = document.getElementById("results");
+function renderGroupedCharacters(characters) {
+  const container = document.querySelector("main.results");
   container.innerHTML = "";
 
-  // 템레벨 숫자로 정렬
-  characters.sort((a, b) => {
-    const levelA = parseFloat(a.ItemAvgLevel.replace(/,/g, ""));
-    const levelB = parseFloat(b.ItemAvgLevel.replace(/,/g, ""));
-    return levelB - levelA;
+  // 서버별로 그룹화
+  const grouped = {};
+  characters.forEach(c => {
+    const server = c.ServerName;
+    if (!grouped[server]) grouped[server] = [];
+    grouped[server].push(c);
   });
 
-  // 서버명으로 그룹화
-  const serverGroups = {};
-  characters.forEach((char) => {
-    if (!serverGroups[char.ServerName]) {
-      serverGroups[char.ServerName] = [];
-    }
-    serverGroups[char.ServerName].push(char);
-  });
-
-  // 그룹별 카드 섹션 생성
-  for (const [serverName, group] of Object.entries(serverGroups)) {
+  for (const server in grouped) {
     const section = document.createElement("section");
-    section.className = "server-section";
+    section.className = "server-group";
 
-    const header = document.createElement("h2");
-    header.textContent = serverName;
-    section.appendChild(header);
+    const title = document.createElement("h2");
+    title.textContent = `${server} 서버`;
+    section.appendChild(title);
 
-    const cardContainer = document.createElement("div");
-    cardContainer.className = "card-container";
+    const grid = document.createElement("div");
+    grid.className = "card-grid";
 
-    group.forEach((char) => {
-      const card = document.createElement("div");
-      card.className = "card";
+    // 템레벨 내림차순 정렬
+    grouped[server]
+      .sort((a, b) => parseFloat(b.ItemAvgLevel.replace(/,/g, "")) - parseFloat(a.ItemAvgLevel.replace(/,/g, "")))
+      .forEach(char => {
+        const card = document.createElement("div");
+        card.className = "card";
 
-      const iconUrl = getClassIconUrl(char.CharacterClassName); // 아이콘 URL 함수
+        const icon = classIconMap[char.CharacterClassName] || "";
+        const img = document.createElement("img");
+        img.src = icon;
+        img.alt = char.CharacterClassName;
 
-      card.innerHTML = `
-        <img src="${iconUrl}" alt="${char.CharacterClassName}" class="class-icon" />
-        <p class="char-name">${char.CharacterName}</p>
-        <p class="item-level">${char.ItemAvgLevel}</p>
-      `;
+        const name = document.createElement("h3");
+        name.textContent = char.CharacterName;
 
-      cardContainer.appendChild(card);
-    });
+        const level = document.createElement("p");
+        level.textContent = `템레벨: ${char.ItemAvgLevel}`;
 
-    section.appendChild(cardContainer);
+        card.appendChild(img);
+        card.appendChild(name);
+        card.appendChild(level);
+        grid.appendChild(card);
+      });
+
+    section.appendChild(grid);
     container.appendChild(section);
   }
 }
 
-// 직업 아이콘 URL 매핑 함수 (임의 경로로 수정 가능)
-function getClassIconUrl(className) {
-  const encoded = encodeURIComponent(className);
-  return `/web/images/classes/${encoded}.png`; // 정적 이미지 폴더 기준
+// API Key 저장 및 불러오기
+function getApiKey() {
+  return localStorage.getItem("LOA_API_KEY");
+}
+
+function setApiKey(key) {
+  localStorage.setItem("LOA_API_KEY", key);
+  alert("API Key가 저장되었습니다.");
 }
 
 // 모달 관련
-function openModal() {
-  document.getElementById("apikeyModal").style.display = "flex";
-}
-function closeModal() {
-  document.getElementById("apikeyModal").style.display = "none";
-}
-function saveApiKey() {
+document.getElementById("openApiKeyModal")?.addEventListener("click", () => {
+  document.getElementById("apiKeyModal").style.display = "block";
+});
+
+document.getElementById("saveApiKey")?.addEventListener("click", () => {
   const key = document.getElementById("apiKeyInput").value.trim();
   if (key) {
-    localStorage.setItem("LOA_API_KEY", key);
-    closeModal();
-    alert("API KEY가 저장되었습니다.");
+    setApiKey(key);
+    document.getElementById("apiKeyModal").style.display = "none";
   }
-}
+});
 
-// 초기 로딩 시 검색
-document.addEventListener("DOMContentLoaded", () => {
-  const name = getCharacterQuery();
-  if (name) {
-    document.getElementById("searchInput").value = name;
-    fetchCharacterData(name);
-  }
+document.getElementById("closeModal")?.addEventListener("click", () => {
+  document.getElementById("apiKeyModal").style.display = "none";
 });
