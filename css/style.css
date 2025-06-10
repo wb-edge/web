@@ -84,14 +84,14 @@ body {
   color: #bbb;
 }
 
-/* 카드 컨테이너 */
+/* 카드 컨테이너: 가로로 여러 줄 */
 .card-container {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
-/* 카드: 가로형 구조 */
+/* 카드: 가로 구조 */
 .card {
   background-color: #1f1f1f;
   border-radius: 6px;
@@ -101,6 +101,8 @@ body {
   gap: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.4);
   transition: background 0.2s;
+  width: calc(33.333% - 12px); /* 3개 한 줄 (데스크탑) */
+  min-width: 260px;
 }
 
 .card:hover {
@@ -194,22 +196,19 @@ body {
 }
 
 /* 반응형 */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .card {
+    width: calc(50% - 12px); /* 2개 한 줄 */
+  }
+}
+
+@media (max-width: 600px) {
+  .card {
+    width: 100%; /* 1개 한 줄 */
+  }
+
   .nav-container {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .card-container {
-    gap: 10px;
-  }
-
-  .card {
-    padding: 8px 10px;
-  }
-
-  .card img {
-    width: 36px;
-    height: 36px;
   }
 }
