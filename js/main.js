@@ -1,4 +1,4 @@
-const classIconMap = {
+const jobIconMap = {
   '워로드': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/warlord_m.png',
   '디스트로이어': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/destroyer_m.png',
   '버서커': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/berserker_m.png',
@@ -22,14 +22,14 @@ const classIconMap = {
   '데모닉': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/demonic_m.png',
   '블레이드': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/blade_m.png',
   '리퍼': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/reaper_m.png',
-  '소울이터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/soul_eater_m.png',
+  '소울이터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/soul_eater.png',
   '도화가': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/yinyangshi_m.png',
   '기상술사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/weather_artist_m.png',
   '환수사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/alchemist.png',
 };
 
 function handleSearch(event) {
-  if (event.key === "Enter") {
+  if (event.key === 'Enter') {
     const keyword = event.target.value.trim();
     if (keyword) {
       window.location.href = `/web/?q=${encodeURIComponent(keyword)}`;
@@ -37,98 +37,111 @@ function handleSearch(event) {
   }
 }
 
+function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
 function fetchCharacters(keyword) {
-  const apiKey = getCookie("LOA_API_KEY");
-  if (!apiKey) {
-    alert("API Key가 필요합니다.");
-    return;
-  }
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) return;
 
   fetch(`https://developer-lostark.game.onstove.com/characters/${keyword}/siblings`, {
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: {
+      'Authorization': `bearer ${apiKey}`,
+    },
   })
     .then(res => res.json())
     .then(data => {
-      if (!Array.isArray(data)) {
-        alert("검색 실패 또는 API 응답 없음");
-        return;
-      }
-
-      data.sort((a, b) => parseFloat(b.ItemMaxLevel.replace(/,/g, "")) - parseFloat(a.ItemMaxLevel.replace(/,/g, "")));
+      if (!Array.isArray(data)) return;
 
       const grouped = {};
       data.forEach(char => {
         const server = char.ServerName;
+        const level = parseFloat(char.ItemMaxLevel.replace(/,/g, ''));
         if (!grouped[server]) grouped[server] = [];
-        grouped[server].push(char);
+        grouped[server].push({
+          name: char.CharacterName,
+          job: char.CharacterClassName,
+          level,
+        });
       });
 
-      const results = document.querySelector(".results");
-      results.innerHTML = "";
+      const results = document.querySelector('.results');
+      results.innerHTML = '';
 
-      Object.entries(grouped).forEach(([server, chars]) => {
-        const groupDiv = document.createElement("div");
-        groupDiv.className = "group";
+      for (const server in grouped) {
+        const group = grouped[server].sort((a, b) => b.level - a.level);
+        const section = document.createElement('section');
+        section.classList.add('server-group');
 
-        const title = document.createElement("h2");
-        title.textContent = `${server} 서버`;
-        groupDiv.appendChild(title);
+        const title = document.createElement('h2');
+        title.textContent = server;
+        section.appendChild(title);
 
-        const cardWrap = document.createElement("div");
-        cardWrap.className = "card-container";
+        const container = document.createElement('div');
+        container.classList.add('card-container');
 
-        chars.forEach(char => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <img src="${classIconMap[char.CharacterClassName] || ""}" alt="${char.CharacterClassName}" />
-            <div><strong>${char.CharacterName}</strong></div>
-            <div>${char.ItemMaxLevel}</div>
-          `;
-          cardWrap.appendChild(card);
+        group.forEach(({ name, job, level }) => {
+          const card = document.createElement('div');
+          card.classList.add('card');
+
+          const img = document.createElement('img');
+          img.src = jobIconMap[job] || '';
+
+          const info = document.createElement('div');
+          info.classList.add('info');
+
+          const charName = document.createElement('div');
+          charName.classList.add('name');
+          charName.textContent = name;
+
+          const itemLevel = document.createElement('div');
+          itemLevel.classList.add('itemLevel');
+          itemLevel.textContent = `${level.toLocaleString()} 레벨`;
+
+          info.appendChild(charName);
+          info.appendChild(itemLevel);
+
+          card.appendChild(img);
+          card.appendChild(info);
+          container.appendChild(card);
         });
 
-        groupDiv.appendChild(cardWrap);
-        results.appendChild(groupDiv);
-      });
+        section.appendChild(container);
+        results.appendChild(section);
+      }
     });
 }
 
-function setCookie(name, value, days = 30) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/";
+function setCookie(name, value, days) {
+  const date = new Date();
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
 }
 
 function getCookie(name) {
-  return document.cookie.split("; ").find(row => row.startsWith(name + "="))?.split("=")[1];
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-// Modal 처리
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("apiKeyModal");
-  const openBtn = document.getElementById("apiKeyBtn");
-  const closeBtn = document.querySelector(".close");
-  const saveBtn = document.getElementById("saveApiKey");
+function showModal() {
+  document.getElementById('apiKeyModal').style.display = 'block';
+}
 
-  openBtn.onclick = () => (modal.style.display = "block");
-  closeBtn.onclick = () => (modal.style.display = "none");
-  saveBtn.onclick = () => {
-    const key = document.getElementById("apiKeyInput").value.trim();
-    if (key) {
-      setCookie("LOA_API_KEY", key);
-      modal.style.display = "none";
-      alert("API Key 저장됨");
-    }
-  };
+function closeModal() {
+  document.getElementById('apiKeyModal').style.display = 'none';
+}
 
-  window.onclick = e => {
-    if (e.target == modal) modal.style.display = "none";
-  };
-
-  const params = new URLSearchParams(location.search);
-  const q = params.get("q");
-  if (q) {
-    document.getElementById("searchInput").value = q;
-    fetchCharacters(q);
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (key) {
+    setCookie('LOA_API_KEY', key, 30);
+    closeModal();
   }
-});
+}
+
+// 초기 실행
+const keyword = getQueryParam('q');
+if (keyword) fetchCharacters(keyword);

@@ -1,22 +1,23 @@
-/* 기본 설정 */
+/* 기본 스타일 */
 body {
   margin: 0;
-  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   background-color: #f9f9f9;
-  color: #333;
 }
 
-/* 네비게이션 바 */
+/* 상단 바 */
 .navbar {
-  background-color: #1e1e2f;
+  background-color: #111;
+  padding: 1rem;
   color: white;
-  padding: 12px 20px;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 999;
 }
 
 .nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -26,174 +27,130 @@ body {
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  margin-right: 20px;
-}
-
-#searchInput {
-  flex-grow: 1;
-  max-width: 400px;
-  margin: 0 20px;
-  padding: 8px 12px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
 }
 
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  align-items: center;
+  gap: 1rem;
 }
 
 .nav-links li a,
 .nav-links li button {
   color: white;
+  text-decoration: none;
   background: none;
   border: none;
-  text-decoration: none;
   cursor: pointer;
   font-size: 1rem;
-  padding: 6px 10px;
-  border-radius: 4px;
 }
 
-.nav-links li button:hover,
-.nav-links li a:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+#searchInput {
+  flex: 1;
+  margin: 0 1rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  min-width: 200px;
 }
 
-/* 검색 결과 영역 */
+/* 카드 섹션 */
 .results {
-  padding: 20px;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* 서버별 그룹 타이틀 */
-.group {
-  margin-bottom: 30px;
+.server-group {
+  margin-bottom: 2rem;
 }
 
-.group h2 {
+.server-group h2 {
   font-size: 1.2rem;
-  margin-bottom: 10px;
-  border-left: 4px solid #1e1e2f;
-  padding-left: 10px;
+  margin-bottom: 1rem;
 }
 
-/* 카드 레이아웃 */
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .card {
-  background-color: #fff;
+  background: white;
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  padding: 12px;
-  width: 160px;
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-3px);
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 250px;
 }
 
 .card img {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-  margin-bottom: 8px;
+  width: 40px;
+  height: 40px;
 }
 
-.card div {
-  margin: 4px 0;
+.card .info {
+  display: flex;
+  flex-direction: column;
 }
 
-/* API Key 모달 */
+.card .name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.card .itemLevel {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 모달 */
 .modal {
   display: none;
   position: fixed;
-  z-index: 100;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
 }
 
 .modal-content {
   background-color: #fff;
-  margin: 15% auto;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 400px;
-  width: 90%;
+  margin: 10% auto;
+  padding: 2rem;
+  border: 1px solid #888;
+  width: 300px;
+  border-radius: 8px;
   position: relative;
-}
-
-.modal-content h2 {
-  margin-top: 0;
-}
-
-.modal-content input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.modal-content button {
-  padding: 10px 20px;
-  background-color: #1e1e2f;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.modal-content button:hover {
-  background-color: #33334d;
 }
 
 .close {
   position: absolute;
-  right: 12px;
   top: 10px;
-  font-size: 1.2rem;
+  right: 15px;
+  font-size: 24px;
   font-weight: bold;
   cursor: pointer;
-  color: #888;
 }
 
-.close:hover {
-  color: #000;
-}
-
-/* 반응형 처리 */
-@media (max-width: 600px) {
-  .card-container {
-    justify-content: center;
-  }
-
+/* 반응형 */
+@media (max-width: 768px) {
   .nav-container {
     flex-direction: column;
     align-items: stretch;
   }
-
-  #searchInput {
-    margin: 10px 0;
-    width: 100%;
-  }
-
   .nav-links {
-    justify-content: flex-end;
-    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  .card-container {
+    justify-content: center;
   }
 }

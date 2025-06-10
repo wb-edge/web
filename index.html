@@ -18,7 +18,7 @@
       />
       <ul class="nav-links">
         <li><a href="/web">홈</a></li>
-        <li><button id="apiKeyBtn">API Key</button></li>
+        <li><button onclick="openModal()">API Key</button></li>
       </ul>
     </div>
   </nav>
@@ -27,13 +27,13 @@
     <!-- 검색된 카드들이 이 영역에 표시됩니다 -->
   </main>
 
-  <!-- API Key 입력 Modal -->
+  <!-- API Key 입력 모달 -->
   <div id="apiKeyModal" class="modal">
     <div class="modal-content">
-      <span class="close">&times;</span>
+      <span class="close" onclick="closeModal()">&times;</span>
       <h2>API Key 입력</h2>
-      <input type="text" id="apiKeyInput" placeholder="Lost Ark Open API Key 입력" />
-      <button id="saveApiKey">저장</button>
+      <input type="text" id="apiKeyInput" placeholder="LOA API KEY를 입력하세요" />
+      <button onclick="saveApiKey()">저장</button>
     </div>
   </div>
 
