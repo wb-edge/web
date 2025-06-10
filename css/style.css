@@ -1,24 +1,19 @@
-/* 기본 스타일 */
+/* 기본 설정 */
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #121212;
-  color: #fff;
+  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* 상단 네비게이션 바 */
+/* 네비게이션 바 */
 .navbar {
-  background-color: #1f1f1f;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  background-color: #1e1e2f;
+  color: white;
+  padding: 12px 20px;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 10;
 }
 
 .nav-container {
@@ -31,182 +26,174 @@ a {
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  margin-right: 1rem;
-  color: #00bcd4;
+  margin-right: 20px;
 }
 
 #searchInput {
   flex-grow: 1;
   max-width: 400px;
-  margin: 0 1rem;
-  padding: 0.5rem 1rem;
+  margin: 0 20px;
+  padding: 8px 12px;
   font-size: 1rem;
-  border-radius: 8px;
   border: none;
-  outline: none;
+  border-radius: 6px;
 }
 
 .nav-links {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   list-style: none;
-}
-
-.nav-links li {
+  display: flex;
+  gap: 12px;
   margin: 0;
+  padding: 0;
+  align-items: center;
 }
 
-.nav-links button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  border-radius: 6px;
+.nav-links li a,
+.nav-links li button {
+  color: white;
+  background: none;
   border: none;
-  background-color: #00bcd4;
-  color: #fff;
+  text-decoration: none;
   cursor: pointer;
+  font-size: 1rem;
+  padding: 6px 10px;
+  border-radius: 4px;
 }
 
-.nav-links button:hover {
-  background-color: #0097a7;
+.nav-links li button:hover,
+.nav-links li a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* 결과 카드 영역 */
-main.results {
-  padding: 2rem;
+/* 검색 결과 영역 */
+.results {
+  padding: 20px;
 }
 
-/* 서버별 섹션 */
-.server-section {
-  margin-bottom: 2rem;
+/* 서버별 그룹 타이틀 */
+.group {
+  margin-bottom: 30px;
 }
 
-.server-section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #fff;
-  border-bottom: 2px solid #444;
-  padding-bottom: 0.5rem;
+.group h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  border-left: 4px solid #1e1e2f;
+  padding-left: 10px;
 }
 
-/* 카드 그리드 */
+/* 카드 레이아웃 */
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 12px;
 }
 
-/* 개별 카드 */
 .card {
-  background-color: #1e1e1e;
-  color: white;
-  padding: 1rem;
-  border-radius: 12px;
-  width: 150px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  width: 160px;
   text-align: center;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
   transition: transform 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
 
-/* 클래스 아이콘 */
-.class-icon {
-  width: 60px;
-  height: 60px;
+.card img {
+  width: 64px;
+  height: 64px;
   object-fit: contain;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
 }
 
-.char-name {
-  font-weight: bold;
-  font-size: 1rem;
-  margin-bottom: 0.2rem;
+.card div {
+  margin: 4px 0;
 }
 
-.item-level {
-  font-size: 0.9rem;
-  color: #aaa;
-}
-
-/* 모달 스타일 */
+/* API Key 모달 */
 .modal {
   display: none;
   position: fixed;
-  z-index: 9999;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  justify-content: center;
-  align-items: center;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
-  background-color: #222;
-  padding: 2rem;
-  border-radius: 8px;
-  text-align: center;
-  width: 90%;
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 10px;
   max-width: 400px;
+  width: 90%;
+  position: relative;
 }
 
 .modal-content h2 {
-  margin-bottom: 1rem;
-  color: #00bcd4;
+  margin-top: 0;
 }
 
 .modal-content input {
   width: 100%;
-  padding: 0.6rem;
-  margin-bottom: 1rem;
-  font-size: 1rem;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  border: none;
 }
 
 .modal-content button {
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
-  margin: 0 0.5rem;
+  padding: 10px 20px;
+  background-color: #1e1e2f;
+  color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
 }
 
-.modal-content button:first-child {
-  background-color: #00bcd4;
-  color: #fff;
+.modal-content button:hover {
+  background-color: #33334d;
 }
 
-.modal-content button:last-child {
-  background-color: #555;
-  color: #fff;
+.close {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: #888;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
+.close:hover {
+  color: #000;
+}
+
+/* 반응형 처리 */
+@media (max-width: 600px) {
+  .card-container {
+    justify-content: center;
+  }
+
   .nav-container {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .nav-links {
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-
   #searchInput {
-    margin: 0.5rem 0;
+    margin: 10px 0;
     width: 100%;
   }
 
-  .card {
+  .nav-links {
+    justify-content: flex-end;
     width: 100%;
-  }
-
-  .card-container {
-    flex-direction: column;
   }
 }
