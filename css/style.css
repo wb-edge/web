@@ -77,10 +77,11 @@ body {
   color: #00bfff;
 }
 .card-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 12px;
 }
+
 .card {
   background-color: #1e1e1e;
   border: 1px solid #333;
@@ -89,8 +90,6 @@ body {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  width: calc(50% - 6px); /* 반 줄이기 */
-  min-width: 260px;
   transition: transform 0.2s;
 }
 .card:hover {
