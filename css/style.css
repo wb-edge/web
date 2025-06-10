@@ -1,3 +1,127 @@
+body {
+  font-family: 'Apple SD Gothic Neo', sans-serif;
+  margin: 0;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.navbar {
+  background-color: #1f1f1f;
+  padding: 10px 20px;
+  color: white;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+#searchInput {
+  flex-grow: 1;
+  max-width: 400px;
+  margin: 0 20px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a,
+.nav-links button {
+  color: white;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links button:hover {
+  background: #333;
+}
+
+/* 검색 결과 섹션 */
+.results {
+  padding: 20px;
+}
+
+.server-group {
+  margin-bottom: 40px;
+}
+
+.server-group h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.info {
+  text-align: center;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.itemLevel {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* 모달 스타일 */
 .modal {
   display: none;
   position: fixed;
@@ -10,36 +134,47 @@
 
 .modal-content {
   background-color: #fff;
-  margin: 15% auto;
+  margin: 10% auto;
   padding: 20px;
   border-radius: 8px;
-  width: 300px;
+  width: 320px;
   position: relative;
   text-align: center;
 }
 
 .modal-content h2 {
   margin-bottom: 15px;
+  font-size: 1.1rem;
 }
 
 .modal-content input {
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
 }
 
 .modal-content button {
   padding: 10px 20px;
-  background: #4caf50;
+  background: #007bff;
   color: white;
   border: none;
   cursor: pointer;
   border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.modal-content button:hover {
+  background: #0056b3;
 }
 
 .modal-content .close {
   position: absolute;
-  right: 10px; top: 10px;
-  font-size: 20px;
+  right: 12px;
+  top: 12px;
+  font-size: 1.2rem;
   cursor: pointer;
+  color: #666;
 }
