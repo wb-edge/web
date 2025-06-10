@@ -8,20 +8,19 @@
 </head>
 <body>
   <nav class="navbar">
-    <div class="nav-container">
-      <div class="logo">Edge LOA</div>
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="캐릭터명을 입력하세요..."
-        onkeydown="handleSearch(event)"
-      />
-      <ul class="nav-links">
-        <li><a href="/web">홈</a></li>
-        <li><button id="apiKeyBtn" onclick="showModal()">API KEY 입력</button></li>
-      </ul>
-    </div>
-  </nav>
+  <div class="nav-container">
+    <a href="/web" class="logo">Edge LOA</a>
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="캐릭터명을 입력하세요..."
+      onkeydown="handleSearch(event)"
+    />
+    <ul class="nav-links">
+      <li><button id="apiKeyBtn" onclick="showModal()">API KEY 입력</button></li>
+    </ul>
+  </div>
+</nav>
 
   <main class="results">
     <!-- 캐릭터 카드들이 여기에 표시됩니다 -->
