@@ -27,7 +27,7 @@ function fetchCharacterData(name) {
     headers:{
       'Content-Type': 'application/json',
       'accept': 'application/json',
-      'authorization': 'bearer ${apiKey}'
+      'authorization': `Bearer ${apiKey}`
     },
   })
     .then((res) => {
