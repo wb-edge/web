@@ -24,8 +24,10 @@ function fetchCharacterData(name) {
   }
 
   fetch(`https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(name)}/siblings`, {
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
+    headers:{
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+      'authorization': 'bearer ${apiKey}'
     },
   })
     .then((res) => {
