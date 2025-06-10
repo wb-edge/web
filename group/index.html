@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="/web/css/style.css" />
 </head>
 <body>
-  <!-- 상단바 -->
   <nav class="navbar">
     <div class="nav-container">
       <div class="logo">Edge LOA</div>
@@ -19,22 +18,21 @@
       />
       <ul class="nav-links">
         <li><a href="/web">홈</a></li>
-        <li><button class="apikey-button" onclick="openModal()">API Key</button></li>
+        <li><button class="apikey-button" onclick="openModal()">API KEY</button></li>
       </ul>
     </div>
   </nav>
 
-  <!-- 검색 결과 카드 영역 -->
   <main class="results" id="results">
-    <!-- 카드들이 여기에 표시됩니다 -->
+    <!-- 캐릭터 카드 출력 영역 -->
   </main>
 
-  <!-- 모달 -->
-  <div class="modal" id="apiModal">
+  <!-- API Key 입력용 모달 -->
+  <div class="modal" id="apikeyModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
-      <h2>LOA API Key 입력</h2>
-      <input type="password" id="apiKeyInput" placeholder="LOA API Key 입력" />
+      <h2>API KEY 입력</h2>
+      <input type="text" id="apiKeyInput" placeholder="API KEY를 입력하세요" />
       <button onclick="saveApiKey()">저장</button>
     </div>
   </div>
