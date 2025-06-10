@@ -47,6 +47,9 @@ function displayResults(characters) {
   const container = document.getElementById("results");
   container.innerHTML = "";
 
+  // ✅ 템레벨 내림차순 정렬
+  characters.sort((a, b) => parseFloat(b.ItemAvgLevel) - parseFloat(a.ItemAvgLevel));
+
   characters.forEach((char) => {
     const card = document.createElement("div");
     card.className = "card";
