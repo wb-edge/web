@@ -47,8 +47,12 @@ function displayResults(characters) {
   const container = document.getElementById("results");
   container.innerHTML = "";
 
-  // ✅ 템레벨 내림차순 정렬
-  characters.sort((a, b) => parseFloat(b.ItemAvgLevel) - parseFloat(a.ItemAvgLevel));
+  // 템레벨을 숫자로 변환하여 내림차순 정렬 (쉼표 제거)
+  characters.sort((a, b) => {
+    const levelA = parseFloat(a.ItemAvgLevel.replace(/,/g, ""));
+    const levelB = parseFloat(b.ItemAvgLevel.replace(/,/g, ""));
+    return levelB - levelA;
+  });
 
   characters.forEach((char) => {
     const card = document.createElement("div");
