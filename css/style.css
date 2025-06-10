@@ -1,156 +1,45 @@
-/* 기본 스타일 */
-body {
-  margin: 0;
-  font-family: 'Pretendard', sans-serif;
-  background-color: #f9f9f9;
-}
-
-/* 상단 바 */
-.navbar {
-  background-color: #111;
-  padding: 1rem;
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 999;
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-links li a,
-.nav-links li button {
-  color: white;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-#searchInput {
-  flex: 1;
-  margin: 0 1rem;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  min-width: 200px;
-}
-
-/* 카드 섹션 */
-.results {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.server-group {
-  margin-bottom: 2rem;
-}
-
-.server-group h2 {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-}
-
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 250px;
-}
-
-.card img {
-  width: 40px;
-  height: 40px;
-}
-
-.card .info {
-  display: flex;
-  flex-direction: column;
-}
-
-.card .name {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.card .itemLevel {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-/* 모달 */
 .modal {
   display: none;
   position: fixed;
   z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
   background-color: #fff;
-  margin: 10% auto;
-  padding: 2rem;
-  border: 1px solid #888;
-  width: 300px;
+  margin: 15% auto;
+  padding: 20px;
   border-radius: 8px;
+  width: 300px;
   position: relative;
+  text-align: center;
 }
 
-.close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 24px;
-  font-weight: bold;
+.modal-content h2 {
+  margin-bottom: 15px;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
   cursor: pointer;
+  border-radius: 4px;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .nav-links {
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-  .card-container {
-    justify-content: center;
-  }
+.modal-content .close {
+  position: absolute;
+  right: 10px; top: 10px;
+  font-size: 20px;
+  cursor: pointer;
 }
