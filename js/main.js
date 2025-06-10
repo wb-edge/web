@@ -1,21 +1,3 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
-  const query = params.get("q");
-  if (query) {
-    fetchCharacters(query);
-  }
-});
-
-function handleSearch(event) {
-  if (event.key === "Enter") {
-    const keyword = event.target.value.trim();
-    if (keyword) {
-      window.location.href = `/web/group.html?q=${encodeURIComponent(keyword)}`;
-    }
-  }
-}
-
-// 클래스명 → 아이콘 URL 매핑
 const classIconMap = {
   '워로드': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/warlord_m.png',
   '디스트로이어': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/destroyer_m.png',
@@ -46,103 +28,107 @@ const classIconMap = {
   '환수사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/alchemist.png',
 };
 
+function handleSearch(event) {
+  if (event.key === "Enter") {
+    const keyword = event.target.value.trim();
+    if (keyword) {
+      window.location.href = `/web/?q=${encodeURIComponent(keyword)}`;
+    }
+  }
+}
+
 function fetchCharacters(keyword) {
-  const apiKey = getApiKey();
+  const apiKey = getCookie("LOA_API_KEY");
   if (!apiKey) {
-    alert("API Key가 설정되지 않았습니다.");
+    alert("API Key가 필요합니다.");
     return;
   }
 
-  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(keyword)}/siblings`, {
-    headers: {
-      Authorization: `bearer ${apiKey}`,
-    },
+  fetch(`https://developer-lostark.game.onstove.com/characters/${keyword}/siblings`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
   })
     .then(res => res.json())
     .then(data => {
-      renderGroupedCharacters(data);
-    })
-    .catch(err => {
-      console.error("데이터 불러오기 오류:", err);
-      alert("검색 결과를 불러올 수 없습니다.");
+      if (!Array.isArray(data)) {
+        alert("검색 실패 또는 API 응답 없음");
+        return;
+      }
+
+      data.sort((a, b) => parseFloat(b.ItemMaxLevel.replace(/,/g, "")) - parseFloat(a.ItemMaxLevel.replace(/,/g, "")));
+
+      const grouped = {};
+      data.forEach(char => {
+        const server = char.ServerName;
+        if (!grouped[server]) grouped[server] = [];
+        grouped[server].push(char);
+      });
+
+      const results = document.querySelector(".results");
+      results.innerHTML = "";
+
+      Object.entries(grouped).forEach(([server, chars]) => {
+        const groupDiv = document.createElement("div");
+        groupDiv.className = "group";
+
+        const title = document.createElement("h2");
+        title.textContent = `${server} 서버`;
+        groupDiv.appendChild(title);
+
+        const cardWrap = document.createElement("div");
+        cardWrap.className = "card-container";
+
+        chars.forEach(char => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${classIconMap[char.CharacterClassName] || ""}" alt="${char.CharacterClassName}" />
+            <div><strong>${char.CharacterName}</strong></div>
+            <div>${char.ItemMaxLevel}</div>
+          `;
+          cardWrap.appendChild(card);
+        });
+
+        groupDiv.appendChild(cardWrap);
+        results.appendChild(groupDiv);
+      });
     });
 }
 
-function renderGroupedCharacters(characters) {
-  const container = document.querySelector("main.results");
-  container.innerHTML = "";
+function setCookie(name, value, days = 30) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/";
+}
 
-  // 서버별로 그룹화
-  const grouped = {};
-  characters.forEach(c => {
-    const server = c.ServerName;
-    if (!grouped[server]) grouped[server] = [];
-    grouped[server].push(c);
-  });
+function getCookie(name) {
+  return document.cookie.split("; ").find(row => row.startsWith(name + "="))?.split("=")[1];
+}
 
-  for (const server in grouped) {
-    const section = document.createElement("section");
-    section.className = "server-group";
+// Modal 처리
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("apiKeyModal");
+  const openBtn = document.getElementById("apiKeyBtn");
+  const closeBtn = document.querySelector(".close");
+  const saveBtn = document.getElementById("saveApiKey");
 
-    const title = document.createElement("h2");
-    title.textContent = `${server} 서버`;
-    section.appendChild(title);
+  openBtn.onclick = () => (modal.style.display = "block");
+  closeBtn.onclick = () => (modal.style.display = "none");
+  saveBtn.onclick = () => {
+    const key = document.getElementById("apiKeyInput").value.trim();
+    if (key) {
+      setCookie("LOA_API_KEY", key);
+      modal.style.display = "none";
+      alert("API Key 저장됨");
+    }
+  };
 
-    const grid = document.createElement("div");
-    grid.className = "card-grid";
+  window.onclick = e => {
+    if (e.target == modal) modal.style.display = "none";
+  };
 
-    // 템레벨 내림차순 정렬
-    grouped[server]
-      .sort((a, b) => parseFloat(b.ItemAvgLevel.replace(/,/g, "")) - parseFloat(a.ItemAvgLevel.replace(/,/g, "")))
-      .forEach(char => {
-        const card = document.createElement("div");
-        card.className = "card";
-
-        const icon = classIconMap[char.CharacterClassName] || "";
-        const img = document.createElement("img");
-        img.src = icon;
-        img.alt = char.CharacterClassName;
-
-        const name = document.createElement("h3");
-        name.textContent = char.CharacterName;
-
-        const level = document.createElement("p");
-        level.textContent = `템레벨: ${char.ItemAvgLevel}`;
-
-        card.appendChild(img);
-        card.appendChild(name);
-        card.appendChild(level);
-        grid.appendChild(card);
-      });
-
-    section.appendChild(grid);
-    container.appendChild(section);
+  const params = new URLSearchParams(location.search);
+  const q = params.get("q");
+  if (q) {
+    document.getElementById("searchInput").value = q;
+    fetchCharacters(q);
   }
-}
-
-// API Key 저장 및 불러오기
-function getApiKey() {
-  return localStorage.getItem("LOA_API_KEY");
-}
-
-function setApiKey(key) {
-  localStorage.setItem("LOA_API_KEY", key);
-  alert("API Key가 저장되었습니다.");
-}
-
-// 모달 관련
-document.getElementById("openApiKeyModal")?.addEventListener("click", () => {
-  document.getElementById("apiKeyModal").style.display = "block";
-});
-
-document.getElementById("saveApiKey")?.addEventListener("click", () => {
-  const key = document.getElementById("apiKeyInput").value.trim();
-  if (key) {
-    setApiKey(key);
-    document.getElementById("apiKeyModal").style.display = "none";
-  }
-});
-
-document.getElementById("closeModal")?.addEventListener("click", () => {
-  document.getElementById("apiKeyModal").style.display = "none";
 });
