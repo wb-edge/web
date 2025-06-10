@@ -70,8 +70,11 @@ function fetchCharacters(keyword) {
       const results = document.querySelector('.results');
       results.innerHTML = '';
 
-      for (const server in grouped) {
-        const group = grouped[server].sort((a, b) => b.level - a.level);
+      const sortedServers = Object.entries(grouped)
+        .sort((a, b) => b[1].length - a[1].length);
+
+      for (const [server, group] of sortedServers) {
+        const sortedGroup = group.sort((a, b) => b.level - a.level);
         const section = document.createElement('section');
         section.classList.add('server-group');
 
@@ -82,7 +85,7 @@ function fetchCharacters(keyword) {
         const container = document.createElement('div');
         container.classList.add('card-container');
 
-        group.forEach(({ name, job, level }) => {
+        sortedGroup.forEach(({ name, job, level }) => {
           const card = document.createElement('div');
           card.classList.add('card');
 
