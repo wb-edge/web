@@ -10,20 +10,20 @@
   <nav class="navbar">
     <div class="nav-container">
       <div class="logo">Edge LOA</div>
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="캐릭터명을 입력하세요..."
-        onkeydown="handleSearch(event)"
-      />
+      <input type="text" id="searchInput" placeholder="캐릭터명을 입력하세요..." onkeydown="handleSearch(event)" />
       <ul class="nav-links">
         <li><a href="/web">홈</a></li>
       </ul>
     </div>
   </nav>
 
-  <main class="results">
-    <!-- 검색된 카드들이 이 영역에 표시됩니다 -->
+  <div class="apikey-box">
+    <input type="password" id="apiKeyInput" placeholder="LOA API Key 입력" />
+    <button onclick="saveApiKey()">API Key 저장</button>
+  </div>
+
+  <main class="results" id="results">
+    <!-- 캐릭터 카드들이 여기에 표시됩니다 -->
   </main>
 
   <script src="/web/js/main.js"></script>

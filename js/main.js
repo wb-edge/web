@@ -48,7 +48,6 @@ function renderCardsFromURL() {
   const resultsContainer = document.querySelector(".results");
 
 //API 호출
-console.log('${{secrets.LOA_API_KEY}}');
 
   const matched = allCharacters.filter(c =>
     c.name.includes(keyword)
