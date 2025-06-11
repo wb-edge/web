@@ -173,3 +173,8 @@ const jobIconMap = {
 
 const keyword = getQueryParam('q');
 if (keyword) fetchCharacters(keyword);
+
+window.showApiKeyModal = showApiKeyModal;
+window.closeApiKeyModal = closeApiKeyModal;
+window.saveApiKey = saveApiKey;
+window.closeCharacterDetailModal = closeCharacterDetailModal;
