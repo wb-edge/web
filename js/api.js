@@ -65,7 +65,7 @@ export function showCharacterDetails(characterName) {
 		  tooltip.Element_005.value.includes('상급 재련') &&
 		  tooltip.Element_005.value.includes('단계')
           ) {
-            const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
+            const match = tooltip.Element_005.value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
             const stage = match ? match[1] : '';
             reinforceLevel = `x${stage}`;
             break;
