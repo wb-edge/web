@@ -2,19 +2,19 @@
 
 /* 등급 색상 배경 (우선 적용을 위해 !important 추가) */
 .item-icon.grade-ancient {
-  background-color: #ffd700 !important;
+  background-color: #dcc999 !important;
 }
 .item-icon.grade-relic {
-  background-color: #ff5e00 !important;
+  background-color: #a24006 !important;
 }
 .item-icon.grade-legendary {
-  background-color: #ffa500 !important;
+  background-color: #9e5f04 !important;
 }
 .item-icon.grade-epic {
-  background-color: #a335ee !important;
+  background-color: #480d5d !important;
 }
 .item-icon.grade-rare {
-  background-color: #0070dd !important;
+  background-color: #a24006 !important;
 }
 
 /* 아이콘 컨테이너 */
