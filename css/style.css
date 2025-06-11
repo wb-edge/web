@@ -215,3 +215,14 @@ body {
     margin-left: auto;
   }
 }
+
+.modal-content.detail {
+  max-width: 600px;
+  width: 90%;
+}
+
+#detailContent {
+  padding: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}

@@ -109,6 +109,10 @@ function fetchCharacters(keyword) {
           card.appendChild(img);
           card.appendChild(info);
           container.appendChild(card);
+
+			card.addEventListener('click', () => {
+			  showDetailModal(name);
+			});
         });
 
         section.appendChild(container);
@@ -143,6 +147,34 @@ function saveApiKey() {
     setCookie('LOA_API_KEY', key, 30);
     closeModal();
   }
+}
+
+function showDetailModal(characterName) {
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) return;
+
+  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}`, {
+    headers: {
+      Authorization: `bearer ${apiKey}`,
+    },
+  })
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('detailContent');
+      container.innerHTML = `
+        <h3>${data.CharacterName} (${data.CharacterClassName})</h3>
+        <p>아이템 레벨: ${data.ItemMaxLevel}</p>
+        <p>길드: ${data.GuildName || '-'}</p>
+        <p>서버: ${data.ServerName}</p>
+        <p>PvP 등급: ${data.PvpGradeName || '-'}</p>
+        <p>영지 Lv: ${data.TownLevel} (${data.TownName || '-'})</p>
+      `;
+      document.getElementById('detailModal').style.display = 'block';
+    });
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').style.display = 'none';
 }
 
 // 초기 실행
