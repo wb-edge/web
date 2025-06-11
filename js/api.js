@@ -94,6 +94,7 @@ export function showCharacterDetails(characterName) {
             value.Element_000.topStr.includes('초월') &&
             value.Element_000.topStr.includes('단계')
           ) {
+	console.log(value);
             const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
             const match = clean.match(/초월 (\d+)단계.*?(\d+)/);
             if (match) {
