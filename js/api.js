@@ -61,17 +61,18 @@ export function showCharacterDetails(characterName) {
             <div class="equipment-column">
               ${gearOrder.map(slot => {
                 const item = gearItems.find(i => i.Type === slot);
+                const transcend = item?.Tooltip?.Transcendence || '';
+                const reinforce = item?.Tooltip?.Reinforce || item?.Tier || '';
+                const advanced = item?.Tooltip?.Advanced || item?.Advanced || '';
                 return item ? `
                   <div class="equipment-item">
                     <div class="item-icon-text" style="display:flex;align-items:center;gap:10px;">
                       <div class="item-icon ${getGradeClass(item.Grade)}">
                         <img src="${item.Icon}" alt="${item.Name}" style="width:32px;height:32px;" />
                       </div>
-                      <div class="item-sub">
-                        ${item.Tier ? `+${item.Tier}` : ''}
-                        ${item.ElixirTooltip || ''}
-                        ${item.Transcendence ? `초월 ${item.Transcendence}` : ''}
-                        ${item.Advanced ? `상급 ${item.Advanced}` : ''}
+                      <div style="display:flex;flex-direction:column;gap:2px;">
+                        <div class="item-sub">${transcend ? `초월 ${transcend}` : ''}</div>
+                        <div class="item-sub">${reinforce ? `+${reinforce}` : ''} ${advanced ? `x${advanced}` : ''}</div>
                       </div>
                     </div>
                   </div>
