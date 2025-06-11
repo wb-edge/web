@@ -128,8 +128,28 @@ function showCharacterDetails(characterName) {
   })
     .then(res => res.json())
     .then(data => {
-      alert(`캐릭터: ${characterName}\n클래스: ${data.CharacterClassName}\n템레벨: ${data.ItemMaxLevel}`);
+      const modal = document.getElementById('detailModal');
+      const content = document.getElementById('detailContent');
+
+      content.innerHTML = `
+        <div style="text-align:center;">
+          <img src="${jobIconMap[data.CharacterClassName] || ''}" alt="${data.CharacterClassName}" style="width:80px;height:80px;margin-bottom:1rem;" />
+          <h2>${data.CharacterName}</h2>
+          <p><strong>서버:</strong> ${data.ServerName}</p>
+          <p><strong>클래스:</strong> ${data.CharacterClassName}</p>
+          <p><strong>아이템 레벨:</strong> ${data.ItemMaxLevel}</p>
+        </div>
+      `;
+
+      // 향후 equipmentList도 이곳에 렌더링 가능
+      document.getElementById('equipmentList').innerHTML = ''; // 초기화
+
+      modal.style.display = 'block';
     });
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').style.display = 'none';
 }
 
 function setCookie(name, value, days) {
