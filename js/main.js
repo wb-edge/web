@@ -121,32 +121,55 @@ function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return;
 
-  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`, {
-    headers: {
-      'Authorization': `bearer ${apiKey}`,
-    },
-  })
-    .then(res => res.json())
-    .then(data => {
-      const modal = document.getElementById('detailModal');
-      const content = document.getElementById('detailContent');
+  const headers = { 'Authorization': `bearer ${apiKey}` };
 
-      content.innerHTML = `
-        <div style="text-align:center;">
-          <img src="${jobIconMap[data.CharacterClassName] || ''}" alt="${data.CharacterClassName}" style="width:80px;height:80px;margin-bottom:1rem;" />
-          <h2>${data.CharacterName}</h2>
-          <p><strong>서버:</strong> ${data.ServerName}</p>
-          <p><strong>클래스:</strong> ${data.CharacterClassName}</p>
-          <p><strong>아이템 레벨:</strong> ${data.ItemMaxLevel}</p>
+  const profileUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`;
+  const equipmentUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`;
+  const engravingsUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/engravings`;
+  const gemsUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/gems`;
+
+  Promise.all([
+    fetch(profileUrl, { headers }).then(res => res.json()),
+    fetch(equipmentUrl, { headers }).then(res => res.json()),
+    fetch(engravingsUrl, { headers }).then(res => res.json()),
+    fetch(gemsUrl, { headers }).then(res => res.json())
+  ])
+    .then(([profile, equipment, engravings, gems]) => {
+      // 기본정보
+      const detailContent = document.getElementById('detailContent');
+      detailContent.innerHTML = `
+        <div class="profile">
+          <img src="${jobIconMap[profile.CharacterClassName] || ''}" style="width:80px;height:80px;" />
+          <h2>${profile.CharacterName}</h2>
+          <p>서버: ${profile.ServerName}</p>
+          <p>직업: ${profile.CharacterClassName}</p>
+          <p>아이템 레벨: ${profile.ItemMaxLevel}</p>
         </div>
       `;
 
-      // 향후 equipmentList도 이곳에 렌더링 가능
-      document.getElementById('equipmentList').innerHTML = ''; // 초기화
+      // 장비 정보
+      const equipmentList = document.getElementById('equipmentList');
+      equipmentList.innerHTML = `
+        <h3>장비</h3>
+        <div class="equipment-grid">
+          ${equipment.map(item => `
+            <div class="equipment-item">
+              <img src="${item.Icon}" alt="${item.Name}" />
+              <div>${item.Name}</div>
+              <div>${item.Grade}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
 
-      modal.style.display = 'block';
+      // 각인, 보석 등은 이후 확장 가능
+      // ...
+
+      // 모달 표시
+      document.getElementById('detailModal').style.display = 'block';
     });
 }
+
 
 function closeDetailModal() {
   document.getElementById('detailModal').style.display = 'none';
