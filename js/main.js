@@ -135,7 +135,6 @@ function showCharacterDetails(characterName) {
     fetch(gemsUrl, { headers }).then(res => res.json())
   ])
     .then(([profile, equipment, engravings, gems]) => {
-      // 기본정보
       const detailContent = document.getElementById('detailContent');
       detailContent.innerHTML = `
         <div class="profile">
@@ -147,7 +146,6 @@ function showCharacterDetails(characterName) {
         </div>
       `;
 
-      // 장비 정보
       const equipmentList = document.getElementById('equipmentList');
       equipmentList.innerHTML = `
         <h3>장비</h3>
@@ -162,11 +160,8 @@ function showCharacterDetails(characterName) {
         </div>
       `;
 
-      // 각인, 보석 등은 이후 확장 가능
-      // ...
-
-      // 모달 표시
-      document.getElementById('characterDetailModal').style.display = 'block';
+      const modal = document.getElementById('characterDetailModal');
+      modal.style.display = 'flex';
     });
 }
 
@@ -183,7 +178,7 @@ function getCookie(name) {
 }
 
 function showApiKeyModal() {
-  document.getElementById('apiKeyModal').style.display = 'block';
+  document.getElementById('apiKeyModal').style.display = 'flex';
 }
 
 function closeApiKeyModal() {
@@ -198,11 +193,16 @@ function saveApiKey() {
   }
 }
 
-// 초기 실행
 const keyword = getQueryParam('q');
 if (keyword) fetchCharacters(keyword);
-
 
 function closeCharacterDetailModal() {
   document.getElementById('characterDetailModal').style.display = 'none';
 }
+
+window.addEventListener('click', (e) => {
+  const modal = document.getElementById('characterDetailModal');
+  if (e.target === modal) {
+    modal.style.display = 'none';
+  }
+});
