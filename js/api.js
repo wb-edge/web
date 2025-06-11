@@ -95,11 +95,7 @@ export function showCharacterDetails(characterName) {
             value.Element_000.topStr.includes('단계')
           ) {
             const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
-console.log(clean);
-            const match = clean.match(/슬롯 효과[초월] (\d+)단계.*?(\d+)/);
-console.log('=== match ===');
-console.log(match);
-console.log('=== match ===');
+            const match = clean.match(/(\d+)단계\s*(\d+)/);
             if (match) {
               const level = match[1];
               const count = match[2];
