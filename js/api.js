@@ -42,6 +42,17 @@ export function showCharacterDetails(characterName) {
         else if (name.includes('팔찌')) accessoryItems.push({ ...item, slot: '팔찌' });
       });
 
+      const getGradeClass = (grade) => {
+        switch (grade) {
+          case '고대': return 'grade-ancient';
+          case '유물': return 'grade-relic';
+          case '전설': return 'grade-legendary';
+          case '영웅': return 'grade-epic';
+          case '희귀': return 'grade-rare';
+          default: return '';
+        }
+      };
+
       const equipmentList = document.getElementById('equipmentList');
       equipmentList.innerHTML = `
         <div class="equipment-columns" style="display:flex;gap:40px;justify-content:space-between;">
@@ -51,10 +62,20 @@ export function showCharacterDetails(characterName) {
               ${gearOrder.map(slot => {
                 const item = gearItems.find(i => i.Type === slot);
                 return item ? `
-                  <div class="equipment-item">
-                    <img src="${item.Icon}" alt="${item.Name}" />
-                    <div>${item.Name}</div>
-                    <div>${item.Grade}</div>
+                  <div class="equipment-item ${getGradeClass(item.Grade)}">
+                    <div class="item-icon-text" style="display:flex;align-items:center;gap:10px;">
+                      <img src="${item.Icon}" alt="${item.Name}" style="width:32px;height:32px;" />
+                      <div>
+                        <div>${item.Name}</div>
+                        <div class="item-sub">${item.Grade}</div>
+                        <div class="item-sub">
+                          ${item.Tier ? `+${item.Tier}` : ''}
+                          ${item.ElixirTooltip || ''}
+                          ${item.Transcendence ? `초월 ${item.Transcendence}` : ''}
+                          ${item.Advanced ? `상급 ${item.Advanced}` : ''}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ` : '';
               }).join('')}
@@ -66,7 +87,7 @@ export function showCharacterDetails(characterName) {
               ${accessoryOrder.map(slot => {
                 const item = accessoryItems.find(i => i.slot === slot);
                 return item ? `
-                  <div class="equipment-item">
+                  <div class="equipment-item ${getGradeClass(item.Grade)}">
                     <img src="${item.Icon}" alt="${item.Name}" />
                     <div>${item.Name}</div>
                     <div>${item.Grade}</div>

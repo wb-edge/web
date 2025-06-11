@@ -263,3 +263,15 @@ button:hover {
   text-align: center;
   margin-bottom: 1rem;
 }
+
+.grade-ancient { color: #ffd700; }
+.grade-relic { color: #ff5e00; }
+.grade-legendary { color: #ffa500; }
+.grade-epic { color: #a335ee; }
+.grade-rare { color: #0070dd; }
+
+.item-sub {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
