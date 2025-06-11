@@ -122,7 +122,7 @@ console.log(element);
                       </div>
                       <div class="item-info">
                         ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
-                        <div class="item-sub">+${item.Tier || ''} ${reinforce}</div>
+                        <div class="item-sub">${item.Tier || ''}0 ${reinforce}1</div>
                       </div>
                     </div>
                   </div>
