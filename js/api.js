@@ -53,33 +53,41 @@ export function showCharacterDetails(characterName) {
         }
       };
 
+      const getTooltipText = (tooltip, key) => {
+        const raw = tooltip?.[key]?.value || '';
+        return raw.replace(/<[^>]+>/g, '').trim();
+      };
+
       const equipmentList = document.getElementById('equipmentList');
       equipmentList.innerHTML = `
-        <div class="equipment-columns" style="display:flex;gap:40px;justify-content:space-between;">
+        <div class="equipment-columns">
           <div class="equipment-left">
             <h3>장비</h3>
             <div class="equipment-column">
               ${gearOrder.map(slot => {
                 const item = gearItems.find(i => i.Type === slot);
-                const transcend = item?.Tooltip?.Transcendence || '';
-                const reinforce = item?.Tooltip?.Reinforce || item?.Tier || '';
-                const advanced = item?.Tooltip?.Advanced || item?.Advanced || '';
-                return item ? `
+                if (!item) return '';
+
+                const transcend = getTooltipText(item.Tooltip, 'Element_005');
+                const reinforce = getTooltipText(item.Tooltip, 'Element_006');
+
+                return `
                   <div class="equipment-item">
-                    <div class="item-icon-text" style="display:flex;align-items:center;gap:10px;">
+                    <div class="item-icon-text">
                       <div class="item-icon ${getGradeClass(item.Grade)}">
-                        <img src="${item.Icon}" alt="${item.Name}" style="width:32px;height:32px;" />
+                        <img src="${item.Icon}" alt="${item.Name}" />
                       </div>
-                      <div style="display:flex;flex-direction:column;gap:2px;">
-                        <div class="item-sub">${transcend ? `초월 ${transcend}` : ''}</div>
-                        <div class="item-sub">${reinforce ? `+${reinforce}` : ''} ${advanced ? `x${advanced}` : ''}</div>
+                      <div class="item-info">
+                        <div class="item-sub">${transcend}</div>
+                        <div class="item-sub">${reinforce}</div>
                       </div>
                     </div>
                   </div>
-                ` : '';
+                `;
               }).join('')}
             </div>
           </div>
+
           <div class="equipment-right">
             <h3>악세사리</h3>
             <div class="equipment-column">
