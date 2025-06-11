@@ -89,7 +89,6 @@ export function showCharacterDetails(characterName) {
           const element = tooltip[key];
           const value = element?.value || '';
           if (
-            element.type === 'SingleTextBox' &&
             value.includes('슬롯 효과') &&
             value.includes('초월') &&
             value.includes('단계')
@@ -121,7 +120,7 @@ export function showCharacterDetails(characterName) {
                       </div>
                       <div class="item-info">
                         ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
-                        <div class="item-sub">+${item.Tier || ''} ${reinforce}</div>
+                        <div class="item-sub">${item.Tier || ''} ${reinforce}</div>
                       </div>
                     </div>
                   </div>
