@@ -127,26 +127,34 @@ button:hover {
   color: #ccc;
 }
 
-/* 모달 */
+/* 공통 모달 스타일 */
 .modal {
+  display: none;
   position: fixed;
-  top: 0;
+  z-index: 999;
   left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  display: none;
-  justify-content: center;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+
+  /* 중앙 정렬을 위한 flex */
+  display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
-  background-color: #2e2e2e;
-  padding: 2rem;
-  border-radius: 8px;
+  background-color: #1f1f1f;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 800px;
   width: 90%;
-  max-width: 400px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  position: relative;
 }
 
 .modal-content h2 {
@@ -165,9 +173,13 @@ button:hover {
   width: 100%;
 }
 
-.close {
-  float: right;
-  font-size: 1.4rem;
+/* 닫기 버튼 위치 */
+.modal .close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  color: #fff;
+  font-size: 28px;
   cursor: pointer;
 }
 
