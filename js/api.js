@@ -53,28 +53,37 @@ export function showCharacterDetails(characterName) {
         }
       };
 
-      const getTooltipText = (tooltip, key) => {
-        const raw = tooltip?.[key]?.value;
-        return raw ? raw.replace(/<[^>]+>/g, '').trim() : '';
+      const parseTooltip = (tooltip) => {
+        try {
+          return JSON.parse(tooltip);
+        } catch {
+          return {};
+        }
       };
 
-      const getReinforceText = (tooltip, name) => {
-        if (!tooltip) return name;
+      const getReinforceText = (tooltipString, name) => {
+        const tooltip = parseTooltip(tooltipString);
+        const keys = Object.keys(tooltip);
         let reinforceLevel = '';
-		const element = JSON.parse(tooltip);
-		if(element.Element_005.type == 'SingleTextBox' &&
-		  element.Element_005.value.includes('상급 재련') &&
-		  element.Element_005.value.includes('단계')
+        for (const key of keys) {
+          const element = tooltip[key];
+          const value = element?.value || '';
+          if (
+            element.type === 'SingleTextBox' &&
+            value.includes('상급 재련') &&
+            value.includes('단계')
           ) {
-            const match = element.Element_005.value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
+            const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
             const stage = match ? match[1] : '';
             reinforceLevel = `x${stage}`;
+            break;
           }
+        }
         return `${name} ${reinforceLevel}`.trim();
       };
 
-      const getTranscendText = (tooltip) => {
-        if (!tooltip) return '';
+      const getTranscendText = (tooltipString) => {
+        const tooltip = parseTooltip(tooltipString);
         const keys = Object.keys(tooltip);
         for (const key of keys) {
           const element = tooltip[key];
@@ -112,7 +121,7 @@ export function showCharacterDetails(characterName) {
                       </div>
                       <div class="item-info">
                         ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
-                        <div class="item-sub">${item.Tier || ''}0 ${reinforce}1</div>
+                        <div class="item-sub">+${item.Tier || ''} ${reinforce}</div>
                       </div>
                     </div>
                   </div>
