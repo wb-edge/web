@@ -68,7 +68,6 @@ export function showCharacterDetails(characterName) {
             const match = tooltip.Element_005.value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
             const stage = match ? match[1] : '';
             reinforceLevel = `x${stage}`;
-            break;
           }
         return `${name} ${reinforceLevel}`.trim();
       };
