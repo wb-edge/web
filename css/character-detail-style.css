@@ -85,3 +85,9 @@
   gap: 2px;
   justify-content: center;
 }
+
+.item-info .item-sub strong {
+  color: #fff;
+  margin-right: 4px;
+  font-weight: 600;
+}
