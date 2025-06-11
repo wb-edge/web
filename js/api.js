@@ -54,8 +54,8 @@ export function showCharacterDetails(characterName) {
       };
 
       const getTooltipText = (tooltip, key) => {
-        const raw = tooltip?.[key]?.value || '';
-        return raw.replace(/<[^>]+>/g, '').trim();
+        const raw = tooltip?.[key]?.value;
+        return raw ? raw.replace(/<[^>]+>/g, '').trim() : '';
       };
 
       const equipmentList = document.getElementById('equipmentList');
@@ -78,8 +78,8 @@ export function showCharacterDetails(characterName) {
                         <img src="${item.Icon}" alt="${item.Name}" />
                       </div>
                       <div class="item-info">
-                        <div class="item-sub">${transcend}</div>
-                        <div class="item-sub">${reinforce}</div>
+                        ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
+                        ${reinforce ? `<div class="item-sub">${reinforce}</div>` : ''}
                       </div>
                     </div>
                   </div>
