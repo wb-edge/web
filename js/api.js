@@ -70,6 +70,7 @@ export function showCharacterDetails(characterName) {
             value.includes('상급 재련') &&
             value.includes('단계')
           ) {
+	console.log(value);
             const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
             const stage = match ? match[1] : '';
             reinforceLevel = `x${stage}`;
