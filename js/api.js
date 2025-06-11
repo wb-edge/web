@@ -60,24 +60,16 @@ export function showCharacterDetails(characterName) {
 
       const getReinforceText = (tooltip, name) => {
         if (!tooltip) return name;
-        const keys = Object.keys(JSON.parse(tooltip));
         let reinforceLevel = '';
-        for (const key of keys) {
-          const element = tooltip[key];
-          const value = element?.value || '';
-console.log('=== ' + element.type + '====');
-          if (
-            element.type === 'SingleTextBox' &&
-            value.includes('상급 재련') &&
-            value.includes('단계')
+		if(tooltip.Element_005.type == 'SingleTextBox' &&
+		  tooltip.Element_005.value.includes('상급 재련') &&
+		  tooltip.Element_005.value.includes('단계')
           ) {
-	console.log(value);
             const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
             const stage = match ? match[1] : '';
             reinforceLevel = `x${stage}`;
             break;
           }
-        }
         return `${name} ${reinforceLevel}`.trim();
       };
 
