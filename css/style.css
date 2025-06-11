@@ -179,18 +179,12 @@ button:hover {
   border: none;
   border-radius: 6px;
   font-size: 1rem;
-  width: 100%;
-  padding: 0.6rem;
-  margin: 1rem 0;
-  border: none;
-  border-radius: 6px;
 }
 
 .modal-content button {
   width: 100%;
   padding: 0.8rem;
   font-size: 1rem;
-  width: 100%;
 }
 
 /* 닫기 버튼 위치 */
