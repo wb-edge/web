@@ -275,3 +275,17 @@ button:hover {
   color: #ccc;
 }
 
+.item-icon {
+  border: 2px solid #fff;
+  padding: 3px;
+  border-radius: 4px;
+  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.grade-ancient .item-icon { background-color: #ffd700; }
+.grade-relic .item-icon   { background-color: #ff5e00; }
+.grade-legendary .item-icon { background-color: #ffa500; }
+.grade-epic .item-icon    { background-color: #a335ee; }
+.grade-rare .item-icon    { background-color: #0070dd; }
+

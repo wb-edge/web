@@ -62,18 +62,16 @@ export function showCharacterDetails(characterName) {
               ${gearOrder.map(slot => {
                 const item = gearItems.find(i => i.Type === slot);
                 return item ? `
-                  <div class="equipment-item ${getGradeClass(item.Grade)}">
+                  <div class="equipment-item">
                     <div class="item-icon-text" style="display:flex;align-items:center;gap:10px;">
-                      <img src="${item.Icon}" alt="${item.Name}" style="width:32px;height:32px;" />
-                      <div>
-                        <div>${item.Name}</div>
-                        <div class="item-sub">${item.Grade}</div>
-                        <div class="item-sub">
-                          ${item.Tier ? `+${item.Tier}` : ''}
-                          ${item.ElixirTooltip || ''}
-                          ${item.Transcendence ? `초월 ${item.Transcendence}` : ''}
-                          ${item.Advanced ? `상급 ${item.Advanced}` : ''}
-                        </div>
+                      <div class="item-icon ${getGradeClass(item.Grade)}">
+                        <img src="${item.Icon}" alt="${item.Name}" style="width:32px;height:32px;" />
+                      </div>
+                      <div class="item-sub">
+                        ${item.Tier ? `+${item.Tier}` : ''}
+                        ${item.ElixirTooltip || ''}
+                        ${item.Transcendence ? `초월 ${item.Transcendence}` : ''}
+                        ${item.Advanced ? `상급 ${item.Advanced}` : ''}
                       </div>
                     </div>
                   </div>
