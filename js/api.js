@@ -58,16 +58,23 @@ export function showCharacterDetails(characterName) {
         return raw ? raw.replace(/<[^>]+>/g, '').trim() : '';
       };
 
-      const getReinforceText = (tooltip) => {
-        if (!tooltip) return '';
+      const getReinforceText = (tooltip, name) => {
+        if (!tooltip) return name;
         const keys = Object.keys(tooltip);
         for (const key of keys) {
           const element = tooltip[key];
-          if (element.type === 'SingleTextBox' && element.value.includes('+')) {
-            return element.value.replace(/<[^>]+>/g, '').trim();
+          const value = element?.value || '';
+          if (
+            element.type === 'SingleTextBox' &&
+            value.includes('상급 재련') &&
+            value.includes('단계')
+          ) {
+            const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
+            const stage = match ? match[1] : '';
+            return `${name} x${stage}`;
           }
         }
-        return '';
+        return name;
       };
 
       const equipmentList = document.getElementById('equipmentList');
@@ -81,7 +88,7 @@ export function showCharacterDetails(characterName) {
                 if (!item) return '';
 
                 const transcend = getTooltipText(item.Tooltip, 'Element_005');
-                const reinforce = getReinforceText(item.Tooltip);
+                const reinforce = getReinforceText(item.Tooltip, item.Name);
 
                 return `
                   <div class="equipment-item">
@@ -91,7 +98,7 @@ export function showCharacterDetails(characterName) {
                       </div>
                       <div class="item-info">
                         ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
-                        ${reinforce ? `<div class="item-sub">${reinforce}</div>` : ''}
+                        <div class="item-sub">+${item.Tier || ''} ${reinforce}</div>
                       </div>
                     </div>
                   </div>
