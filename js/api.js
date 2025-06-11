@@ -95,7 +95,7 @@ console.log(tooltip);
             value.Element_000.topStr.includes('초월') &&
             value.Element_000.topStr.includes('단계')
           ) {
-            return value.replace(/<[^>]+>/g, '').trim();
+            return value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
           }
         }
         return '';
