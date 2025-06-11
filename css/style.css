@@ -162,8 +162,7 @@ button:hover {
   justify-content: center;
 }
 
-/* 공통 모달 컨텐츠 */
-.modal-content {
+.modal-content.api-key-content {
   background-color: #1f1f1f;
   padding: 20px;
   border-radius: 10px;
@@ -175,6 +174,20 @@ button:hover {
   position: relative;
   text-align: center;
 }
+
+.modal-content.character-detail-content {
+  background-color: #1f1f1f;
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  position: relative;
+  text-align: left;
+}
+
 
 /* 모달 안 텍스트 */
 .modal-content h2 {
