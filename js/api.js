@@ -61,6 +61,7 @@ export function showCharacterDetails(characterName) {
       const getReinforceText = (tooltip, name) => {
         if (!tooltip) return name;
         const keys = Object.keys(tooltip);
+        let reinforceLevel = '';
         for (const key of keys) {
           const element = tooltip[key];
           const value = element?.value || '';
@@ -71,10 +72,29 @@ export function showCharacterDetails(characterName) {
           ) {
             const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
             const stage = match ? match[1] : '';
-            return `${name} x${stage}`;
+            reinforceLevel = `x${stage}`;
+            break;
           }
         }
-        return name;
+        return `${name} ${reinforceLevel}`.trim();
+      };
+
+      const getTranscendText = (tooltip) => {
+        if (!tooltip) return '';
+        const keys = Object.keys(tooltip);
+        for (const key of keys) {
+          const element = tooltip[key];
+          const value = element?.value || '';
+          if (
+            element.type === 'SingleTextBox' &&
+            value.includes('슬롯 효과') &&
+            value.includes('초월') &&
+            value.includes('단계')
+          ) {
+            return value.replace(/<[^>]+>/g, '').trim();
+          }
+        }
+        return '';
       };
 
       const equipmentList = document.getElementById('equipmentList');
@@ -87,7 +107,7 @@ export function showCharacterDetails(characterName) {
                 const item = gearItems.find(i => i.Type === slot);
                 if (!item) return '';
 
-                const transcend = getTooltipText(item.Tooltip, 'Element_005');
+                const transcend = getTranscendText(item.Tooltip);
                 const reinforce = getReinforceText(item.Tooltip, item.Name);
 
                 return `
