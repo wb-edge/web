@@ -166,13 +166,8 @@ function showCharacterDetails(characterName) {
       // ...
 
       // 모달 표시
-      document.getElementById('detailModal').style.display = 'block';
+      document.getElementById('characterDetailModal').style.display = 'block';
     });
-}
-
-
-function closeDetailModal() {
-  document.getElementById('detailModal').style.display = 'none';
 }
 
 function setCookie(name, value, days) {
