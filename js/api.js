@@ -87,8 +87,8 @@ export function showCharacterDetails(characterName) {
         const keys = Object.keys(tooltip);
         for (const key of keys) {
           const element = tooltip[key];
-          const value = element?.value || '';
-          if (
+          const value = element?.topStr || '';
+          if (value &&
             value.includes('슬롯 효과') &&
             value.includes('초월') &&
             value.includes('단계')
