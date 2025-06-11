@@ -88,11 +88,12 @@ console.log(tooltip);
         const keys = Object.keys(tooltip);
         for (const key of keys) {
           const element = tooltip[key];
-          const value = element?.topStr || '';
-          if (value &&
-            value.includes('슬롯 효과') &&
-            value.includes('초월') &&
-            value.includes('단계')
+          const value = element?.value || '';
+          if (
+			element.type === 'IndentStringGroup' &&
+            value.Element_000.topStr.includes('슬롯 효과') &&
+            value.Element_000.topStr.includes('초월') &&
+            value.Element_000.topStr.includes('단계')
           ) {
             return value.replace(/<[^>]+>/g, '').trim();
           }
