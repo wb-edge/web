@@ -96,6 +96,9 @@ export function showCharacterDetails(characterName) {
           ) {
 	console.log(value);
             const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
+console.log('=== clean ===');
+console.log(clean);
+console.log('=== clean ===');
             const match = clean.match(/초월 (\d+)단계.*?(\d+)/);
             if (match) {
               const level = match[1];
