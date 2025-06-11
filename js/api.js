@@ -65,6 +65,7 @@ export function showCharacterDetails(characterName) {
         for (const key of keys) {
           const element = tooltip[key];
           const value = element?.value || '';
+console.log('=== ' + element.type + '====');
           if (
             element.type === 'SingleTextBox' &&
             value.includes('상급 재련') &&
