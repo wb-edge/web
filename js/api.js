@@ -59,14 +59,11 @@ export function showCharacterDetails(characterName) {
       };
 
       const getReinforceText = (tooltip, name) => {
-console.log('getReinforceText');
         if (!tooltip) return name;
         const keys = Object.keys(tooltip);
-console.log(keys);
         let reinforceLevel = '';
         for (const key of keys) {
           const element = tooltip[key];
-console.log(element);
           const value = element?.value || '';
           if (
             element.type === 'SingleTextBox' &&
