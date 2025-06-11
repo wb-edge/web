@@ -180,3 +180,36 @@ function closeDetailModal() {
 // 초기 실행
 const keyword = getQueryParam('q');
 if (keyword) fetchCharacters(keyword);
+
+// 기존 코드 생략, 마지막 부분만 추가 예시
+function fetchCharacterEquipment(characterName) {
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) return;
+
+  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`, {
+    headers: { Authorization: `bearer ${apiKey}` }
+  })
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('equipmentList');
+      container.innerHTML = '';
+
+      data.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'equipment-card';
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.innerHTML = item.Tooltip || '툴팁 없음';
+
+        div.innerHTML = `
+          <img src="${item.Icon}" alt="${item.Name}" />
+          <div class="equip-name">${item.Name}</div>
+          <div class="equip-grade">${item.Grade}</div>
+        `;
+
+        div.appendChild(tooltip);
+        container.appendChild(div);
+      });
+    });
+}
