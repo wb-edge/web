@@ -128,8 +128,11 @@ button:hover {
 }
 
 /* 공통 모달 스타일 */
-.modal {
-  display: none;  /* 기본은 숨김 */
+.modal.api-key-modal {
+  display: none;  /* 기본 숨김 */
+  align-items: center;
+  justify-content: center;
+  display: none;
   position: fixed;
   z-index: 999;
   left: 0;
@@ -140,11 +143,10 @@ button:hover {
   background-color: rgba(0,0,0,0.7);
 
   /* 중앙 정렬을 위한 flex */
-  
+  display: flex;
   align-items: center;
   justify-content: center;
 }
-  display: flex; /* JS에서 표시할 때만 적용 */
 
 .modal-content {
   background-color: #1f1f1f;

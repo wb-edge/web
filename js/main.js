@@ -187,11 +187,11 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-function showModal() {
+function showApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'block';
 }
 
-function closeModal() {
+function closeApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'none';
 }
 
@@ -199,10 +199,15 @@ function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (key) {
     setCookie('LOA_API_KEY', key, 30);
-    closeModal();
+    closeApiKeyModal();
   }
 }
 
 // 초기 실행
 const keyword = getQueryParam('q');
 if (keyword) fetchCharacters(keyword);
+
+
+function closeCharacterDetailModal() {
+  document.getElementById('characterDetailModal').style.display = 'none';
+}

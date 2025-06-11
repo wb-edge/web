@@ -27,9 +27,9 @@
   </main>
 
   <!-- 모달 -->
-  <div id="apiKeyModal" class="modal">
+  <div id="apiKeyModal" class="modal api-key-modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
+      <span class="close" onclick="closeApiKeyModal()">&times;</span>
       <h2>LOA API KEY 입력</h2>
       <input type="text" id="apiKeyInput" placeholder="API Key를 입력하세요" />
       <button onclick="saveApiKey()">저장</button>
@@ -37,9 +37,9 @@
   </div>
 
   <!-- 상세정보 모달 -->
-  <div id="detailModal" class="modal">
+  <div id="characterDetailModal" class="modal character-modal">
     <div class="modal-content">
-      <span class="close" onclick="closeDetailModal()">&times;</span>
+      <span class="close" onclick="closeCharacterDetailModal()">&times;</span>
       <div id="detailContent"></div>
       <div class="equipment-list" id="equipmentList"></div>
     </div>
