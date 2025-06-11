@@ -84,6 +84,7 @@ export function showCharacterDetails(characterName) {
 
       const getTranscendText = (tooltipString) => {
         const tooltip = parseTooltip(tooltipString);
+console.log(tooltip);
         const keys = Object.keys(tooltip);
         for (const key of keys) {
           const element = tooltip[key];
