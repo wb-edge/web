@@ -14,7 +14,7 @@ a {
 .navbar {
   background-color: #121212;
   padding: 1rem;
-  /* JS에서 display: flex; 설정 시 가운데 정렬 */
+  display: flex;
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
@@ -22,7 +22,7 @@ a {
 .nav-container {
   max-width: 1200px;
   width: 100%;
-  /* JS에서 display: flex; 설정 시 가운데 정렬 */
+  display: flex;
   align-items: center;
   justify-content: space-between;
 }
@@ -44,12 +44,12 @@ a {
 
 .nav-links {
   list-style: none;
-  /* JS에서 display: flex; 설정 시 가운데 정렬 */
+  display: flex;
   gap: 1rem;
 }
 
 .nav-links li {
-  /* JS에서 display: flex; 설정 시 가운데 정렬 */
+  display: flex;
   align-items: center;
 }
 
@@ -94,7 +94,7 @@ button:hover {
   background-color: #2a2a2a;
   padding: 1rem;
   border-radius: 12px;
-  /* JS에서 display: flex; 설정 시 가운데 정렬 */
+  display: flex;
   align-items: center;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -112,7 +112,7 @@ button:hover {
 }
 
 .info {
-  /* JS에서 display: flex; 설정 시 가운데 정렬 */
+  display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
@@ -129,8 +129,7 @@ button:hover {
 
 /* 공통 모달 스타일 */
 .modal {
-  display: none;
-  /* 기본 상태에서는 숨김 */
+  display: none;  /* 기본은 숨김 */
   position: fixed;
   z-index: 999;
   left: 0;
@@ -141,10 +140,11 @@ button:hover {
   background-color: rgba(0,0,0,0.7);
 
   /* 중앙 정렬을 위한 flex */
-  /* JS에서 display: flex; 설정 시 가운데 정렬 */
+  
   align-items: center;
   justify-content: center;
 }
+  display: flex; /* JS에서 표시할 때만 적용 */
 
 .modal-content {
   background-color: #1f1f1f;
