@@ -94,12 +94,12 @@ export function showCharacterDetails(characterName) {
             value.Element_000.topStr.includes('초월') &&
             value.Element_000.topStr.includes('단계')
           ) {
-	console.log(value);
             const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
-console.log('=== clean ===');
 console.log(clean);
-console.log('=== clean ===');
             const match = clean.match(/초월 (\d+)단계.*?(\d+)/);
+console.log('=== match ===');
+console.log(match);
+console.log('=== match ===');
             if (match) {
               const level = match[1];
               const count = match[2];
