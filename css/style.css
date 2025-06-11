@@ -1,3 +1,10 @@
+/* 박스 사이징 초기화 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* 기본 스타일 */
 body {
   margin: 0;
@@ -155,12 +162,13 @@ button:hover {
   justify-content: center;
 }
 
+/* 공통 모달 컨텐츠 */
 .modal-content {
   background-color: #1f1f1f;
   padding: 20px;
   border-radius: 10px;
-  max-width: 800px;
-  width: 90%;
+  width: 100%;
+  max-width: 400px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -168,12 +176,15 @@ button:hover {
   text-align: center;
 }
 
+/* 모달 안 텍스트 */
 .modal-content h2 {
   margin-top: 0;
 }
 
-.modal-content input {
+.modal-content input,
+.modal-content button {
   width: 100%;
+  max-width: 100%;
   padding: 0.8rem;
   margin: 1rem 0;
   border: none;
@@ -181,13 +192,7 @@ button:hover {
   font-size: 1rem;
 }
 
-.modal-content button {
-  width: 100%;
-  padding: 0.8rem;
-  font-size: 1rem;
-}
-
-/* 닫기 버튼 위치 */
+/* 닫기 버튼 */
 .modal .close {
   position: absolute;
   top: 12px;
@@ -219,6 +224,7 @@ button:hover {
   }
 }
 
+/* 장비 정보 그리드 */
 .equipment-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
