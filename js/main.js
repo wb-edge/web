@@ -31,9 +31,15 @@ const jobIconMap = {
 function handleSearch(event) {
   if (event.key === 'Enter') {
     const keyword = event.target.value.trim();
-    if (keyword) {
-      window.location.href = `/web/?q=${encodeURIComponent(keyword)}`;
+    const apiKey = getCookie('LOA_API_KEY');
+    if (!keyword) return;
+
+    if (!apiKey) {
+      alert("먼저 API KEY를 입력해주세요.");
+      return;
     }
+
+    window.location.href = `/web/?q=${encodeURIComponent(keyword)}`;
   }
 }
 
@@ -204,5 +210,19 @@ window.addEventListener('click', (e) => {
   const modal = document.getElementById('characterDetailModal');
   if (e.target === modal) {
     modal.style.display = 'none';
+  }
+});
+
+window.addEventListener('click', (e) => {
+  const apiKeyModal = document.getElementById('apiKeyModal');
+  if (e.target === apiKeyModal) {
+    closeApiKeyModal();
+  }
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeApiKeyModal();
+    closeCharacterDetailModal();
   }
 });
