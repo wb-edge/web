@@ -127,23 +127,30 @@ button:hover {
   color: #ccc;
 }
 
-/* 공통 모달 스타일 */
+/* API KEY 모달 */
 .modal.api-key-modal {
   display: none;  /* 기본 숨김 */
-  align-items: center;
-  justify-content: center;
-  display: none;
   position: fixed;
-  z-index: 999;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
   background-color: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+}
 
-  /* 중앙 정렬을 위한 flex */
-  display: flex;
+/* 캐릭터 상세 모달 */
+.modal.character-modal {
+  display: none;  /* 기본 숨김 */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
   align-items: center;
   justify-content: center;
 }
@@ -158,6 +165,7 @@ button:hover {
   overflow-y: auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
   position: relative;
+  text-align: center;
 }
 
 .modal-content h2 {
