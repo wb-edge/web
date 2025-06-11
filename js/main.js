@@ -67,14 +67,13 @@ function fetchCharacters(keyword) {
         });
       });
 
+      const sortedServers = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
+
       const results = document.querySelector('.results');
       results.innerHTML = '';
 
-      const sortedServers = Object.entries(grouped)
-        .sort((a, b) => b[1].length - a[1].length);
-
-      for (const [server, group] of sortedServers) {
-        const sortedGroup = group.sort((a, b) => b.level - a.level);
+      sortedServers.forEach(server => {
+        const group = grouped[server].sort((a, b) => b.level - a.level);
         const section = document.createElement('section');
         section.classList.add('server-group');
 
@@ -85,9 +84,10 @@ function fetchCharacters(keyword) {
         const container = document.createElement('div');
         container.classList.add('card-container');
 
-        sortedGroup.forEach(({ name, job, level }) => {
+        group.forEach(({ name, job, level }) => {
           const card = document.createElement('div');
           card.classList.add('card');
+          card.addEventListener('click', () => showCharacterDetails(name));
 
           const img = document.createElement('img');
           img.src = jobIconMap[job] || '';
@@ -109,15 +109,26 @@ function fetchCharacters(keyword) {
           card.appendChild(img);
           card.appendChild(info);
           container.appendChild(card);
-
-			card.addEventListener('click', () => {
-			  showDetailModal(name);
-			});
         });
 
         section.appendChild(container);
         results.appendChild(section);
-      }
+      });
+    });
+}
+
+function showCharacterDetails(characterName) {
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) return;
+
+  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`, {
+    headers: {
+      'Authorization': `bearer ${apiKey}`,
+    },
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(`캐릭터: ${characterName}\n클래스: ${data.CharacterClassName}\n템레벨: ${data.ItemMaxLevel}`);
     });
 }
 
@@ -149,67 +160,6 @@ function saveApiKey() {
   }
 }
 
-function showDetailModal(characterName) {
-  const apiKey = getCookie('LOA_API_KEY');
-  if (!apiKey) return;
-
-  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`, {
-    headers: {
-      Authorization: `bearer ${apiKey}`,
-    },
-  })
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById('detailContent');
-      container.innerHTML = `
-        <h3>${data.CharacterName} (${data.CharacterClassName})</h3>
-        <p>아이템 레벨: ${data.ItemMaxLevel}</p>
-        <p>길드: ${data.GuildName || '-'}</p>
-        <p>서버: ${data.ServerName}</p>
-        <p>PvP 등급: ${data.PvpGradeName || '-'}</p>
-        <p>영지 Lv: ${data.TownLevel} (${data.TownName || '-'})</p>
-      `;
-      document.getElementById('detailModal').style.display = 'block';
-    });
-}
-
-function closeDetailModal() {
-  document.getElementById('detailModal').style.display = 'none';
-}
-
 // 초기 실행
 const keyword = getQueryParam('q');
 if (keyword) fetchCharacters(keyword);
-
-// 기존 코드 생략, 마지막 부분만 추가 예시
-function fetchCharacterEquipment(characterName) {
-  const apiKey = getCookie('LOA_API_KEY');
-  if (!apiKey) return;
-
-  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`, {
-    headers: { Authorization: `bearer ${apiKey}` }
-  })
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById('equipmentList');
-      container.innerHTML = '';
-
-      data.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'equipment-card';
-
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.innerHTML = item.Tooltip || '툴팁 없음';
-
-        div.innerHTML = `
-          <img src="${item.Icon}" alt="${item.Name}" />
-          <div class="equip-name">${item.Name}</div>
-          <div class="equip-grade">${item.Grade}</div>
-        `;
-
-        div.appendChild(tooltip);
-        container.appendChild(div);
-      });
-    });
-}
