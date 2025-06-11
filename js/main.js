@@ -153,7 +153,7 @@ function showDetailModal(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return;
 
-  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}`, {
+  fetch(`https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`, {
     headers: {
       Authorization: `bearer ${apiKey}`,
     },
