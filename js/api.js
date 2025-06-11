@@ -96,7 +96,7 @@ export function showCharacterDetails(characterName) {
           ) {
             const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
 console.log(clean);
-            const match = clean.match(/초월 (\d+)단계.*?(\d+)/);
+            const match = clean.match(/슬롯 효과[초월] (\d+)단계.*?(\d+)/);
 console.log('=== match ===');
 console.log(match);
 console.log('=== match ===');
