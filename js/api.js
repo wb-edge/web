@@ -84,18 +84,23 @@ export function showCharacterDetails(characterName) {
 
       const getTranscendText = (tooltipString) => {
         const tooltip = parseTooltip(tooltipString);
-console.log(tooltip);
         const keys = Object.keys(tooltip);
         for (const key of keys) {
           const element = tooltip[key];
-          const value = element?.value || '';
+          const value = element?.value;
           if (
-			element.type === 'IndentStringGroup' &&
-            value.Element_000.topStr.includes('슬롯 효과') &&
+            element.type === 'IndentStringGroup' &&
+            value?.Element_000?.topStr?.includes('슬롯 효과') &&
             value.Element_000.topStr.includes('초월') &&
             value.Element_000.topStr.includes('단계')
           ) {
-            return value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
+            const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
+            const match = clean.match(/초월 (\d+)단계.*?(\d+)/);
+            if (match) {
+              const level = match[1];
+              const count = match[2];
+              return `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_transcendence.png" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" />Lv.${level} x${count}`;
+            }
           }
         }
         return '';
@@ -122,7 +127,7 @@ console.log(tooltip);
                       </div>
                       <div class="item-info">
                         ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
-                        <div class="item-sub">${item.Tier || ''} ${reinforce}</div>
+                        <div class="item-sub">+${item.Tier || ''} ${reinforce}</div>
                       </div>
                     </div>
                   </div>
