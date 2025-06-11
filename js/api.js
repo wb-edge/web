@@ -58,6 +58,18 @@ export function showCharacterDetails(characterName) {
         return raw ? raw.replace(/<[^>]+>/g, '').trim() : '';
       };
 
+      const getReinforceText = (tooltip) => {
+        if (!tooltip) return '';
+        const keys = Object.keys(tooltip);
+        for (const key of keys) {
+          const element = tooltip[key];
+          if (element.type === 'SingleTextBox' && element.value.includes('+')) {
+            return element.value.replace(/<[^>]+>/g, '').trim();
+          }
+        }
+        return '';
+      };
+
       const equipmentList = document.getElementById('equipmentList');
       equipmentList.innerHTML = `
         <div class="equipment-columns">
@@ -69,7 +81,7 @@ export function showCharacterDetails(characterName) {
                 if (!item) return '';
 
                 const transcend = getTooltipText(item.Tooltip, 'Element_005');
-                const reinforce = getTooltipText(item.Tooltip, 'Element_006');
+                const reinforce = getReinforceText(item.Tooltip);
 
                 return `
                   <div class="equipment-item">
