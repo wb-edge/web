@@ -60,7 +60,7 @@ export function showCharacterDetails(characterName) {
 
       const getReinforceText = (tooltip, name) => {
         if (!tooltip) return name;
-        const keys = Object.keys(tooltip);
+        const keys = Object.keys(JSON.parse(tooltip));
         let reinforceLevel = '';
         for (const key of keys) {
           const element = tooltip[key];
