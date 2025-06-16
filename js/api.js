@@ -180,28 +180,15 @@ export function showCharacterDetails(characterName) {
       return options.slice(0, 3);
     };
 
-    const renderAbilityStone = (stone, job) => {
-      const tooltip = parseTooltip(stone.Tooltip);
-      const options = [];
-      for (const key in tooltip) {
-        const element = tooltip[key];
-        if (element?.type === 'ItemPartBox' && element.value?.Element_000?.includes('연마 효과')) {
-          const raw = element.value.Element_001 || '';
-          const lines = raw
-            .split(/<br>|<BR>|\n|\r/i)
-            .map(line => line.replace(/<[^>]+>/g, '').trim())
-            .filter(Boolean);
-          options.push(...lines);
-        }
-      }
+    const renderItem = (item, options, job) => {
       return `
         <div class="equipment-item">
           <div class="item-icon-text">
-            <div class="item-icon ${getGradeClass(stone.Grade)}">
-              <img src="${stone.Icon}" alt="${stone.Name}" />
+            <div class="item-icon ${getGradeClass(item.Grade)}">
+              <img src="${item.Icon}" alt="${item.Name}" />
             </div>
             <div class="item-info" style="text-align:left">
-              ${options.slice(0, 3).map(opt => `
+              ${options.map(opt => `
                 <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, job) ? 'show-star' : ''}">${opt}</div>
               `).join('')}
             </div>
@@ -240,26 +227,8 @@ export function showCharacterDetails(characterName) {
         <div class="equipment-right">
           <h3>악세사리</h3>
           <div class="equipment-column">
-            ${accessoryOrder.map((slot, index) => {
-              const item = accessoryItems[index];
-              if (!item) return '';
-              const options = getAccessoryOptions(item.Tooltip);
-              return `
-                <div class="equipment-item">
-                  <div class="item-icon-text">
-                    <div class="item-icon ${getGradeClass(item.Grade)}">
-                      <img src="${item.Icon}" alt="${item.Name}" />
-                    </div>
-                    <div class="item-info" style="text-align:left">
-                      ${options.map(opt => `
-                        <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, profile.CharacterClassName) ? 'show-star' : ''}">${opt}</div>
-                      `).join('')}
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-            ${abilityStone ? renderAbilityStone(abilityStone, profile.CharacterClassName) : ''}
+            ${accessoryItems.map(item => renderItem(item, getAccessoryOptions(item.Tooltip), profile.CharacterClassName)).join('')}
+            ${abilityStone ? renderItem(abilityStone, getAccessoryOptions(abilityStone.Tooltip), profile.CharacterClassName) : ''}
           </div>
         </div>
       </div>
