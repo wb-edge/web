@@ -1,6 +1,5 @@
 import { jobIconMap } from './icons.js';
 
-// 옵션 기준값
 const optionStandards = [
   { keyword: '적에게 주는 피해', std: 1.20 },
   { keyword: '추가 피해', std: 1.60 },
@@ -22,12 +21,6 @@ const optionStandards = [
   { keyword: '최대 생명력', std: 3250 }
 ];
 
-// 직업군 구분
-const isSupporter = (job) => {
-  return ['바드', '도화가', '홀리나이트'].includes(job);
-};
-
-// 전용 옵션
 const dealerOptions = [
   '공격력', '무기 공격력', '공격력%', '무기 공격력%',
   '치명타 적중률', '치명타 피해',
@@ -35,22 +28,16 @@ const dealerOptions = [
 ];
 
 const supporterOptions = [
-  '세레나데', '낙인력', '아군 피해량 강화',
+  '세레나데', '낙인력', '아군 피해량 강화', '파티원 회복',
   '아군 공격력 강화', '파티원 보호막', '무기 공격력'
 ];
 
-// 별 아이콘 표시 여부
-const shouldShowStar = (text, job) => {
-  const isSup = isSupporter(job);
-  const matched = isSup
-    ? supporterOptions.some(opt => text.includes(opt))
-    : dealerOptions.some(opt => text.includes(opt));
-  return matched;
+const isSupporter = (job) => {
+  return ['바드', '도화가', '홀리나이트'].includes(job);
 };
 
-// 옵션 등급 계산
 const getOptionGrade = (text) => {
-  const numeric = parseFloat(text.replace(/[^\d.\-]/g, '')) || 0;
+  const numeric = parseFloat(text.replace(/[^0-9.\-]/g, '')) || 0;
   let matched = null;
 
   for (const opt of optionStandards) {
@@ -81,116 +68,14 @@ const getOptionGrade = (text) => {
   return 'grade-low';
 };
 
-// 쿠키 가져오기
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-// 파싱
-const parseTooltip = (tooltip) => {
-  try {
-    return JSON.parse(tooltip);
-  } catch {
-    return {};
-  }
+const shouldShowStar = (text, job) => {
+  const isSup = isSupporter(job);
+  const matched = isSup
+    ? supporterOptions.some(opt => text.includes(opt))
+    : dealerOptions.some(opt => text.includes(opt));
+  return matched;
 };
 
-// 초월
-const getTranscendText = (tooltipString) => {
-  const tooltip = parseTooltip(tooltipString);
-  for (const key in tooltip) {
-    const element = tooltip[key];
-    const value = element?.value;
-    if (
-      element.type === 'IndentStringGroup' &&
-      value?.Element_000?.topStr?.includes('초월')
-    ) {
-      const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
-      const match = clean.match(/(\d+)단계\s*(\d+)/);
-      if (match) {
-        const level = match[1];
-        const count = match[2];
-        return `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_transcendence.png" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" />Lv.${level} x${count}`;
-      }
-    }
-  }
-  return '';
-};
-
-// 재련
-const getReinforceText = (tooltipString, name) => {
-  const tooltip = parseTooltip(tooltipString);
-  for (const key in tooltip) {
-    const element = tooltip[key];
-    const value = element?.value || '';
-    if (
-      element.type === 'SingleTextBox' &&
-      value.includes('상급 재련')
-    ) {
-      const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
-      const stage = match ? match[1] : '';
-      return `${name} x${stage}`;
-    }
-  }
-  return name;
-};
-
-// 연마 효과
-const getAccessoryOptions = (tooltipString) => {
-  const tooltip = parseTooltip(tooltipString);
-  const options = [];
-
-  for (const key in tooltip) {
-    const element = tooltip[key];
-    if (
-      element?.type === 'ItemPartBox' &&
-      element.value?.Element_000?.includes('연마 효과')
-    ) {
-      const raw = element.value.Element_001 || '';
-      const lines = raw
-        .split(/<br>|<BR>|\n|\r/i)
-        .map(line => line.replace(/<[^>]+>/g, '').trim())
-        .filter(Boolean);
-      options.push(...lines);
-    }
-  }
-  return options.slice(0, 3);
-};
-
-// 어빌리티스톤 렌더링
-const renderAbilityStone = (stone, job) => {
-  const options = getAccessoryOptions(stone.Tooltip);
-  return `
-    <div class="equipment-item">
-      <div class="item-icon-text">
-        <div class="item-icon ${getGradeClass(stone.Grade)}">
-          <img src="${stone.Icon}" alt="${stone.Name}" />
-        </div>
-        <div class="item-info" style="text-align:left">
-          ${options.map(opt => `
-            <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, job) ? 'show-star' : ''}">${opt}</div>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-};
-
-// 등급 클래스
-const getGradeClass = (grade) => {
-  switch (grade) {
-    case '고대': return 'grade-ancient';
-    case '유물': return 'grade-relic';
-    case '전설': return 'grade-legendary';
-    case '영웅': return 'grade-epic';
-    case '희귀': return 'grade-rare';
-    default: return '';
-  }
-};
-
-// 메인 진입
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return;
@@ -203,89 +88,190 @@ export function showCharacterDetails(characterName) {
   Promise.all([
     fetch(profileUrl, { headers }).then(res => res.json()),
     fetch(equipmentUrl, { headers }).then(res => res.json())
-  ])
-    .then(([profile, equipment]) => {
-      const detailContent = document.getElementById('detailContent');
-      detailContent.innerHTML = `
-        <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-          <img src="${jobIconMap[profile.CharacterClassName] || ''}" style="width:40px;height:40px;border-radius:4px;" />
-          <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
-          <div style="font-size:0.95rem;color:#ccc;">${profile.ItemMaxLevel}</div>
-        </div>
-      `;
+  ]).then(([profile, equipment]) => {
+    const detailContent = document.getElementById('detailContent');
+    detailContent.innerHTML = `
+      <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <img src="${jobIconMap[profile.CharacterClassName] || ''}" style="width:40px;height:40px;border-radius:4px;" />
+        <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
+        <div style="font-size:0.95rem;color:#ccc;">${profile.ItemMaxLevel}</div>
+      </div>
+    `;
 
-      const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
-      const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
+    const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
+    const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
 
-      const gearItems = [];
-      const accessoryItems = [];
-      let abilityStone = null;
+    const gearItems = [];
+    const accessoryItems = [];
+    let abilityStone = null;
 
-      equipment.forEach(item => {
-        const name = item.Type;
-        if (gearOrder.includes(name)) gearItems.push(item);
-        else if (name === '어빌리티 스톤') abilityStone = item;
-        else if (accessoryOrder.includes(name)) accessoryItems.push(item);
-      });
-
-      const equipmentList = document.getElementById('equipmentList');
-      equipmentList.innerHTML = `
-        <div class="equipment-columns">
-          <div class="equipment-left">
-            <h3>장비</h3>
-            <div class="equipment-column">
-              ${gearOrder.map(slot => {
-                const item = gearItems.find(i => i.Type === slot);
-                if (!item) return '';
-                const transcend = getTranscendText(item.Tooltip);
-                const reinforce = getReinforceText(item.Tooltip, item.Name);
-                return `
-                  <div class="equipment-item">
-                    <div class="item-icon-text">
-                      <div class="item-icon ${getGradeClass(item.Grade)}">
-                        <img src="${item.Icon}" alt="${item.Name}" />
-                      </div>
-                      <div class="item-info" style="text-align:left">
-                        ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
-                        <div class="item-sub">${reinforce}</div>
-                      </div>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
-          <div class="equipment-right">
-            <h3>악세사리</h3>
-            <div class="equipment-column">
-              ${accessoryItems.map(item => {
-                const options = getAccessoryOptions(item.Tooltip);
-                return `
-                  <div class="equipment-item">
-                    <div class="item-icon-text">
-                      <div class="item-icon ${getGradeClass(item.Grade)}">
-                        <img src="${item.Icon}" alt="${item.Name}" />
-                      </div>
-                      <div class="item-info" style="text-align:left">
-                        ${options.map(opt => `
-                          <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, profile.CharacterClassName) ? 'show-star' : ''}">
-                            ${opt}
-                          </div>
-                        `).join('')}
-                      </div>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-
-              ${abilityStone ? renderAbilityStone(abilityStone, profile.CharacterClassName) : ''}
-            </div>
-          </div>
-        </div>
-      `;
-
-      const modal = document.getElementById('characterDetailModal');
-      modal.style.display = 'flex';
+    equipment.forEach(item => {
+      const name = item.Type;
+      if (gearOrder.includes(name)) gearItems.push(item);
+      else if (name === '어빌리티 스톤') abilityStone = item;
+      else if (accessoryOrder.includes(name)) accessoryItems.push(item);
     });
+
+    const getGradeClass = (grade) => {
+      switch (grade) {
+        case '고대': return 'grade-ancient';
+        case '유물': return 'grade-relic';
+        case '전설': return 'grade-legendary';
+        case '영웅': return 'grade-epic';
+        case '희귀': return 'grade-rare';
+        default: return '';
+      }
+    };
+
+    const parseTooltip = (tooltip) => {
+      try {
+        return JSON.parse(tooltip);
+      } catch {
+        return {};
+      }
+    };
+
+    const getTranscendText = (tooltipString) => {
+      const tooltip = parseTooltip(tooltipString);
+      for (const key in tooltip) {
+        const element = tooltip[key];
+        const value = element?.value;
+        if (element.type === 'IndentStringGroup' && value?.Element_000?.topStr?.includes('초월')) {
+          const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
+          const match = clean.match(/(\d+)단계\s*(\d+)/);
+          if (match) {
+            const level = match[1];
+            const count = match[2];
+            return `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_transcendence.png" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" />Lv.${level} x${count}`;
+          }
+        }
+      }
+      return '';
+    };
+
+    const getReinforceText = (tooltipString, name) => {
+      const tooltip = parseTooltip(tooltipString);
+      for (const key in tooltip) {
+        const element = tooltip[key];
+        const value = element?.value || '';
+        if (element.type === 'SingleTextBox' && value.includes('상급 재련')) {
+          const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
+          const stage = match ? match[1] : '';
+          return `${name} x${stage}`;
+        }
+      }
+      return name;
+    };
+
+    const getAccessoryOptions = (tooltipString) => {
+      const tooltip = parseTooltip(tooltipString);
+      const options = [];
+      for (const key in tooltip) {
+        const element = tooltip[key];
+        if (element?.type === 'ItemPartBox' && element.value?.Element_000?.includes('연마 효과')) {
+          const raw = element.value.Element_001 || '';
+          const lines = raw
+            .split(/<br>|<BR>|\n|\r/i)
+            .map(line => line.replace(/<[^>]+>/g, '').trim())
+            .filter(Boolean);
+          options.push(...lines);
+        }
+      }
+      return options.slice(0, 3);
+    };
+
+    const renderAbilityStone = (stone, job) => {
+      const tooltip = parseTooltip(stone.Tooltip);
+      const options = [];
+      for (const key in tooltip) {
+        const element = tooltip[key];
+        if (element?.type === 'ItemPartBox' && element.value?.Element_000?.includes('연마 효과')) {
+          const raw = element.value.Element_001 || '';
+          const lines = raw
+            .split(/<br>|<BR>|\n|\r/i)
+            .map(line => line.replace(/<[^>]+>/g, '').trim())
+            .filter(Boolean);
+          options.push(...lines);
+        }
+      }
+      return `
+        <div class="equipment-item">
+          <div class="item-icon-text">
+            <div class="item-icon ${getGradeClass(stone.Grade)}">
+              <img src="${stone.Icon}" alt="${stone.Name}" />
+            </div>
+            <div class="item-info" style="text-align:left">
+              ${options.slice(0, 3).map(opt => `
+                <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, job) ? 'show-star' : ''}">${opt}</div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    };
+
+    const equipmentList = document.getElementById('equipmentList');
+    equipmentList.innerHTML = `
+      <div class="equipment-columns">
+        <div class="equipment-left">
+          <h3>장비</h3>
+          <div class="equipment-column">
+            ${gearOrder.map(slot => {
+              const item = gearItems.find(i => i.Type === slot);
+              if (!item) return '';
+              const transcend = getTranscendText(item.Tooltip);
+              const reinforce = getReinforceText(item.Tooltip, item.Name);
+              return `
+                <div class="equipment-item">
+                  <div class="item-icon-text">
+                    <div class="item-icon ${getGradeClass(item.Grade)}">
+                      <img src="${item.Icon}" alt="${item.Name}" />
+                    </div>
+                    <div class="item-info" style="text-align:left">
+                      ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
+                      <div class="item-sub">${reinforce}</div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        <div class="equipment-right">
+          <h3>악세사리</h3>
+          <div class="equipment-column">
+            ${accessoryOrder.map((slot, index) => {
+              const item = accessoryItems[index];
+              if (!item) return '';
+              const options = getAccessoryOptions(item.Tooltip);
+              return `
+                <div class="equipment-item">
+                  <div class="item-icon-text">
+                    <div class="item-icon ${getGradeClass(item.Grade)}">
+                      <img src="${item.Icon}" alt="${item.Name}" />
+                    </div>
+                    <div class="item-info" style="text-align:left">
+                      ${options.map(opt => `
+                        <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, profile.CharacterClassName) ? 'show-star' : ''}">${opt}</div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${abilityStone ? renderAbilityStone(abilityStone, profile.CharacterClassName) : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modal = document.getElementById('characterDetailModal');
+    modal.style.display = 'flex';
+  });
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
 }
