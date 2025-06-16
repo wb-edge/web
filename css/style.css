@@ -1,4 +1,4 @@
-/* 초기화 */
+/* 공통 초기화 */
 *,
 *::before,
 *::after {
@@ -17,7 +17,7 @@ a {
   text-decoration: none;
 }
 
-/* 상단 바 */
+/* 상단바 */
 .navbar {
   background-color: #121212;
   padding: 1rem;
@@ -55,11 +55,6 @@ a {
   gap: 1rem;
 }
 
-.nav-links li {
-  display: flex;
-  align-items: center;
-}
-
 button {
   background-color: #333;
   color: #fff;
@@ -68,12 +63,11 @@ button {
   border-radius: 6px;
   cursor: pointer;
 }
-
 button:hover {
   background-color: #555;
 }
 
-/* 결과 영역 */
+/* 검색 결과 영역 */
 .results {
   padding: 2rem;
 }
@@ -81,7 +75,6 @@ button:hover {
 .server-group {
   margin-bottom: 2rem;
 }
-
 .server-group h2 {
   font-size: 1.2rem;
   margin-bottom: 1rem;
@@ -89,7 +82,7 @@ button:hover {
   padding-left: 0.5rem;
 }
 
-/* 캐릭터 카드 */
+/* 카드 */
 .card-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -105,37 +98,31 @@ button:hover {
   cursor: pointer;
   transition: background 0.2s ease;
 }
-
 .card:hover {
   background-color: #3a3a3a;
 }
-
 .card img {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   margin-right: 1rem;
 }
-
 .info {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-
 .name {
   font-weight: bold;
   font-size: 1.1rem;
 }
-
 .itemLevel {
   font-size: 0.9rem;
   color: #ccc;
 }
 
-/* 모달 */
-.modal.api-key-modal,
-.modal.character-modal {
+/* 모달 기본 */
+.modal {
   display: none;
   position: fixed;
   z-index: 1000;
@@ -152,11 +139,10 @@ button:hover {
   background-color: #1f1f1f;
   padding: 20px;
   border-radius: 10px;
-  width: 100%;
   max-width: 400px;
+  width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  position: relative;
   text-align: center;
 }
 
@@ -164,28 +150,16 @@ button:hover {
   background-color: #1f1f1f;
   padding: 30px;
   border-radius: 12px;
-  width: 100%;
-  max-width: 900px;
+  max-width: 960px;
+  width: 95%;
   max-height: 90vh;
   overflow-y: auto;
-  position: relative;
   text-align: left;
+  display: flex;
+  flex-direction: column;
 }
 
-.modal-content h2 {
-  margin-top: 0;
-}
-
-.modal-content input,
-.modal-content button {
-  width: 100%;
-  padding: 0.8rem;
-  margin: 1rem 0;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-
+/* 모달 닫기 버튼 */
 .modal .close {
   position: absolute;
   top: 12px;
@@ -195,99 +169,91 @@ button:hover {
   cursor: pointer;
 }
 
-/* 장비 레이아웃 */
+/* 캐릭터 정보 */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* 장비/악세 정렬 */
 .equipment-columns {
   display: flex;
-  gap: 2rem;
   justify-content: space-between;
+  gap: 20px;
 }
-
-.equipment-left,
-.equipment-right {
+.equipment-left, .equipment-right {
   flex: 1;
 }
-
 .equipment-column {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 12px;
 }
 
+/* 아이템 카드 */
 .equipment-item {
-  display: flex;
-  align-items: flex-start;
-  background: #1e1e1e;
-  padding: 8px;
+  background-color: #2a2a2a;
   border-radius: 8px;
-  gap: 10px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
 }
 
 .item-icon-text {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
 .item-icon {
   width: 50px;
   height: 50px;
-  padding: 2px;
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
-  background-color: rgba(255,255,255,0.05);
-  border: 2px solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
 .item-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
-.item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.9rem;
-}
+/* 등급 배경색 */
+.grade-ancient .item-icon { background-color: #dcc999; }
+.grade-relic .item-icon { background-color: #a24006; }
+.grade-legendary .item-icon { background-color: #9e5f04; }
+.grade-epic .item-icon { background-color: #480d5d; }
+.grade-rare .item-icon { background-color: #a24006; }
 
+/* 텍스트 등급색 */
 .item-sub {
   font-size: 0.85rem;
   color: #ccc;
   position: relative;
   padding-left: 18px;
+  line-height: 1.5;
 }
 
-/* 옵션 등급 색상 */
-.grade-high {
-  color: #f9ae00 !important; /* 상 */
-}
+.item-sub.grade-high { color: #f9ae00; }
+.item-sub.grade-mid { color: #8045dd; }
+.item-sub.grade-low { color: #2a81f6; }
 
-.grade-mid {
-  color: #8045dd !important; /* 중 */
-}
-
-.grade-low {
-  color: #2a81f6 !important; /* 하 */
-}
-
-/* 등급별 배경색 */
-.grade-ancient .item-icon { background-color: #dcc999; }
-.grade-relic .item-icon   { background-color: #a24006; }
-.grade-legendary .item-icon { background-color: #9e5f04; }
-.grade-epic .item-icon    { background-color: #480d5d; }
-.grade-rare .item-icon    { background-color: #2a81f6; }
-
-/* 별 아이콘 */
+/* 별 표시 */
 .item-sub.show-star::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 2px;
+  top: 4px;
   width: 14px;
   height: 14px;
   background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
   background-size: contain;
   background-repeat: no-repeat;
+  background-position: center;
 }
 
 /* 반응형 */
@@ -296,22 +262,14 @@ button:hover {
     max-width: 100%;
     margin: 1rem 0;
   }
-
   .nav-container {
     flex-direction: column;
     align-items: stretch;
   }
-
-  .nav-links {
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-
-  .card-container {
-    grid-template-columns: 1fr;
-  }
-
   .equipment-columns {
     flex-direction: column;
+  }
+  .equipment-left, .equipment-right {
+    width: 100%;
   }
 }
