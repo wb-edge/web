@@ -28,7 +28,7 @@ export function showCharacterDetails(characterName) {
       `;
 
       const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
-      const accessoryOrder = ['목걸이', '귀걸이1', '귀걸이2', '반지1', '반지2', '팔찌'];
+      const accessoryOrder = ['목걸이', '귀걸이1', '귀걸이2', '반지1', '반지2', '어빌리티스톤'];
 
       const gearItems = [];
       const accessoryItems = [];
@@ -39,7 +39,7 @@ export function showCharacterDetails(characterName) {
         else if (name.includes('목걸이')) accessoryItems.push({ ...item, slot: '목걸이' });
         else if (name.includes('귀걸이')) accessoryItems.push({ ...item, slot: item.Type });
         else if (name.includes('반지')) accessoryItems.push({ ...item, slot: item.Type });
-        else if (name.includes('팔찌')) accessoryItems.push({ ...item, slot: '팔찌' });
+        else if (name.includes('팔찌')) accessoryItems.push({ ...item, slot: '어빌리티스톤' });
       });
 
       const getGradeClass = (grade) => {
@@ -106,6 +106,20 @@ export function showCharacterDetails(characterName) {
         return '';
       };
 
+      const getAccessoryOptions = (tooltipString) => {
+        const tooltip = parseTooltip(tooltipString);
+        const keys = Object.keys(tooltip);
+        const options = [];
+        for (const key of keys) {
+          const element = tooltip[key];
+          if (element?.type === 'IndentStringGroup') {
+            const lines = Object.values(element.value || {}).map(e => e?.contentStr || '').filter(Boolean);
+            options.push(...lines);
+          }
+        }
+        return options.slice(0, 3).map(line => line.replace(/<[^>]+>/g, '').trim());
+      };
+
       const equipmentList = document.getElementById('equipmentList');
       equipmentList.innerHTML = `
         <div class="equipment-columns">
@@ -143,13 +157,18 @@ export function showCharacterDetails(characterName) {
                 const item = accessoryItems.find(i => i.slot === slot);
                 if (!item) return '';
 
-                const reinforce = getReinforceText(item.Tooltip, '').replace(/^\+/, '');
+                const options = getAccessoryOptions(item.Tooltip);
 
                 return `
-                  <div class="equipment-item ${getGradeClass(item.Grade)}">
-                    <img src="${item.Icon}" alt="${item.Name}" />
-                    <div>${item.Name}</div>
-                    <div>${item.Grade} ${reinforce}</div>
+                  <div class="equipment-item">
+                    <div class="item-icon-text">
+                      <div class="item-icon ${getGradeClass(item.Grade)}">
+                        <img src="${item.Icon}" alt="${item.Name}" />
+                      </div>
+                      <div class="item-info" style="text-align:left">
+                        ${options.map(opt => `<div class="item-sub">${opt}</div>`).join('')}
+                      </div>
+                    </div>
                   </div>
                 `;
               }).join('')}
