@@ -1,8 +1,8 @@
 import { jobIconMap } from './icons.js';
 
 const optionStandards = [
-  { keyword: '적에게 주는 피해', std: 120 },
-  { keyword: '추가 피해', std: 160 },
+  { keyword: '적에게 주는 피해', std: 1.20 },
+  { keyword: '추가 피해', std: 1.60 },
   { keyword: '무기 공격력%', std: 180 },
   { keyword: '무기 공격력', std: 480 },
   { keyword: '공격력%', std: 95 },
