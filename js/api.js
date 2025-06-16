@@ -24,14 +24,19 @@ const optionStandards = [
 const getOptionGrade = (text) => {
   const numeric = parseFloat(text.replace(/[^\d.\-]/g, '')) || 0;
 
-  const matched = optionStandards
-    .slice()
-    .sort((a, b) => b.keyword.length - a.keyword.length)
-    .find(opt => {
-      const escaped = opt.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const pattern = new RegExp(escaped, 'i');
-      return pattern.test(text);
-    });
+  let matched = null;
+
+  for (const opt of optionStandards) {
+    if (text.includes(opt.keyword)) {
+      if (opt.keyword.includes('%')) {
+        if (!text.includes('%')) continue; // % 있어야 함
+      } else {
+        if (text.includes('%')) continue; // % 없어야 함
+      }
+      matched = opt;
+      break;
+    }
+  }
 
   if (!matched) return 'grade-unknown';
 
@@ -40,7 +45,6 @@ const getOptionGrade = (text) => {
   if (numeric === std) return 'grade-mid';
   return 'grade-low';
 };
-
 
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
