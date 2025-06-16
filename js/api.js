@@ -76,6 +76,31 @@ const shouldShowStar = (text, job) => {
   return matched;
 };
 
+const parseTooltip = (tooltip) => {
+  try {
+    return JSON.parse(tooltip);
+  } catch {
+    return {};
+  }
+};
+
+const parseAbilityStone = (tooltipString) => {
+  const tooltip = parseTooltip(tooltipString);
+  for (const key in tooltip) {
+    const element = tooltip[key];
+    if (element?.type === 'ItemTitle' && element.value?.includes('어빌리티 스톤')) continue;
+    if (element?.type === 'IndentStringGroup' && element.value?.Element_000?.contentStr) {
+      const raw = element.value.Element_000.contentStr;
+      const lines = raw
+        .split(/<BR>|<br>|\n/i)
+        .map(line => line.replace(/<[^>]+>/g, '').trim())
+        .filter(Boolean);
+      return lines.slice(0, 3);
+    }
+  }
+  return [];
+};
+
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return;
@@ -120,14 +145,6 @@ export function showCharacterDetails(characterName) {
         case '영웅': return 'grade-epic';
         case '희귀': return 'grade-rare';
         default: return '';
-      }
-    };
-
-    const parseTooltip = (tooltip) => {
-      try {
-        return JSON.parse(tooltip);
-      } catch {
-        return {};
       }
     };
 
@@ -180,7 +197,7 @@ export function showCharacterDetails(characterName) {
       return options.slice(0, 3);
     };
 
-    const renderItem = (item, options, job) => {
+    const renderItem = (item, options, job, isStone = false) => {
       return `
         <div class="equipment-item">
           <div class="item-icon-text">
@@ -189,7 +206,7 @@ export function showCharacterDetails(characterName) {
             </div>
             <div class="item-info" style="text-align:left">
               ${options.map(opt => `
-                <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, job) ? 'show-star' : ''}">${opt}</div>
+                <div class="item-sub ${!isStone ? getOptionGrade(opt) : ''} ${!isStone && shouldShowStar(opt, job) ? 'show-star' : ''}">${opt}</div>
               `).join('')}
             </div>
           </div>
@@ -228,7 +245,7 @@ export function showCharacterDetails(characterName) {
           <h3>악세사리</h3>
           <div class="equipment-column">
             ${accessoryItems.map(item => renderItem(item, getAccessoryOptions(item.Tooltip), profile.CharacterClassName)).join('')}
-            ${abilityStone ? renderItem(abilityStone, getAccessoryOptions(abilityStone.Tooltip), profile.CharacterClassName) : ''}
+            ${abilityStone ? renderItem(abilityStone, parseAbilityStone(abilityStone.Tooltip), profile.CharacterClassName, true) : ''}
           </div>
         </div>
       </div>
