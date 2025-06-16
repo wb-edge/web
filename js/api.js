@@ -113,15 +113,16 @@ export function showCharacterDetails(characterName) {
         for (const key of keys) {
           const element = tooltip[key];
           if (
-            element?.type === 'IndentStringGroup' &&
-            element.value?.Element_000?.topStr?.includes('연마 효과')
+            element?.type === 'ItemPartBox' &&
+            element.value?.Element_000?.includes('연마 효과')
           ) {
-            const value = element.value;
-            const effects = Object.values(value)
-              .map(v => v?.contentStr || '')
-              .filter(str => str.includes('연마 효과'))
-              .map(str => str.replace(/<[^>]+>/g, '').replace('연마 효과', '').trim());
-            options.push(...effects);
+            const raw = element.value.Element_001 || '';
+            const lines = raw
+              .replace(/<[^>]+>/g, '')
+              .split(/<BR>|\n|\r/)
+              .map(line => line.trim())
+              .filter(Boolean);
+            options.push(...lines);
           }
         }
         return options.slice(0, 3);
