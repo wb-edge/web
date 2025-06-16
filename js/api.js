@@ -142,10 +142,9 @@ export function showCharacterDetails(characterName) {
           ) {
             const raw = element.value.Element_001 || '';
             const lines = raw
-              .replace(/<[^>]+>/g, '')
-              .split(/<BR>|\\n|\\r/)
-              .map(line => line.trim())
-              .filter(Boolean);
+			  .split(/<br>|<BR>|\\n|\\r/i)
+			  .map(line => line.replace(/<[^>]+>/g, '').trim())
+			  .filter(Boolean);
             options.push(...lines);
           }
         }
