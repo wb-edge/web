@@ -112,12 +112,19 @@ export function showCharacterDetails(characterName) {
         const options = [];
         for (const key of keys) {
           const element = tooltip[key];
-          if (element?.type === 'IndentStringGroup') {
-            const lines = Object.values(element.value || {}).map(e => e?.contentStr || '').filter(Boolean);
-            options.push(...lines);
+          if (
+            element?.type === 'IndentStringGroup' &&
+            element.value?.Element_000?.topStr?.includes('연마 효과')
+          ) {
+            const value = element.value;
+            const effects = Object.values(value)
+              .map(v => v?.contentStr || '')
+              .filter(str => str.includes('연마 효과'))
+              .map(str => str.replace(/<[^>]+>/g, '').replace('연마 효과', '').trim());
+            options.push(...effects);
           }
         }
-        return options.slice(0, 3).map(line => line.replace(/<[^>]+>/g, '').trim());
+        return options.slice(0, 3);
       };
 
       const equipmentList = document.getElementById('equipmentList');
