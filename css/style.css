@@ -1,80 +1,142 @@
-/* 기본 스타일 */
-body {
-  background-color: #121212;
-  color: #f0f0f0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
+/* 박스 사이징 초기화 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-nav.navbar {
+/* 기본 스타일 */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #1e1e1e;
-  padding: 10px 20px;
+  color: #f5f5f5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.navbar {
+  background-color: #121212;
+  padding: 1rem;
   display: flex;
   justify-content: center;
-  border-bottom: 1px solid #333;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .nav-container {
-  display: flex;
+  max-width: 1200px;
   width: 100%;
-  max-width: 1000px;
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
 }
 
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #ffffff;
   cursor: pointer;
+}
+
+#searchInput {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  flex: 1;
+  margin: 0 1rem;
+  max-width: 400px;
 }
 
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 15px;
-  margin: 0;
-  padding: 0;
+  gap: 1rem;
 }
 
 .nav-links li {
-  display: inline;
+  display: flex;
+  align-items: center;
 }
 
-.nav-links a,
-.nav-links button {
-  color: #ccc;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  text-decoration: none;
-  padding: 5px 10px;
-}
-
-.nav-links button:hover,
-.nav-links a:hover {
-  color: #fff;
+button {
   background-color: #333;
-  border-radius: 4px;
-}
-
-#searchInput {
-  flex-grow: 1;
-  max-width: 300px;
-  padding: 8px;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #555;
-  background-color: #222;
   color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-/* 모달 기본 */
-.modal {
-  display: none;
+button:hover {
+  background-color: #555;
+}
+
+/* 결과 영역 */
+.results {
+  padding: 2rem;
+}
+
+.server-group {
+  margin-bottom: 2rem;
+}
+
+.server-group h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #888;
+  padding-left: 0.5rem;
+}
+
+/* 카드 컨테이너 */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* 카드 스타일 */
+.card {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.card:hover {
+  background-color: #3a3a3a;
+}
+
+.card img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 1rem;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.itemLevel {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+/* API KEY 모달 */
+.modal.api-key-modal {
+  display: none;  /* 기본 숨김 */
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -86,13 +148,26 @@ nav.navbar {
   justify-content: center;
 }
 
-/* 모달 콘텐츠 기본 */
-.modal-content {
+/* 캐릭터 상세 모달 */
+.modal.character-modal {
+  display: none;  /* 기본 숨김 */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content.api-key-content {
   background-color: #1f1f1f;
   padding: 20px;
   border-radius: 10px;
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -100,120 +175,117 @@ nav.navbar {
   text-align: center;
 }
 
-.close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  color: #ccc;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* 캐릭터 상세 모달 전용 */
-.modal.character-modal .modal-content {
-  max-width: 800px;
+.modal-content.character-detail-content {
+  background-color: #1f1f1f;
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  position: relative;
   text-align: left;
 }
 
-.equipment-columns {
-  display: flex;
-  gap: 30px;
-  margin-top: 20px;
+
+/* 모달 안 텍스트 */
+.modal-content h2 {
+  margin-top: 0;
 }
 
-.equipment-left,
-.equipment-right {
-  flex: 1;
-}
-
-.equipment-column {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.equipment-item {
-  display: flex;
-  align-items: center;
-}
-
-.item-icon-text {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.item-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.item-icon img {
+.modal-content input,
+.modal-content button {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  padding: 0.8rem;
+  margin: 1rem 0;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
 }
 
-.item-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.item-sub {
-  font-size: 0.85rem;
-  line-height: 1.2;
-}
-
-/* 등급 색상 */
-.item-sub.grade-high {
-  color: #ffcc00;
-  font-weight: bold;
-}
-
-.item-sub.grade-mid {
-  color: #66ccff;
-}
-
-.item-sub.grade-low {
-  color: #999;
-}
-
-.item-sub.grade-unknown {
-  color: #bbb;
-}
-
-/* 아이템 테두리 색상 */
-.item-icon.grade-ancient {
-  background-color: #dcc999;
-}
-.item-icon.grade-relic {
-  background-color: #a24006;
-}
-.item-icon.grade-legendary {
-  background-color: #9e5f04;
-}
-.item-icon.grade-epic {
-  background-color: #480d5d;
-}
-.item-icon.grade-rare {
-  background-color: #4169e1;
+/* 닫기 버튼 */
+.modal .close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
 }
 
 /* 반응형 */
-@media screen and (max-width: 768px) {
-  .equipment-columns {
-    flex-direction: column;
+@media (max-width: 768px) {
+  #searchInput {
+    max-width: 100%;
+    margin: 1rem 0;
   }
+
   .nav-container {
     flex-direction: column;
     align-items: stretch;
   }
-  #searchInput {
-    width: 100%;
+
+  .nav-links {
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .card-container {
+    grid-template-columns: 1fr;
   }
 }
+
+/* 장비 정보 그리드 */
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.equipment-item {
+  text-align: center;
+  background: #1e1e1e;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.equipment-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.profile {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.grade-ancient { color: #ffd700; }
+.grade-relic { color: #ff5e00; }
+.grade-legendary { color: #ffa500; }
+.grade-epic { color: #a335ee; }
+.grade-rare { color: #0070dd; }
+
+.item-sub {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.item-icon {
+  border: 2px solid #fff;
+  padding: 3px;
+  border-radius: 4px;
+  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.grade-ancient .item-icon { background-color: #ffd700; }
+.grade-relic .item-icon   { background-color: #ff5e00; }
+.grade-legendary .item-icon { background-color: #ffa500; }
+.grade-epic .item-icon    { background-color: #a335ee; }
+.grade-rare .item-icon    { background-color: #0070dd; }
+
