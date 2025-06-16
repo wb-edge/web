@@ -21,51 +21,58 @@ const optionStandards = [
   { keyword: '최대 생명력', std: 3250 }
 ];
 
+const dealerOnlyOptions = [
+  '공격력', '무기 공격력', '공격력%', '무기 공격력%',
+  '치명타 적중률', '치명타 피해', '적에게 주는 피해', '추가 피해'
+];
+
+const supporterOnlyOptions = [
+  '세레나데', '낙인력', '아군 피해량 강화', '아군 공격력 강화', '파티원 보호막', '무기 공격력'
+];
+
+const supporterJobs = ['바드', '도화가', '홀리나이트'];
+const isSupporter = (job) => supporterJobs.includes(job);
+
 const getOptionGrade = (text) => {
   const numeric = parseFloat(text.replace(/[^\d.\-]/g, '')) || 0;
-
   let matched = null;
 
   for (const opt of optionStandards) {
-    // 무기 공격력 특수 처리
-    if (opt.keyword.startsWith('무기 공격력')) {
-      if (text.includes('무기 공격력')) {
-        const isPercent = text.includes('%');
-        const isStdPercent = opt.keyword.includes('%');
-        if (isPercent === isStdPercent) {
-          matched = opt;
-          break;
-        }
+    if (opt.keyword.includes('무기 공격력') && text.includes('무기 공격력')) {
+      const isPercent = text.includes('%');
+      const isStdPercent = opt.keyword.includes('%');
+      if (isPercent === isStdPercent) {
+        matched = opt;
+        break;
       }
-    }
-
-    // 공격력 특수 처리 (단, 무기 공격력 제외)
-    else if (opt.keyword.startsWith('공격력')) {
-      if (text.includes('공격력') && !text.includes('무기 공격력')) {
-        const isPercent = text.includes('%');
-        const isStdPercent = opt.keyword.includes('%');
-        if (isPercent === isStdPercent) {
-          matched = opt;
-          break;
-        }
+    } else if (opt.keyword.includes('공격력') && !opt.keyword.includes('무기') && text.includes('공격력')) {
+      const isPercent = text.includes('%');
+      const isStdPercent = opt.keyword.includes('%');
+      if (isPercent === isStdPercent) {
+        matched = opt;
+        break;
       }
-    }
-
-    // 일반 항목 처리
-    else if (text.includes(opt.keyword)) {
+    } else if (text.includes(opt.keyword)) {
       matched = opt;
       break;
     }
   }
 
   if (!matched) return 'grade-unknown';
-
   const std = matched.std;
   if (numeric > std) return 'grade-high';
   if (numeric === std) return 'grade-mid';
   return 'grade-low';
 };
 
+const shouldShowStar = (optionText, job) => {
+  const isSup = isSupporter(job);
+  const inDealer = dealerOnlyOptions.some(opt => optionText.includes(opt));
+  const inSupport = supporterOnlyOptions.some(opt => optionText.includes(opt));
+  if (!isSup && inDealer) return true;
+  if (isSup && inSupport) return true;
+  return false;
+};
 
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
@@ -75,14 +82,10 @@ export function showCharacterDetails(characterName) {
 
   const profileUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`;
   const equipmentUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`;
-  const engravingsUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/engravings`;
-  const gemsUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/gems`;
 
   Promise.all([
     fetch(profileUrl, { headers }).then(res => res.json()),
-    fetch(equipmentUrl, { headers }).then(res => res.json()),
-    fetch(engravingsUrl, { headers }).then(res => res.json()),
-    fetch(gemsUrl, { headers }).then(res => res.json())
+    fetch(equipmentUrl, { headers }).then(res => res.json())
   ])
     .then(([profile, equipment]) => {
       const detailContent = document.getElementById('detailContent');
@@ -103,10 +106,7 @@ export function showCharacterDetails(characterName) {
       equipment.forEach(item => {
         const name = item.Type;
         if (gearOrder.includes(name)) gearItems.push(item);
-        else if (name.includes('목걸이')) accessoryItems.push(item);
-        else if (name.includes('귀걸이')) accessoryItems.push(item);
-        else if (name.includes('반지')) accessoryItems.push(item);
-        else if (name.includes('어빌리티스톤')) accessoryItems.push(item);
+        else if (accessoryOrder.includes(name)) accessoryItems.push(item);
       });
 
       const getGradeClass = (grade) => {
@@ -178,9 +178,9 @@ export function showCharacterDetails(characterName) {
           ) {
             const raw = element.value.Element_001 || '';
             const lines = raw
-			  .split(/<br>|<BR>|\\n|\\r/i)
-			  .map(line => line.replace(/<[^>]+>/g, '').trim())
-			  .filter(Boolean);
+              .split(/<br>|<BR>|\\n|\\r/i)
+              .map(line => line.replace(/<[^>]+>/g, '').trim())
+              .filter(Boolean);
             options.push(...lines);
           }
         }
@@ -223,7 +223,6 @@ export function showCharacterDetails(characterName) {
               ${accessoryOrder.map((slot, index) => {
                 const item = accessoryItems[index];
                 if (!item) return '';
-
                 const options = getAccessoryOptions(item.Tooltip);
 
                 return `
@@ -233,7 +232,12 @@ export function showCharacterDetails(characterName) {
                         <img src="${item.Icon}" alt="${item.Name}" />
                       </div>
                       <div class="item-info" style="text-align:left">
-                        ${options.map(opt => `<div class="item-sub ${getOptionGrade(opt)}">${opt}</div>`).join('')}
+                        ${options.map(opt => `
+                          <div class="item-sub ${getOptionGrade(opt)}">
+                            ${shouldShowStar(opt, profile.CharacterClassName) ? `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" style="width:12px;height:12px;margin-right:5px;vertical-align:middle;filter: drop-shadow(0 0 2px #f9ae00);" />` : ''}
+                            ${opt}
+                          </div>
+                        `).join('')}
                       </div>
                     </div>
                   </div>
