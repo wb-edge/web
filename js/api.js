@@ -141,13 +141,17 @@ export function showCharacterDetails(characterName) {
             <div class="equipment-column">
               ${accessoryOrder.map(slot => {
                 const item = accessoryItems.find(i => i.slot === slot);
-                return item ? `
+                if (!item) return '';
+
+                const reinforce = getReinforceText(item.Tooltip, '').replace(/^\+/, '');
+
+                return `
                   <div class="equipment-item ${getGradeClass(item.Grade)}">
                     <img src="${item.Icon}" alt="${item.Name}" />
                     <div>${item.Name}</div>
-                    <div>${item.Grade}</div>
+                    <div>${item.Grade} ${reinforce}</div>
                   </div>
-                ` : '';
+                `;
               }).join('')}
             </div>
           </div>
