@@ -224,7 +224,7 @@ export function showCharacterDetails(characterName) {
       equipment.forEach(item => {
         const name = item.Type;
         if (gearOrder.includes(name)) gearItems.push(item);
-        else if (name === '어빌리티스톤') abilityStone = item;
+        else if (name === '어빌리티 스톤') abilityStone = item;
         else if (accessoryOrder.includes(name)) accessoryItems.push(item);
       });
 
