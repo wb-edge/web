@@ -26,8 +26,12 @@ const getOptionGrade = (text) => {
 
   const matched = optionStandards
     .slice()
-    .sort((a, b) => b.keyword.length - a.keyword.length) // 길이 우선
-    .find(opt => text.includes(opt.keyword));
+    .sort((a, b) => b.keyword.length - a.keyword.length)
+    .find(opt => {
+      const escaped = opt.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = new RegExp(escaped, 'i');
+      return pattern.test(text);
+    });
 
   if (!matched) return 'grade-unknown';
 
@@ -36,6 +40,7 @@ const getOptionGrade = (text) => {
   if (numeric === std) return 'grade-mid';
   return 'grade-low';
 };
+
 
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
