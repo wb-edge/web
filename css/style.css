@@ -135,22 +135,9 @@ button:hover {
 }
 
 /* API KEY 모달 */
-.modal.api-key-modal {
-  display: none;  /* 기본 숨김 */
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.7);
-  align-items: center;
-  justify-content: center;
-}
-
-/* 캐릭터 상세 모달 */
+.modal.api-key-modal,
 .modal.character-modal {
-  display: none;  /* 기본 숨김 */
+  display: none;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -188,8 +175,6 @@ button:hover {
   text-align: left;
 }
 
-
-/* 모달 안 텍스트 */
 .modal-content h2 {
   margin-top: 0;
 }
@@ -205,7 +190,6 @@ button:hover {
   font-size: 1rem;
 }
 
-/* 닫기 버튼 */
 .modal .close {
   position: absolute;
   top: 12px;
@@ -221,71 +205,114 @@ button:hover {
     max-width: 100%;
     margin: 1rem 0;
   }
-
   .nav-container {
     flex-direction: column;
     align-items: stretch;
   }
-
   .nav-links {
     justify-content: center;
     margin-top: 0.5rem;
   }
-
   .card-container {
     grid-template-columns: 1fr;
   }
+  .equipment-columns {
+    flex-direction: column;
+  }
 }
 
-/* 장비 정보 그리드 */
-.equipment-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 12px;
-  margin-top: 1rem;
+.equipment-columns {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.equipment-left,
+.equipment-right {
+  flex: 1;
+}
+
+.equipment-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .equipment-item {
-  text-align: center;
+  display: flex;
+  align-items: center;
   background: #1e1e1e;
   padding: 8px;
   border-radius: 8px;
 }
 
-.equipment-item img {
+.item-icon-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-icon {
   width: 50px;
   height: 50px;
+  border: 2px solid #fff;
+  padding: 3px;
+  border-radius: 4px;
+  display: inline-block;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.item-icon img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  margin-bottom: 4px;
 }
 
-.profile {
-  text-align: center;
-  margin-bottom: 1rem;
+.item-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
-
-.grade-ancient { color: #ffd700; }
-.grade-relic { color: #ff5e00; }
-.grade-legendary { color: #ffa500; }
-.grade-epic { color: #a335ee; }
-.grade-rare { color: #0070dd; }
 
 .item-sub {
   font-size: 0.85rem;
   color: #ccc;
 }
 
-.item-icon {
-  border: 2px solid #fff;
-  padding: 3px;
-  border-radius: 4px;
-  display: inline-block;
-  background-color: rgba(0, 0, 0, 0.2);
+/* 등급 색상 텍스트 */
+.item-sub.grade-high {
+  color: #ffcc00;
+  font-weight: bold;
+}
+.item-sub.grade-mid {
+  color: #66ccff;
+}
+.item-sub.grade-low {
+  color: #999;
+}
+.item-sub.grade-unknown {
+  color: #bbb;
 }
 
-.grade-ancient .item-icon { background-color: #ffd700; }
-.grade-relic .item-icon   { background-color: #ff5e00; }
-.grade-legendary .item-icon { background-color: #ffa500; }
-.grade-epic .item-icon    { background-color: #a335ee; }
-.grade-rare .item-icon    { background-color: #0070dd; }
+/* 등급 색상 배경 */
+.grade-ancient .item-icon {
+  background-color: #ffd700;
+}
+.grade-relic .item-icon {
+  background-color: #ff5e00;
+}
+.grade-legendary .item-icon {
+  background-color: #ffa500;
+}
+.grade-epic .item-icon {
+  background-color: #a335ee;
+}
+.grade-rare .item-icon {
+  background-color: #0070dd;
+}
 
+.profile {
+  text-align: center;
+  margin-bottom: 1rem;
+}
