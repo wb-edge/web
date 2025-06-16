@@ -1,4 +1,4 @@
-/* 박스 사이징 초기화 */
+/* 초기화 */
 *,
 *::before,
 *::after {
@@ -17,6 +17,7 @@ a {
   text-decoration: none;
 }
 
+/* 상단 바 */
 .navbar {
   background-color: #121212;
   padding: 1rem;
@@ -72,6 +73,7 @@ button:hover {
   background-color: #555;
 }
 
+/* 결과 영역 */
 .results {
   padding: 2rem;
 }
@@ -87,6 +89,7 @@ button:hover {
   padding-left: 0.5rem;
 }
 
+/* 캐릭터 카드 */
 .card-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -130,6 +133,7 @@ button:hover {
   color: #ccc;
 }
 
+/* 모달 */
 .modal.api-key-modal,
 .modal.character-modal {
   display: none;
@@ -152,7 +156,6 @@ button:hover {
   max-width: 400px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
   position: relative;
   text-align: center;
 }
@@ -165,7 +168,6 @@ button:hover {
   max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0,0,0,0.6);
   position: relative;
   text-align: left;
 }
@@ -177,7 +179,6 @@ button:hover {
 .modal-content input,
 .modal-content button {
   width: 100%;
-  max-width: 100%;
   padding: 0.8rem;
   margin: 1rem 0;
   border: none;
@@ -194,31 +195,11 @@ button:hover {
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
-  #searchInput {
-    max-width: 100%;
-    margin: 1rem 0;
-  }
-  .nav-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .nav-links {
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-  .card-container {
-    grid-template-columns: 1fr;
-  }
-  .equipment-columns {
-    flex-direction: column;
-  }
-}
-
+/* 장비 레이아웃 */
 .equipment-columns {
   display: flex;
-  gap: 30px;
-  margin-top: 20px;
+  gap: 2rem;
+  justify-content: space-between;
 }
 
 .equipment-left,
@@ -229,90 +210,100 @@ button:hover {
 .equipment-column {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 0.5rem;
 }
 
 .equipment-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   background: #1e1e1e;
   padding: 8px;
   border-radius: 8px;
+  gap: 10px;
 }
 
 .item-icon-text {
   display: flex;
-  align-items: center;
   gap: 10px;
 }
 
 .item-icon {
   width: 50px;
   height: 50px;
-  border: 2px solid #fff;
-  padding: 3px;
-  border-radius: 4px;
-  display: inline-block;
+  padding: 2px;
+  border-radius: 6px;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255,255,255,0.05);
+  border: 2px solid #444;
 }
 
 .item-icon img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .item-info {
   display: flex;
   flex-direction: column;
-  text-align: left;
-  white-space: pre-line;
+  gap: 4px;
+  font-size: 0.9rem;
 }
 
 .item-sub {
   font-size: 0.85rem;
   color: #ccc;
-  word-break: keep-all;
   position: relative;
-  padding-left: 22px;
-  line-height: 1.4;
+  padding-left: 18px;
 }
 
-/* 별 아이콘 자리 유지, 기본은 투명 */
-.item-sub::before {
+/* 옵션 등급 색상 */
+.grade-high { color: #f9ae00; }
+.grade-mid  { color: #8045dd; }
+.grade-low  { color: #2a81f6; }
+
+/* 등급별 배경색 */
+.grade-ancient .item-icon { background-color: #dcc999; }
+.grade-relic .item-icon   { background-color: #a24006; }
+.grade-legendary .item-icon { background-color: #9e5f04; }
+.grade-epic .item-icon    { background-color: #480d5d; }
+.grade-rare .item-icon    { background-color: #2a81f6; }
+
+/* 별 아이콘 */
+.item-sub.show-star::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 3px;
-  width: 12px;
-  height: 12px;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
   background-size: contain;
   background-repeat: no-repeat;
-  background-position: center;
-  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
-  opacity: 0;
 }
 
-/* 유효 옵션만 별 표시 */
-.item-sub.show-star::before {
-  opacity: 1;
-  filter: drop-shadow(0 0 2px currentColor);
-}
+/* 반응형 */
+@media (max-width: 768px) {
+  #searchInput {
+    max-width: 100%;
+    margin: 1rem 0;
+  }
 
-/* 등급 색상 텍스트 */
-.item-sub.grade-high { color: #f9ae00; }
-.item-sub.grade-mid { color: #8045dd; }
-.item-sub.grade-low { color: #2a81f6; }
+  .nav-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-/* 등급 배경 */
-.grade-ancient .item-icon { background-color: #ffd700; }
-.grade-relic .item-icon   { background-color: #ff5e00; }
-.grade-legendary .item-icon { background-color: #ffa500; }
-.grade-epic .item-icon    { background-color: #a335ee; }
-.grade-rare .item-icon    { background-color: #0070dd; }
+  .nav-links {
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
 
-.profile {
-  text-align: center;
-  margin-bottom: 1rem;
+  .card-container {
+    grid-template-columns: 1fr;
+  }
+
+  .equipment-columns {
+    flex-direction: column;
+  }
 }
