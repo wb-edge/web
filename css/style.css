@@ -177,29 +177,29 @@ button:hover {
   margin-bottom: 20px;
 }
 
-/* 장비/악세 정렬 */
 .equipment-columns {
   display: flex;
-  justify-content: space-between;
   gap: 20px;
+  align-items: stretch;
 }
+
 .equipment-left, .equipment-right {
   flex: 1;
 }
 .equipment-column {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: repeat(6, 1fr); /* 정확히 6줄로 강제 정렬 */
   gap: 12px;
 }
-
-/* 아이템 카드 */
 .equipment-item {
+  display: flex;
+  align-items: center;
   background-color: #2a2a2a;
   border-radius: 8px;
   padding: 6px 8px;
-  display: flex;
-  align-items: center;
+  min-height: 72px; /* 기본 높이 지정 (아이콘 + 텍스트 공간 확보) */
 }
+
 
 .item-icon-text {
   display: flex;
