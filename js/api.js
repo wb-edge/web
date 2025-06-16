@@ -65,14 +65,14 @@ const getOptionGrade = (text) => {
   return 'grade-low';
 };
 
-const shouldShowStar = (optionText, job) => {
+const shouldShowStar = (text, job) => {
   const isSup = isSupporter(job);
-  const inDealer = dealerOnlyOptions.some(opt => optionText.includes(opt));
-  const inSupport = supporterOnlyOptions.some(opt => optionText.includes(opt));
-  if (!isSup && inDealer) return true;
-  if (isSup && inSupport) return true;
-  return false;
+  const matched = isSup
+    ? supporterOptions.some(opt => text.includes(opt))
+    : dealerOptions.some(opt => text.includes(opt));
+  return matched;
 };
+
 
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
@@ -233,10 +233,7 @@ export function showCharacterDetails(characterName) {
                       </div>
                       <div class="item-info" style="text-align:left">
                         ${options.map(opt => `
-                          <div class="item-sub ${getOptionGrade(opt)}">
-                            ${shouldShowStar(opt, profile.CharacterClassName) ? `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" style="width:12px;height:12px;margin-right:5px;vertical-align:middle;filter: drop-shadow(0 0 2px #f9ae00);" />` : ''}
-                            ${opt}
-                          </div>
+                          <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, profile.CharacterClassName) ? 'show-star' : ''}">${opt}</div>
                         `).join('')}
                       </div>
                     </div>
