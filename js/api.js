@@ -96,12 +96,30 @@ const parseAbilityStone = (tooltipString) => {
       const lines = Object.values(rawObj)
         .map(el => el.contentStr || '')
         .map(line => line.replace(/<[^>]+>/g, '').trim())
-        .filter(Boolean);
-      return lines.slice(0, 3); // 최대 3줄 표시
+        .filter(Boolean)
+        .slice(0, 3)
+        .map(line => {
+          // [원한] Lv.2 -> 원한 Lv.2
+          const cleaned = line.replace(/\[|\]/g, '');
+          if (cleaned.includes('감소')) {
+            return `<span style="color:#ff4c4c">${cleaned}</span>`;
+          } else {
+            const match = cleaned.match(/Lv\.(\d)/);
+            if (!match) return cleaned;
+            const lv = parseInt(match[1]);
+            let color = '#ccc';
+            if (lv === 3) color = '#f9ae00';
+            else if (lv === 2) color = '#8045dd';
+            else if (lv === 1) color = '#2a81f6';
+            return cleaned.replace(`Lv.${lv}`, `<span style="color:${color}">Lv.${lv}</span>`);
+          }
+        });
+      return lines;
     }
   }
   return [];
 };
+
 
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
