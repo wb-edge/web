@@ -21,17 +21,20 @@ const optionStandards = [
   { keyword: '최대 생명력', std: 3250 }
 ];
 
-const dealerOnlyOptions = [
+const dealerOptions = [
   '공격력', '무기 공격력', '공격력%', '무기 공격력%',
-  '치명타 적중률', '치명타 피해', '적에게 주는 피해', '추가 피해'
+  '치명타 적중률', '치명타 피해',
+  '적에게 주는 피해', '추가 피해'
 ];
 
-const supporterOnlyOptions = [
-  '세레나데', '낙인력', '아군 피해량 강화', '아군 공격력 강화', '파티원 보호막', '무기 공격력'
+const supporterOptions = [
+  '세레나데', '낙인력', '아군 피해량 강화',
+  '아군 공격력 강화', '파티원 보호막', '무기 공격력'
 ];
 
-const supporterJobs = ['바드', '도화가', '홀리나이트'];
-const isSupporter = (job) => supporterJobs.includes(job);
+const isSupporter = (job) => {
+  return ['바드', '도화가', '홀리나이트'].includes(job);
+};
 
 const getOptionGrade = (text) => {
   const numeric = parseFloat(text.replace(/[^\d.\-]/g, '')) || 0;
