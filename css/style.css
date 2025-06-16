@@ -273,26 +273,45 @@ button:hover {
   display: flex;
   flex-direction: column;
   text-align: left;
+  white-space: pre-line;
 }
 
 .item-sub {
   font-size: 0.85rem;
   color: #ccc;
+  word-break: keep-all;
+  position: relative;
+  padding-left: 22px;
+  line-height: 1.4;
 }
 
-/* 등급 색상 텍스트 */
-.item-sub.grade-high {
-  color: #ffcc00;
-  font-weight: bold;
+.item-sub.grade-high::before,
+.item-sub.grade-mid::before,
+.item-sub.grade-low::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 3px;
+  width: 12px;
+  height: 12px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
-.item-sub.grade-mid {
-  color: #66ccff;
+
+.item-sub.grade-high::before {
+  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
+  filter: drop-shadow(0 0 2px #f9ae00);
 }
-.item-sub.grade-low {
-  color: #999;
+
+.item-sub.grade-mid::before {
+  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
+  filter: drop-shadow(0 0 2px #8045dd);
 }
-.item-sub.grade-unknown {
-  color: #bbb;
+
+.item-sub.grade-low::before {
+  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
+  filter: drop-shadow(0 0 2px #2a81f6);
 }
 
 /* 등급 색상 배경 */
