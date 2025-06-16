@@ -28,7 +28,7 @@ export function showCharacterDetails(characterName) {
       `;
 
       const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
-      const accessoryOrder = ['목걸이', '귀걸이1', '귀걸이2', '반지1', '반지2', '어빌리티스톤'];
+      const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지', '어빌리티스톤'];
 
       const gearItems = [];
       const accessoryItems = [];
@@ -37,9 +37,9 @@ export function showCharacterDetails(characterName) {
         const name = item.Type;
         if (gearOrder.includes(name)) gearItems.push(item);
         else if (name.includes('목걸이')) accessoryItems.push({ ...item, slot: '목걸이' });
-        else if (name.includes('귀걸이')) accessoryItems.push({ ...item, slot: item.Type });
-        else if (name.includes('반지')) accessoryItems.push({ ...item, slot: item.Type });
-        else if (name.includes('팔찌')) accessoryItems.push({ ...item, slot: '어빌리티스톤' });
+        else if (name.includes('귀걸이')) accessoryItems.push({ ...item, slot: '귀걸이' });
+        else if (name.includes('반지')) accessoryItems.push({ ...item, slot: '반지' });
+        else if (name.includes('어빌리티스톤')) accessoryItems.push({ ...item, slot: '어빌리티스톤' });
       });
 
       const getGradeClass = (grade) => {
@@ -153,8 +153,8 @@ export function showCharacterDetails(characterName) {
           <div class="equipment-right">
             <h3>악세사리</h3>
             <div class="equipment-column">
-              ${accessoryOrder.map(slot => {
-                const item = accessoryItems.find(i => i.slot === slot);
+              ${accessoryOrder.map((slot, index) => {
+                const item = accessoryItems[index];
                 if (!item) return '';
 
                 const options = getAccessoryOptions(item.Tooltip);
