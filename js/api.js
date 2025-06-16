@@ -117,7 +117,7 @@ export function showCharacterDetails(characterName) {
                 if (!item) return '';
 
                 const transcend = getTranscendText(item.Tooltip);
-                const reinforce = getReinforceText(item.Tooltip, '').replace(/^\+/, '');
+                const reinforce = getReinforceText(item.Tooltip, item.Name);
 
                 return `
                   <div class="equipment-item">
@@ -127,7 +127,7 @@ export function showCharacterDetails(characterName) {
                       </div>
                       <div class="item-info" style="text-align:left">
                         ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
-                        <div class="item-sub">+${item.Tier || ''} ${reinforce}</div>
+                        <div class="item-sub">${reinforce}</div>
                       </div>
                     </div>
                   </div>
