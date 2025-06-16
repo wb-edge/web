@@ -88,14 +88,16 @@ const parseAbilityStone = (tooltipString) => {
   const tooltip = parseTooltip(tooltipString);
   for (const key in tooltip) {
     const element = tooltip[key];
-    if (element?.type === 'ItemTitle' && element.value?.includes('어빌리티 스톤')) continue;
-    if (element?.type === 'IndentStringGroup' && element.value?.Element_000?.contentStr) {
-      const raw = element.value.Element_000.contentStr;
-      const lines = raw
-        .split(/<BR>|<br>|\n/i)
+    if (
+      element?.type === 'IndentStringGroup' &&
+      element.value?.Element_000?.contentStr
+    ) {
+      const rawObj = element.value.Element_000.contentStr;
+      const lines = Object.values(rawObj)
+        .map(el => el.contentStr || '')
         .map(line => line.replace(/<[^>]+>/g, '').trim())
         .filter(Boolean);
-      return lines.slice(0, 3);
+      return lines.slice(0, 3); // 최대 3줄 표시
     }
   }
   return [];
