@@ -27,12 +27,32 @@ const getOptionGrade = (text) => {
   let matched = null;
 
   for (const opt of optionStandards) {
-    if (text.includes(opt.keyword)) {
-      if (opt.keyword.includes('%')) {
-        if (!text.includes('%')) continue; // % 있어야 함
-      } else {
-        if (text.includes('%')) continue; // % 없어야 함
+    // 무기 공격력 특수 처리
+    if (opt.keyword.startsWith('무기 공격력')) {
+      if (text.includes('무기 공격력')) {
+        const isPercent = text.includes('%');
+        const isStdPercent = opt.keyword.includes('%');
+        if (isPercent === isStdPercent) {
+          matched = opt;
+          break;
+        }
       }
+    }
+
+    // 공격력 특수 처리 (단, 무기 공격력 제외)
+    else if (opt.keyword.startsWith('공격력')) {
+      if (text.includes('공격력') && !text.includes('무기 공격력')) {
+        const isPercent = text.includes('%');
+        const isStdPercent = opt.keyword.includes('%');
+        if (isPercent === isStdPercent) {
+          matched = opt;
+          break;
+        }
+      }
+    }
+
+    // 일반 항목 처리
+    else if (text.includes(opt.keyword)) {
       matched = opt;
       break;
     }
@@ -45,6 +65,7 @@ const getOptionGrade = (text) => {
   if (numeric === std) return 'grade-mid';
   return 'grade-low';
 };
+
 
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
