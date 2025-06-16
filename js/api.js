@@ -248,6 +248,47 @@ export function showCharacterDetails(characterName) {
         </div>
       `;
 
+// ⭐️ 4. 어빌리티 스톤 렌더링 함수 추가
+const renderAbilityStone = (stone, job) => {
+  const tooltip = parseTooltip(stone.Tooltip);
+  const options = [];
+  for (const key in tooltip) {
+    const element = tooltip[key];
+    if (
+      element?.type === 'ItemPartBox' &&
+      element.value?.Element_000?.includes('연마 효과')
+    ) {
+      const raw = element.value.Element_001 || '';
+      const lines = raw
+        .split(/<br>|<BR>|\n|\r/i)
+        .map(line => line.replace(/<[^>]+>/g, '').trim())
+        .filter(Boolean);
+      options.push(...lines);
+    }
+  }
+  return `
+    <div class="equipment-item">
+      <div class="item-icon-text">
+        <div class="item-icon ${getGradeClass(stone.Grade)}">
+          <img src="${stone.Icon}" alt="${stone.Name}" />
+        </div>
+        <div class="item-info" style="text-align:left">
+          ${options.slice(0, 3).map(opt => `
+            <div class="item-sub ${getOptionGrade(opt)} ${shouldShowStar(opt, job) ? 'show-star' : ''}">${opt}</div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+// ⭐️ 5. 어빌리티 스톤 출력 위치 예시 (악세사리 이후)
+const stone = accessoryItems.find(i => i.Type === '어빌리티스톤');
+if (stone) {
+  const stoneHTML = renderAbilityStone(stone, profile.CharacterClassName);
+  document.querySelector('.equipment-right .equipment-column').insertAdjacentHTML('beforeend', stoneHTML);
+}
+
       const modal = document.getElementById('characterDetailModal');
       modal.style.display = 'flex';
     });
