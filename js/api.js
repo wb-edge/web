@@ -23,7 +23,11 @@ const optionStandards = [
 
 const getOptionGrade = (text) => {
   const numeric = parseFloat(text.replace(/[^\d.\-]/g, '')) || 0;
-  const matched = optionStandards.find(opt => text.includes(opt.keyword));
+  const matched = optionStandards
+  .slice()
+  .sort((a, b) => b.keyword.length - a.keyword.length)  // 긴 키워드 우선
+  .find(opt => text.includes(opt.keyword));
+
   if (!matched) return 'grade-unknown';
   const std = matched.std;
   if (numeric > std) return 'grade-high';
