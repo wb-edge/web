@@ -1,5 +1,36 @@
 import { jobIconMap } from './icons.js';
 
+const optionStandards = [
+  { keyword: '적에게 주는 피해', std: 120 },
+  { keyword: '추가 피해', std: 160 },
+  { keyword: '무기 공격력%', std: 180 },
+  { keyword: '무기 공격력', std: 480 },
+  { keyword: '공격력%', std: 95 },
+  { keyword: '공격력', std: 195 },
+  { keyword: '치명타 적중률', std: 95 },
+  { keyword: '치명타 피해', std: 240 },
+  { keyword: '세레나데', std: 360 },
+  { keyword: '낙인력', std: 480 },
+  { keyword: '최대 마나', std: 15 },
+  { keyword: '상태이상', std: 50 },
+  { keyword: '전투 중 생명력', std: 25 },
+  { keyword: '파티원 회복', std: 210 },
+  { keyword: '아군 피해량 강화', std: 450 },
+  { keyword: '아군 공격력 강화', std: 300 },
+  { keyword: '파티원 보호막', std: 210 },
+  { keyword: '최대 생명력', std: 3250 }
+];
+
+const getOptionGrade = (text) => {
+  const numeric = parseFloat(text.replace(/[^\d.\-]/g, '')) || 0;
+  const matched = optionStandards.find(opt => text.includes(opt.keyword));
+  if (!matched) return 'grade-unknown';
+  const std = matched.std;
+  if (numeric > std) return 'grade-high';
+  if (numeric === std) return 'grade-mid';
+  return 'grade-low';
+};
+
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return;
@@ -17,7 +48,7 @@ export function showCharacterDetails(characterName) {
     fetch(engravingsUrl, { headers }).then(res => res.json()),
     fetch(gemsUrl, { headers }).then(res => res.json())
   ])
-    .then(([profile, equipment, engravings, gems]) => {
+    .then(([profile, equipment]) => {
       const detailContent = document.getElementById('detailContent');
       detailContent.innerHTML = `
         <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
@@ -36,10 +67,10 @@ export function showCharacterDetails(characterName) {
       equipment.forEach(item => {
         const name = item.Type;
         if (gearOrder.includes(name)) gearItems.push(item);
-        else if (name.includes('목걸이')) accessoryItems.push({ ...item, slot: '목걸이' });
-        else if (name.includes('귀걸이')) accessoryItems.push({ ...item, slot: '귀걸이' });
-        else if (name.includes('반지')) accessoryItems.push({ ...item, slot: '반지' });
-        else if (name.includes('어빌리티스톤')) accessoryItems.push({ ...item, slot: '어빌리티스톤' });
+        else if (name.includes('목걸이')) accessoryItems.push(item);
+        else if (name.includes('귀걸이')) accessoryItems.push(item);
+        else if (name.includes('반지')) accessoryItems.push(item);
+        else if (name.includes('어빌리티스톤')) accessoryItems.push(item);
       });
 
       const getGradeClass = (grade) => {
@@ -61,38 +92,14 @@ export function showCharacterDetails(characterName) {
         }
       };
 
-      const getReinforceText = (tooltipString, name) => {
-        const tooltip = parseTooltip(tooltipString);
-        const keys = Object.keys(tooltip);
-        let reinforceLevel = '';
-        for (const key of keys) {
-          const element = tooltip[key];
-          const value = element?.value || '';
-          if (
-            element.type === 'SingleTextBox' &&
-            value.includes('상급 재련') &&
-            value.includes('단계')
-          ) {
-            const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
-            const stage = match ? match[1] : '';
-            reinforceLevel = `x${stage}`;
-            break;
-          }
-        }
-        return `${name} ${reinforceLevel}`.trim();
-      };
-
       const getTranscendText = (tooltipString) => {
         const tooltip = parseTooltip(tooltipString);
-        const keys = Object.keys(tooltip);
-        for (const key of keys) {
+        for (const key in tooltip) {
           const element = tooltip[key];
           const value = element?.value;
           if (
             element.type === 'IndentStringGroup' &&
-            value?.Element_000?.topStr?.includes('슬롯 효과') &&
-            value.Element_000.topStr.includes('초월') &&
-            value.Element_000.topStr.includes('단계')
+            value?.Element_000?.topStr?.includes('초월')
           ) {
             const clean = value.Element_000.topStr.replace(/<[^>]+>/g, '').trim();
             const match = clean.match(/(\d+)단계\s*(\d+)/);
@@ -106,11 +113,28 @@ export function showCharacterDetails(characterName) {
         return '';
       };
 
+      const getReinforceText = (tooltipString, name) => {
+        const tooltip = parseTooltip(tooltipString);
+        for (const key in tooltip) {
+          const element = tooltip[key];
+          const value = element?.value || '';
+          if (
+            element.type === 'SingleTextBox' &&
+            value.includes('상급 재련')
+          ) {
+            const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
+            const stage = match ? match[1] : '';
+            return `${name} x${stage}`;
+          }
+        }
+        return name;
+      };
+
       const getAccessoryOptions = (tooltipString) => {
         const tooltip = parseTooltip(tooltipString);
-        const keys = Object.keys(tooltip);
         const options = [];
-        for (const key of keys) {
+
+        for (const key in tooltip) {
           const element = tooltip[key];
           if (
             element?.type === 'ItemPartBox' &&
@@ -119,7 +143,7 @@ export function showCharacterDetails(characterName) {
             const raw = element.value.Element_001 || '';
             const lines = raw
               .replace(/<[^>]+>/g, '')
-              .split(/<BR>|\n|\r/)
+              .split(/<BR>|\\n|\\r/)
               .map(line => line.trim())
               .filter(Boolean);
             options.push(...lines);
@@ -174,7 +198,7 @@ export function showCharacterDetails(characterName) {
                         <img src="${item.Icon}" alt="${item.Name}" />
                       </div>
                       <div class="item-info" style="text-align:left">
-                        ${options.map(opt => `<div class="item-sub">${opt}</div>`).join('')}
+                        ${options.map(opt => `<div class="item-sub ${getOptionGrade(opt)}">${opt}</div>`).join('')}
                       </div>
                     </div>
                   </div>
