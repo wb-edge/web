@@ -271,3 +271,36 @@ button:hover {
     width: 100%;
   }
 }
+
+.bracelet-tooltip-wrapper {
+  position: relative;
+}
+
+.bracelet-tooltip {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  background: #2a2a2a;
+  padding: 12px;
+  border-radius: 8px;
+  width: 280px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  z-index: 999;
+  display: none;
+}
+
+.bracelet-tooltip.hidden {
+  display: none;
+}
+
+.bracelet-tooltip .tooltip-title {
+  font-weight: bold;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+.bracelet-tooltip .tooltip-line {
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  color: #ddd;
+}

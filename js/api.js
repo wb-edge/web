@@ -251,17 +251,16 @@ export function showCharacterDetails(characterName) {
     });
 
     // 투구 특수 연성 효과
-    let specialRefineText = '';
-    const helmet = gearItems.find(i => i.Type === '투구');
-    if (helmet) {
-      const tooltip = parseTooltip(helmet.Tooltip);
-      const topStr = tooltip?.Element_011?.value?.Element_000?.topStr;
-      if (topStr) {
-        const clean = topStr.replace(/<[^>]+>/g, '');
-        const match = clean.match(/(회심|달인|정밀|신속)[^\s]*/); // 회심 (2단계)
-        if (match) specialRefineText = match[0];
-      }
-    }
+let specialRefineText = '';
+const helmet = gearItems.find(i => i.Type === '투구');
+if (helmet) {
+  const tooltip = parseTooltip(helmet.Tooltip);
+  const topStr = tooltip?.Element_011?.value?.Element_000?.topStr;
+  if (topStr) {
+    const match = topStr.match(/<FONT[^>]*?color=['"]?#91FE02['"]?[^>]*>(.*?)<\/FONT>/i);
+    if (match) specialRefineText = match[1].trim();
+  }
+}
 
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
