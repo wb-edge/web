@@ -267,7 +267,7 @@ export function showCharacterDetails(characterName) {
 		const tooltip = parseTooltip(bracelet.Tooltip);
 	    const html = tooltip?.Element_004?.value?.Element_001 || '';
 	    const clean = html
-  	      .replace(/<img[^>]*>/g, '')
+  	      //.replace(/<img[^>]*>/g, '')
 	      .replace(/<br\s*\/?>/gi, '\n')
 	      .replace(/<[^>]+>/g, '')
 	      .trim();
