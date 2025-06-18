@@ -242,51 +242,60 @@ export function showCharacterDetails(characterName) {
       return name;
     };
 
-const getAccessoryOptions = (tooltipString) => {
+const getAccessoryOptions = (tooltipString, job) => {
   const tooltip = parseTooltip(tooltipString);
   const options = [];
+
   for (const key in tooltip) {
     const element = tooltip[key];
-    if (element?.type === 'ItemPartBox' && element.value?.Element_000?.includes('연마 효과')) {
+    if (
+      element?.type === 'ItemPartBox' &&
+      element.value?.Element_000?.includes('연마 효과')
+    ) {
       const raw = element.value.Element_001 || '';
       const lines = raw
-        .split(/<br>|<BR>|\n|\r/i)
-        .map(line => line
-          .replace(/<img[^>]*>/gi, '')       // ⭐ 별 아이콘 <img> 제거
-          .replace(/<[^>]+>/g, '')           // 나머지 태그 제거
-          .trim())
+        .split(/<br>|<BR>|\\n|\\r/i)
+        .map(line => {
+          const clean = line.replace(/<img[^>]*>/gi, '').replace(/<[^>]+>/g, '').trim();
+          const gradeClass = getOptionGrade(clean);
+          const valueMatch = clean.match(/([+-]?\\d+\\.?\\d*%?)/);
+          const value = valueMatch ? valueMatch[1] : '';
+          const text = valueMatch ? clean.replace(value, '').trim() : clean;
+          const coloredValue = value ? `<span class=\"${gradeClass}\">${value}</span>` : '';
+
+          const showStar = shouldShowStar(clean, job);
+          return `
+            <div class="item-sub${showStar ? ' show-star' : ''}">
+              ${showStar ? '' : '<span style="display:inline-block;width:17px;"></span>'}
+              ${text} ${coloredValue}
+            </div>
+          `;
+        })
         .filter(Boolean);
+
       options.push(...lines);
     }
   }
+
   return options.slice(0, 3);
 };
 
-
     // 장비/악세 UI 렌더링
-	const renderItem = (item, options, job, isStone = false) => {
-	  return `
-	    <div class="equipment-item">
-	      <div class="item-icon-text">
-	        <div class="item-icon ${getGradeClass(item.Grade)}">
-	          <img src="${item.Icon}" alt="${item.Name}" />
-	        </div>
-	        <div class="item-info" style="text-align:left">
-	          ${options.map(opt => {
-	            const hasStar = !isStone && shouldShowStar(opt, job);
-	            return `
-	              <div class="item-sub ${hasStar ? 'show-star' : ''}">
-	                ${hasStar ? `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" style="width:12px;height:12px;margin-right:5px;vertical-align:middle;filter: drop-shadow(0 0 2px #f9ae00);" />` : ''}
-	                ${!isStone ? formatOptionWithGrade(opt) : opt}
-	              </div>
-	            `;
-	          }).join('')}
-	        </div>
-	      </div>
-	    </div>
-	  `;
-	};
-
+const renderItem = (item, job) => {
+  const optionsHTML = getAccessoryOptions(item.Tooltip, job).join('');
+  return `
+    <div class="equipment-item">
+      <div class="item-icon-text">
+        <div class="item-icon ${getGradeClass(item.Grade)}">
+          <img src="${item.Icon}" alt="${item.Name}" />
+        </div>
+        <div class="item-info" style="text-align:left">
+          ${optionsHTML}
+        </div>
+      </div>
+    </div>
+  `;
+};
 
     const equipmentList = document.getElementById('equipmentList');
     equipmentList.innerHTML = `
