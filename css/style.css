@@ -229,15 +229,16 @@ button:hover {
 .equipment-column {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 8px;
 }
 
 .equipment-item {
   display: flex;
   align-items: center;
   background: #1e1e1e;
-  padding: 8px;
+  padding: 4px 8px;
   border-radius: 8px;
+  min-height: 64px; /* 기존 72px에서 줄이기 */
 }
 
 .item-icon-text {
