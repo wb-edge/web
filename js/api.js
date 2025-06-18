@@ -224,16 +224,41 @@ export function showCharacterDetails(characterName) {
   ]).then(([profile, equipment]) => {
     const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
     const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
-
     const gearItems = [];
     const accessoryItems = [];
     let abilityStone = null;
+    let elixirTotalLevel = 0;
+    let helmetSpecial = '';
 
     equipment.forEach(item => {
       const type = item.Type;
-      if (gearOrder.includes(type)) gearItems.push(item);
-      else if (type === '어빌리티 스톤') abilityStone = item;
-      else if (accessoryOrder.includes(type)) accessoryItems.push(item);
+      if (gearOrder.includes(type)) {
+        gearItems.push(item);
+
+        // 엘릭서 총합 계산
+        const tooltip = parseTooltip(item.Tooltip);
+        const elixirSection = tooltip?.Element_010?.value?.Element_000?.contentStr;
+        if (elixirSection) {
+          Object.values(elixirSection).forEach(x => {
+            const match = x.contentStr.match(/Lv\.(\d)/);
+            if (match) elixirTotalLevel += parseInt(match[1]);
+          });
+        }
+
+        // 투구 특수옵션 추출
+        if (type === '투구') {
+          const topStr = tooltip?.Element_011?.value?.Element_000?.topStr || '';
+          const match = topStr.replace(/<[^>]+>/g, '').match(/(회심|달인|직감)[^\s<]*/);
+          if (match) {
+            helmetSpecial = match[0]; // e.g., "회심 (2단계)"
+          }
+        }
+
+      } else if (type === '어빌리티 스톤') {
+        abilityStone = item;
+      } else if (accessoryOrder.includes(type)) {
+        accessoryItems.push(item);
+      }
     });
 
     const detailContent = document.getElementById('detailContent');
@@ -253,6 +278,8 @@ export function showCharacterDetails(characterName) {
               const trans = getTranscendText(item.Tooltip);
               const reforged = getReinforceText(item.Tooltip, item.Name);
               const elixir = parseElixir(item.Tooltip);
+              const special = (slot === '투구' && helmetSpecial)
+                ? `<div class="item-sub">${helmetSpecial}</div>` : '';
               return `
                 <div class="equipment-item">
                   <div class="item-icon-text">
@@ -263,6 +290,7 @@ export function showCharacterDetails(characterName) {
                       ${trans ? `<div class="item-sub">${trans}</div>` : ''}
                       <div class="item-sub">${reforged}</div>
                       ${elixir ? `<div class="item-sub">${elixir}</div>` : ''}
+                      ${special}
                     </div>
                   </div>
                 </div>
@@ -302,47 +330,14 @@ export function showCharacterDetails(characterName) {
           </div>
         </div>
       </div>
+
+      <div style="margin-top:20px;border-top:1px solid #555;padding-top:10px;color:#ccc;font-size:0.95rem;">
+        <strong>엘릭서 총합:</strong> Lv.${elixirTotalLevel}
+        ${helmetSpecial ? `<span style="margin-left:20px;"><strong>투구 특수옵션:</strong> ${helmetSpecial}</span>` : ''}
+      </div>
     `;
 
     document.getElementById('characterDetailModal').style.display = 'flex';
-
-	// 엘릭서 총합 레벨 계산
-	const totalElixirLevel = gearItems.reduce((sum, item) => {
-	  const tooltip = parseTooltip(item.Tooltip);
-	  const elixirBlock = tooltip?.Element_010?.value?.Element_000?.contentStr;
-	  if (!elixirBlock) return sum;
-	
-	  const levels = Object.values(elixirBlock)
-	    .map(e => e.contentStr.match(/Lv\.(\d+)/))
-	    .filter(Boolean)
-	    .map(match => parseInt(match[1]));
-	
-	  return sum + levels.reduce((a, b) => a + b, 0);
-	}, 0);
-	
-	// 투구 특수 옵션 (예: 회심)
-const getSpecialEffectText = (tooltipString) => {
-  const tooltip = parseTooltip(tooltipString);
-  const raw = tooltip?.Element_011?.value?.Element_000?.topStr || '';
-  const clean = raw.replace(/<[^>]+>/g, '').trim(); // HTML 태그 제거
-
-  const match = clean.match(/연성 추가 효과\s*(.+\(\d+단계\))/);
-  if (match) {
-    return match[1]; // 예: "회심 (2단계)"
-  }
-  return '';
-};
-	
-	const special = getSpecialEffectText(item.Tooltip);
-	// 표시 영역 추가
-	const extraInfoHTML = `
-	  <div style="margin-top:15px;font-size:0.95rem;color:#aaa;">
-	    ${totalElixirLevel ? `엘릭서 총합 레벨: <span style="color:#ffd200;">${totalElixirLevel}</span>` : ''}
-	    ${special ? `<div class="item-sub">${special}</div>` : ''}
-	  </div>
-	`;
-	detailContent.innerHTML += extraInfoHTML;
-
   });
 }
 
