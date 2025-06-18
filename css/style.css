@@ -1,4 +1,3 @@
-/* 박스 사이징 초기화 */
 *,
 *::before,
 *::after {
@@ -48,17 +47,6 @@ a {
   max-width: 400px;
 }
 
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-links li {
-  display: flex;
-  align-items: center;
-}
-
 button {
   background-color: #333;
   color: #fff;
@@ -67,7 +55,6 @@ button {
   border-radius: 6px;
   cursor: pointer;
 }
-
 button:hover {
   background-color: #555;
 }
@@ -79,7 +66,6 @@ button:hover {
 .server-group {
   margin-bottom: 2rem;
 }
-
 .server-group h2 {
   font-size: 1.2rem;
   margin-bottom: 1rem;
@@ -87,6 +73,7 @@ button:hover {
   padding-left: 0.5rem;
 }
 
+/* 카드 */
 .card-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -102,36 +89,31 @@ button:hover {
   cursor: pointer;
   transition: background 0.2s ease;
 }
-
 .card:hover {
   background-color: #3a3a3a;
 }
-
 .card img {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   margin-right: 1rem;
 }
-
 .info {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-
 .name {
   font-weight: bold;
   font-size: 1.1rem;
 }
-
 .itemLevel {
   font-size: 0.9rem;
   color: #ccc;
 }
 
-.modal.api-key-modal,
-.modal.character-modal {
+/* 모달 */
+.modal {
   display: none;
   position: fixed;
   z-index: 1000;
@@ -148,12 +130,10 @@ button:hover {
   background-color: #1f1f1f;
   padding: 20px;
   border-radius: 10px;
-  width: 100%;
   max-width: 400px;
+  width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  position: relative;
   text-align: center;
 }
 
@@ -161,28 +141,13 @@ button:hover {
   background-color: #1f1f1f;
   padding: 30px;
   border-radius: 12px;
-  width: 100%;
-  max-width: 900px;
+  max-width: 960px;
+  width: 95%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0,0,0,0.6);
-  position: relative;
   text-align: left;
-}
-
-.modal-content h2 {
-  margin-top: 0;
-}
-
-.modal-content input,
-.modal-content button {
-  width: 100%;
-  max-width: 100%;
-  padding: 0.8rem;
-  margin: 1rem 0;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal .close {
@@ -194,51 +159,37 @@ button:hover {
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
-  #searchInput {
-    max-width: 100%;
-    margin: 1rem 0;
-  }
-  .nav-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .nav-links {
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-  .card-container {
-    grid-template-columns: 1fr;
-  }
-  .equipment-columns {
-    flex-direction: column;
-  }
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
+/* 장비/악세 레이아웃 */
 .equipment-columns {
   display: flex;
-  gap: 30px;
-  margin-top: 20px;
+  gap: 20px;
+  align-items: stretch;
 }
 
-.equipment-left,
-.equipment-right {
+.equipment-left, .equipment-right {
   flex: 1;
 }
 
 .equipment-column {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-rows: repeat(7, auto);
+  gap: 10px;
 }
 
 .equipment-item {
   display: flex;
   align-items: center;
-  background: #1e1e1e;
-  padding: 4px 8px;
+  background-color: #2a2a2a;
   border-radius: 8px;
-  min-height: 64px; /* 기존 72px에서 줄이기 */
+  padding: 6px 8px;
+  min-height: 72px;
 }
 
 .item-icon-text {
@@ -250,80 +201,73 @@ button:hover {
 .item-icon {
   width: 50px;
   height: 50px;
-  border: 2px solid #fff;
-  padding: 3px;
   border-radius: 4px;
-  display: inline-block;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
 .item-icon img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
+/* 등급별 배경 */
+.grade-ancient .item-icon { background-color: #dcc999; }
+.grade-relic .item-icon { background-color: #a24006; }
+.grade-legendary .item-icon { background-color: #9e5f04; }
+.grade-epic .item-icon { background-color: #480d5d; }
+.grade-rare .item-icon { background-color: #3a62ab; }
+
+/* 텍스트 색상 및 서브정보 */
 .item-info {
   display: flex;
   flex-direction: column;
-  text-align: left;
-  white-space: pre-line;
+  gap: 2px;
 }
 
 .item-sub {
   font-size: 0.85rem;
   color: #ccc;
-  word-break: keep-all;
   position: relative;
-  padding-left: 22px;
-  line-height: 1.4;
+  padding-left: 18px;
+  line-height: 1.5;
 }
 
-/* 별 아이콘 자리 유지, 기본은 투명 */
-.item-sub::before {
+/* 수치별 색상 */
+.grade-high { color: #f9ae00; }
+.grade-mid { color: #8045dd; }
+.grade-low { color: #2a81f6; }
+
+/* 별 표시 */
+.item-sub.show-star::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 3px;
-  width: 12px;
-  height: 12px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
-  opacity: 0;
 }
 
-/* 유효 옵션만 별 표시 */
-.item-sub.show-star::before {
-  opacity: 1;
-  filter: drop-shadow(0 0 2px currentColor);
-}
-
-/* 등급 색상 텍스트 */
-.item-sub.grade-high { color: #f9ae00; }
-.item-sub.grade-mid { color: #8045dd; }
-.item-sub.grade-low { color: #2a81f6; }
-
-/* 등급 배경 */
-.grade-ancient .item-icon { background-color: #ffd700; }
-.grade-relic .item-icon   { background-color: #ff5e00; }
-.grade-legendary .item-icon { background-color: #ffa500; }
-.grade-epic .item-icon    { background-color: #a335ee; }
-.grade-rare .item-icon    { background-color: #0070dd; }
-
-.profile {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.grade-low {
-  color: #2a81f6;
-}
-.grade-mid {
-  color: #8045dd;
-}
-.grade-high {
-  color: #f9ae00;
+/* 반응형 */
+@media (max-width: 768px) {
+  #searchInput {
+    max-width: 100%;
+    margin: 1rem 0;
+  }
+  .nav-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .equipment-columns {
+    flex-direction: column;
+  }
+  .equipment-left, .equipment-right {
+    width: 100%;
+  }
 }
