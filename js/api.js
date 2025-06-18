@@ -70,10 +70,9 @@ const getOptionGrade = (text) => {
 
 const shouldShowStar = (text, job) => {
   const isSup = isSupporter(job);
-  const matched = isSup
+  return isSup
     ? supporterOptions.some(opt => text.includes(opt))
     : dealerOptions.some(opt => text.includes(opt));
-  return matched;
 };
 
 const parseTooltip = (tooltip) => {
@@ -83,6 +82,20 @@ const parseTooltip = (tooltip) => {
     return {};
   }
 };
+
+const parseElixir = (tooltipString) => {
+  const tooltip = parseTooltip(tooltipString);
+  const element = tooltip['Element_010'];
+  if (element?.type === 'IndentStringGroup' && element.value?.Element_000?.contentStr) {
+    const contents = element.value.Element_000.contentStr;
+    const lines = Object.values(contents)
+      .map(obj => obj.contentStr.replace(/<[^>]+>/g, '').trim())
+      .filter(Boolean);
+    return lines.slice(0, 2);
+  }
+  return [];
+};
+
 
 const parseAbilityStone = (tooltipString) => {
   const tooltip = parseTooltip(tooltipString);
