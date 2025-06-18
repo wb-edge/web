@@ -92,25 +92,29 @@ const parseElixir = (tooltipString) => {
     element.value?.Element_000?.contentStr
   ) {
     const contents = element.value.Element_000.contentStr;
-    const lines = Object.values(contents)
+    const items = Object.values(contents)
       .map(obj => obj.contentStr.replace(/<[^>]+>/g, '').trim())
       .filter(Boolean)
       .map(line => {
         const match = line.match(/\[(.*?)\]\s*(.*?)Lv\.(\d+)/);
         if (match) {
           const label = match[2].trim().replace(/\s+/g, ' ');
-          const level = match[3];
-          return `[${label} Lv.${level}]`;
+          const level = parseInt(match[3]);
+          let gradeClass = 'grade-low';
+          if (level === 4) gradeClass = 'grade-mid';
+          else if (level === 5) gradeClass = 'grade-high';
+
+          return `${label} <span class="${gradeClass}">Lv.${level}</span>`;
         }
         return '';
       })
       .filter(Boolean);
 
-    return lines.slice(0, 2);
+    // 2개까지 한 줄로 결합
+    return items.slice(0, 2).join(' ');
   }
-  return [];
+  return '';
 };
-
 
 const parseAbilityStone = (tooltipString) => {
   const tooltip = parseTooltip(tooltipString);
