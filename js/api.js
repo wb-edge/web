@@ -36,6 +36,16 @@ const isSupporter = (job) => {
   return ['바드', '도화가', '홀리나이트'].includes(job);
 };
 
+// 옵션 텍스트에서 수치만 색상 입히기
+const formatOptionWithGrade = (text) => {
+  const match = text.match(/(.*?)([-+\\d.,%]+)/);
+  if (!match) return text;
+
+  const [_, label, number] = match;
+  const grade = getOptionGrade(text);
+  return `${label}<span class="${grade}">${number}</span>`;
+};
+
 const getOptionGrade = (text) => {
   const numeric = parseFloat(text.replace(/[^0-9.\-]/g, '')) || 0;
   let matched = null;
@@ -249,22 +259,26 @@ export function showCharacterDetails(characterName) {
       return options.slice(0, 3);
     };
 
-    const renderItem = (item, options, job, isStone = false) => {
-      return `
-        <div class="equipment-item">
-          <div class="item-icon-text">
-            <div class="item-icon ${getGradeClass(item.Grade)}">
-              <img src="${item.Icon}" alt="${item.Name}" />
-            </div>
-            <div class="item-info" style="text-align:left">
-              ${options.map(opt => `
-                <div class="item-sub ${!isStone ? getOptionGrade(opt) : ''} ${!isStone && shouldShowStar(opt, job) ? 'show-star' : ''}">${opt}</div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-    };
+    // 장비/악세 UI 렌더링
+	const renderItem = (item, options, job, isStone = false) => {
+	  return `
+	    <div class="equipment-item">
+	      <div class="item-icon-text">
+	        <div class="item-icon ${getGradeClass(item.Grade)}">
+	          <img src="${item.Icon}" alt="${item.Name}" />
+	        </div>
+	        <div class="item-info" style="text-align:left">
+	          ${options.map(opt => `
+	            <div class="item-sub">
+	              ${!isStone && shouldShowStar(opt, job) ? `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" style="width:12px;height:12px;margin-right:5px;vertical-align:middle;filter: drop-shadow(0 0 2px #f9ae00);" />` : ''}
+	              ${!isStone ? formatOptionWithGrade(opt) : opt}
+	            </div>
+	          `).join('')}
+	        </div>
+	      </div>
+	    </div>
+	  `;
+	};
 
     const equipmentList = document.getElementById('equipmentList');
     equipmentList.innerHTML = `
