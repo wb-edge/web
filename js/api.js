@@ -258,6 +258,8 @@ export function showCharacterDetails(characterName) {
               if (!item) return '';
               const transcend = getTranscendText(item.Tooltip);
               const reinforce = getReinforceText(item.Tooltip, item.Name);
+              const elixirInfo = parseElixir(item.Tooltip);
+              
               return `
                 <div class="equipment-item">
                   <div class="item-icon-text">
@@ -267,6 +269,7 @@ export function showCharacterDetails(characterName) {
                     <div class="item-info" style="text-align:left">
                       ${transcend ? `<div class="item-sub">${transcend}</div>` : ''}
                       <div class="item-sub">${reinforce}</div>
+                      ${elixirInfo.map(e => `<div class="item-sub">${e}</div>`).join('')}
                     </div>
                   </div>
                 </div>
