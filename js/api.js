@@ -36,14 +36,14 @@ const isSupporter = (job) => {
   return ['바드', '도화가', '홀리나이트'].includes(job);
 };
 
-// 옵션 텍스트에서 수치만 색상 입히기
 const formatOptionWithGrade = (text) => {
-  const match = text.match(/(.*?)([-+\\d.,%]+)/);
+  // 수치 추출: 끝에 위치한 숫자나 % 포함값
+  const match = text.match(/^(.*?)([-+]?\d[\d.,]*%?)$/);
   if (!match) return text;
 
-  const [_, label, number] = match;
+  const [, label, value] = match;
   const grade = getOptionGrade(text);
-  return `${label}<span class="${grade}">${number}</span>`;
+  return `${label}<span class="${grade}">${value}</span>`;
 };
 
 const getOptionGrade = (text) => {
@@ -268,17 +268,21 @@ export function showCharacterDetails(characterName) {
 	          <img src="${item.Icon}" alt="${item.Name}" />
 	        </div>
 	        <div class="item-info" style="text-align:left">
-	          ${options.map(opt => `
-	            <div class="item-sub">
-	              ${!isStone && shouldShowStar(opt, job) ? `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" style="width:12px;height:12px;margin-right:5px;vertical-align:middle;filter: drop-shadow(0 0 2px #f9ae00);" />` : ''}
-	              ${!isStone ? formatOptionWithGrade(opt) : opt}
-	            </div>
-	          `).join('')}
+	          ${options.map(opt => {
+	            const hasStar = !isStone && shouldShowStar(opt, job);
+	            return `
+	              <div class="item-sub ${hasStar ? 'show-star' : ''}">
+	                ${hasStar ? `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" style="width:12px;height:12px;margin-right:5px;vertical-align:middle;filter: drop-shadow(0 0 2px #f9ae00);" />` : ''}
+	                ${!isStone ? formatOptionWithGrade(opt) : opt}
+	              </div>
+	            `;
+	          }).join('')}
 	        </div>
 	      </div>
 	    </div>
 	  `;
 	};
+
 
     const equipmentList = document.getElementById('equipmentList');
     equipmentList.innerHTML = `
