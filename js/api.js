@@ -263,6 +263,18 @@ export function showCharacterDetails(characterName) {
       }
     }
 
+	if (bracelet) {
+		const tooltip = parseTooltip(bracelet.Tooltip);
+	    const html = tooltip?.Element_004?.value?.Element_001 || '';
+	    const clean = html
+  	      .replace(/<img[^>]*>/g, '')
+	      .replace(/<br\s*\/?>/gi, '\n')
+	      .replace(/<[^>]+>/g, '')
+	      .trim();
+		const content = document.getElementById('braceletTooltipContent');
+        content.textContent = clean || '팔찌 정보가 없습니다.';
+	}
+
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
       <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
@@ -347,7 +359,7 @@ export function showCharacterDetails(characterName) {
                     <img src="${bracelet.Icon}" />
                   </div>
                   <div class="item-info" style="text-align:left">
-                    <div class="item-sub" onclick="showBraceletTooltip(\`${bracelet.Tooltip}\`)">팔찌 정보 보기</div>
+                    <div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div>
                   </div>
                 </div>
               </div>
@@ -367,18 +379,8 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(';')[0];
 }
 
-window.showBraceletTooltip = (tooltipRaw) => {
-  const tooltip = parseTooltip(tooltipRaw);
-  const html = tooltip?.Element_004?.value?.Element_001 || '';
-  const clean = html
-    .replace(/<img[^>]*>/g, '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .trim();
-
+window.showBraceletTooltip = () => {
   const modal = document.getElementById('braceletTooltipModal');
-  const content = document.getElementById('braceletTooltipContent');
-  content.textContent = clean || '팔찌 정보가 없습니다.';
   modal.style.display = 'flex';
 };
 
