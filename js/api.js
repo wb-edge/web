@@ -224,50 +224,49 @@ export function showCharacterDetails(characterName) {
   ]).then(([profile, equipment]) => {
     const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
     const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
+    const detailContent = document.getElementById('detailContent');
+
     const gearItems = [];
     const accessoryItems = [];
     let abilityStone = null;
+    let braceletItem = null;
     let elixirTotalLevel = 0;
-    let helmetSpecial = '';
+    let helmetOptionText = '';
 
     equipment.forEach(item => {
       const type = item.Type;
-      if (gearOrder.includes(type)) {
-        gearItems.push(item);
-
-        // 엘릭서 총합 계산
-        const tooltip = parseTooltip(item.Tooltip);
-        const elixirSection = tooltip?.Element_010?.value?.Element_000?.contentStr;
-        if (elixirSection) {
-          Object.values(elixirSection).forEach(x => {
-            const match = x.contentStr.match(/Lv\.(\d)/);
-            if (match) elixirTotalLevel += parseInt(match[1]);
-          });
-        }
-
-        // 투구 특수옵션 추출
-        if (type === '투구') {
-          const topStr = tooltip?.Element_011?.value?.Element_000?.topStr || '';
-          const match = topStr.replace(/<[^>]+>/g, '').match(/(회심|달인|직감)[^\s<]*/);
-          if (match) {
-            helmetSpecial = match[0]; // e.g., "회심 (2단계)"
-          }
-        }
-
-      } else if (type === '어빌리티 스톤') {
-        abilityStone = item;
-      } else if (accessoryOrder.includes(type)) {
-        accessoryItems.push(item);
-      }
+      if (gearOrder.includes(type)) gearItems.push(item);
+      else if (accessoryOrder.includes(type)) accessoryItems.push(item);
+      else if (type === '어빌리티 스톤') abilityStone = item;
+      else if (type === '팔찌') braceletItem = item;
     });
 
-    const detailContent = document.getElementById('detailContent');
+    // 엘릭서 총합 계산
+    gearItems.forEach(item => {
+      const tooltip = parseTooltip(item.Tooltip);
+      const el = tooltip?.Element_010?.value?.Element_000?.contentStr;
+      if (!el) return;
+      Object.values(el).forEach(x => {
+        const match = x.contentStr.match(/Lv\.(\d+)/);
+        if (match) elixirTotalLevel += parseInt(match[1], 10);
+      });
+    });
+
+    // 특수 연성 정보 (투구)
+    const helmetItem = gearItems.find(i => i.Type === '투구');
+    if (helmetItem) {
+      const topStr = parseTooltip(helmetItem.Tooltip)?.Element_011?.value?.Element_000?.topStr || '';
+      const match = topStr.match(/color=['"]?#91FE02['"]?[^>]*>([^<]+)<\/FONT>/i);
+      if (match) helmetOptionText = match[1]; // e.g., 회심 (2단계)
+    }
+
     detailContent.innerHTML = `
       <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
         <img src="${jobIconMap[profile.CharacterClassName] || ''}" style="width:40px;height:40px;border-radius:4px;" />
         <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
         <div style="font-size:0.95rem;color:#ccc;">${profile.ItemMaxLevel}</div>
       </div>
+
       <div class="equipment-columns">
         <div class="equipment-left">
           <h3>장비</h3>
@@ -278,8 +277,6 @@ export function showCharacterDetails(characterName) {
               const trans = getTranscendText(item.Tooltip);
               const reforged = getReinforceText(item.Tooltip, item.Name);
               const elixir = parseElixir(item.Tooltip);
-              const special = (slot === '투구' && helmetSpecial)
-                ? `<div class="item-sub">${helmetSpecial}</div>` : '';
               return `
                 <div class="equipment-item">
                   <div class="item-icon-text">
@@ -290,7 +287,6 @@ export function showCharacterDetails(characterName) {
                       ${trans ? `<div class="item-sub">${trans}</div>` : ''}
                       <div class="item-sub">${reforged}</div>
                       ${elixir ? `<div class="item-sub">${elixir}</div>` : ''}
-                      ${special}
                     </div>
                   </div>
                 </div>
@@ -298,6 +294,7 @@ export function showCharacterDetails(characterName) {
             }).join('')}
           </div>
         </div>
+
         <div class="equipment-right">
           <h3>악세사리</h3>
           <div class="equipment-column">
@@ -315,6 +312,7 @@ export function showCharacterDetails(characterName) {
                 </div>
               `;
             }).join('')}
+
             ${abilityStone ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
@@ -331,15 +329,30 @@ export function showCharacterDetails(characterName) {
         </div>
       </div>
 
-      <div style="margin-top:20px;border-top:1px solid #555;padding-top:10px;color:#ccc;font-size:0.95rem;">
-        <strong>엘릭서 총합:</strong> Lv.${elixirTotalLevel}
-        ${helmetSpecial ? `<span style="margin-left:20px;"><strong>투구 특수옵션:</strong> ${helmetSpecial}</span>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:18px;padding-top:12px;border-top:1px solid #444;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" style="width:18px;height:18px;vertical-align:middle;" />
+          <div style="font-size:0.85rem;line-height:1.2;">
+            <div>엘릭서 총합: Lv.${elixirTotalLevel}</div>
+            ${helmetOptionText ? `<div>${helmetOptionText}</div>` : ''}
+          </div>
+        </div>
+
+        ${braceletItem ? `
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="item-icon ${getGradeClass(braceletItem.Grade)}" style="width:40px;height:40px;">
+              <img src="${braceletItem.Icon}" alt="${braceletItem.Name}" />
+            </div>
+            <div style="font-size:0.85rem;">${braceletItem.Name}</div>
+          </div>
+        ` : ''}
       </div>
     `;
 
     document.getElementById('characterDetailModal').style.display = 'flex';
   });
 }
+
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
