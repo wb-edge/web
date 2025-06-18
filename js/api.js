@@ -304,15 +304,6 @@ export function showCharacterDetails(characterName) {
       </div>
     `;
 
-	// 표시 영역 추가
-	const extraInfoHTML = `
-	  <div style="margin-top:15px;font-size:0.95rem;color:#aaa;">
-	    ${totalElixirLevel ? `엘릭서 총합 레벨: <span style="color:#ffd200;">${totalElixirLevel}</span>` : ''}
-	    ${specialOptionText ? ` &nbsp;|&nbsp; 특수 옵션: <span style="color:#91FE02;">${specialOptionText}</span>` : ''}
-	  </div>
-	`;
-	detailContent.innerHTML += extraInfoHTML;
-
     document.getElementById('characterDetailModal').style.display = 'flex';
 
 	// 엘릭서 총합 레벨 계산
@@ -340,6 +331,15 @@ export function showCharacterDetails(characterName) {
 	    specialOptionText = match[1]; // 예: '회심 (2단계)'
 	  }
 	}
+	
+	// 표시 영역 추가
+	const extraInfoHTML = `
+	  <div style="margin-top:15px;font-size:0.95rem;color:#aaa;">
+	    ${totalElixirLevel ? `엘릭서 총합 레벨: <span style="color:#ffd200;">${totalElixirLevel}</span>` : ''}
+	    ${specialOptionText ? ` &nbsp;|&nbsp; 특수 옵션: <span style="color:#91FE02;">${specialOptionText}</span>` : ''}
+	  </div>
+	`;
+	detailContent.innerHTML += extraInfoHTML;
 
   });
 }
