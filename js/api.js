@@ -86,11 +86,26 @@ const parseTooltip = (tooltip) => {
 const parseElixir = (tooltipString) => {
   const tooltip = parseTooltip(tooltipString);
   const element = tooltip['Element_010'];
-  if (element?.type === 'IndentStringGroup' && element.value?.Element_000?.contentStr) {
+
+  if (
+    element?.type === 'IndentStringGroup' &&
+    element.value?.Element_000?.contentStr
+  ) {
     const contents = element.value.Element_000.contentStr;
     const lines = Object.values(contents)
       .map(obj => obj.contentStr.replace(/<[^>]+>/g, '').trim())
+      .filter(Boolean)
+      .map(line => {
+        const match = line.match(/\[(.*?)\]\s*(.*?)Lv\.(\d+)/);
+        if (match) {
+          const label = match[2].trim().replace(/\s+/g, ' ');
+          const level = match[3];
+          return `[${label} Lv.${level}]`;
+        }
+        return '';
+      })
       .filter(Boolean);
+
     return lines.slice(0, 2);
   }
   return [];
