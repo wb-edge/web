@@ -321,22 +321,24 @@ export function showCharacterDetails(characterName) {
 	}, 0);
 	
 	// 투구 특수 옵션 (예: 회심)
-	const helmet = gearItems.find(i => i.Type === '투구');
-	let specialOptionText = '';
-	if (helmet) {
-	  const tooltip = parseTooltip(helmet.Tooltip);
-	  const topStr = tooltip?.Element_009?.value?.Element_000?.topStr || '';
-	  const match = topStr.match(/color=['"]?#91FE02['"]?>(.*?)<\/FONT>/);
-	  if (match) {
-	    specialOptionText = match[1]; // 예: '회심 (2단계)'
-	  }
-	}
+const getSpecialEffectText = (tooltipString) => {
+  const tooltip = parseTooltip(tooltipString);
+  const raw = tooltip?.Element_011?.value?.Element_000?.topStr || '';
+  const clean = raw.replace(/<[^>]+>/g, '').trim(); // HTML 태그 제거
+
+  const match = clean.match(/연성 추가 효과\s*(.+\(\d+단계\))/);
+  if (match) {
+    return match[1]; // 예: "회심 (2단계)"
+  }
+  return '';
+};
 	
+	const special = getSpecialEffectText(item.Tooltip);
 	// 표시 영역 추가
 	const extraInfoHTML = `
 	  <div style="margin-top:15px;font-size:0.95rem;color:#aaa;">
 	    ${totalElixirLevel ? `엘릭서 총합 레벨: <span style="color:#ffd200;">${totalElixirLevel}</span>` : ''}
-	    ${specialOptionText ? ` &nbsp;|&nbsp; 특수 옵션: <span style="color:#91FE02;">${specialOptionText}</span>` : ''}
+	    ${special ? `<div class="item-sub">${special}</div>` : ''}
 	  </div>
 	`;
 	detailContent.innerHTML += extraInfoHTML;
