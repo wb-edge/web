@@ -304,7 +304,43 @@ export function showCharacterDetails(characterName) {
       </div>
     `;
 
+	// 표시 영역 추가
+	const extraInfoHTML = `
+	  <div style="margin-top:15px;font-size:0.95rem;color:#aaa;">
+	    ${totalElixirLevel ? `엘릭서 총합 레벨: <span style="color:#ffd200;">${totalElixirLevel}</span>` : ''}
+	    ${specialOptionText ? ` &nbsp;|&nbsp; 특수 옵션: <span style="color:#91FE02;">${specialOptionText}</span>` : ''}
+	  </div>
+	`;
+	detailContent.innerHTML += extraInfoHTML;
+
     document.getElementById('characterDetailModal').style.display = 'flex';
+
+	// 엘릭서 총합 레벨 계산
+	const totalElixirLevel = gearItems.reduce((sum, item) => {
+	  const tooltip = parseTooltip(item.Tooltip);
+	  const elixirBlock = tooltip?.Element_010?.value?.Element_000?.contentStr;
+	  if (!elixirBlock) return sum;
+	
+	  const levels = Object.values(elixirBlock)
+	    .map(e => e.contentStr.match(/Lv\.(\d+)/))
+	    .filter(Boolean)
+	    .map(match => parseInt(match[1]));
+	
+	  return sum + levels.reduce((a, b) => a + b, 0);
+	}, 0);
+	
+	// 투구 특수 옵션 (예: 회심)
+	const helmet = gearItems.find(i => i.Type === '투구');
+	let specialOptionText = '';
+	if (helmet) {
+	  const tooltip = parseTooltip(helmet.Tooltip);
+	  const topStr = tooltip?.Element_009?.value?.Element_000?.topStr || '';
+	  const match = topStr.match(/color=['"]?#91FE02['"]?>(.*?)<\/FONT>/);
+	  if (match) {
+	    specialOptionText = match[1]; // 예: '회심 (2단계)'
+	  }
+	}
+
   });
 }
 
