@@ -242,22 +242,26 @@ export function showCharacterDetails(characterName) {
       return name;
     };
 
-    const getAccessoryOptions = (tooltipString) => {
-      const tooltip = parseTooltip(tooltipString);
-      const options = [];
-      for (const key in tooltip) {
-        const element = tooltip[key];
-        if (element?.type === 'ItemPartBox' && element.value?.Element_000?.includes('연마 효과')) {
-          const raw = element.value.Element_001 || '';
-          const lines = raw
-            .split(/<br>|<BR>|\n|\r/i)
-            .map(line => line.replace(/<[^>]+>/g, '').trim())
-            .filter(Boolean);
-          options.push(...lines);
-        }
-      }
-      return options.slice(0, 3);
-    };
+const getAccessoryOptions = (tooltipString) => {
+  const tooltip = parseTooltip(tooltipString);
+  const options = [];
+  for (const key in tooltip) {
+    const element = tooltip[key];
+    if (element?.type === 'ItemPartBox' && element.value?.Element_000?.includes('연마 효과')) {
+      const raw = element.value.Element_001 || '';
+      const lines = raw
+        .split(/<br>|<BR>|\n|\r/i)
+        .map(line => line
+          .replace(/<img[^>]*>/gi, '')       // ⭐ 별 아이콘 <img> 제거
+          .replace(/<[^>]+>/g, '')           // 나머지 태그 제거
+          .trim())
+        .filter(Boolean);
+      options.push(...lines);
+    }
+  }
+  return options.slice(0, 3);
+};
+
 
     // 장비/악세 UI 렌더링
 	const renderItem = (item, options, job, isStone = false) => {
