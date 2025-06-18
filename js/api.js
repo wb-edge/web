@@ -224,49 +224,52 @@ export function showCharacterDetails(characterName) {
   ]).then(([profile, equipment]) => {
     const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
     const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
-    const detailContent = document.getElementById('detailContent');
-
-    const gearItems = [];
-    const accessoryItems = [];
+    const gearItems = [], accessoryItems = [];
     let abilityStone = null;
-    let braceletItem = null;
-    let elixirTotalLevel = 0;
-    let helmetOptionText = '';
+    let bracelet = null;
 
     equipment.forEach(item => {
       const type = item.Type;
       if (gearOrder.includes(type)) gearItems.push(item);
-      else if (accessoryOrder.includes(type)) accessoryItems.push(item);
       else if (type === '어빌리티 스톤') abilityStone = item;
-      else if (type === '팔찌') braceletItem = item;
+      else if (type === '팔찌') bracelet = item;
+      else if (accessoryOrder.includes(type)) accessoryItems.push(item);
     });
 
     // 엘릭서 총합 계산
+    let elixirTotal = 0;
     gearItems.forEach(item => {
       const tooltip = parseTooltip(item.Tooltip);
-      const el = tooltip?.Element_010?.value?.Element_000?.contentStr;
-      if (!el) return;
-      Object.values(el).forEach(x => {
-        const match = x.contentStr.match(/Lv\.(\d+)/);
-        if (match) elixirTotalLevel += parseInt(match[1], 10);
-      });
+      const lines = tooltip?.Element_010?.value?.Element_000?.contentStr;
+      if (lines) {
+        Object.values(lines).forEach(obj => {
+          const line = obj.contentStr.replace(/<[^>]+>/g, '');
+          const match = line.match(/Lv\.(\d+)/);
+          if (match) elixirTotal += parseInt(match[1], 10);
+        });
+      }
     });
 
-    // 특수 연성 정보 (투구)
-    const helmetItem = gearItems.find(i => i.Type === '투구');
-    if (helmetItem) {
-      const topStr = parseTooltip(helmetItem.Tooltip)?.Element_011?.value?.Element_000?.topStr || '';
-      const match = topStr.match(/color=['"]?#91FE02['"]?[^>]*>([^<]+)<\/FONT>/i);
-      if (match) helmetOptionText = match[1]; // e.g., 회심 (2단계)
+    // 투구 특수 연성 효과
+    let specialRefineText = '';
+    const helmet = gearItems.find(i => i.Type === '투구');
+    if (helmet) {
+      const tooltip = parseTooltip(helmet.Tooltip);
+      const topStr = tooltip?.Element_011?.value?.Element_000?.topStr;
+      if (topStr) {
+        const clean = topStr.replace(/<[^>]+>/g, '');
+        const match = clean.match(/(회심|달인|정밀|신속)[^\s]*/); // 회심 (2단계)
+        if (match) specialRefineText = match[0];
+      }
     }
 
+    const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
       <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
         <img src="${jobIconMap[profile.CharacterClassName] || ''}" style="width:40px;height:40px;border-radius:4px;" />
         <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
         <div style="font-size:0.95rem;color:#ccc;">${profile.ItemMaxLevel}</div>
       </div>
-
       <div class="equipment-columns">
         <div class="equipment-left">
           <h3>장비</h3>
@@ -292,6 +295,19 @@ export function showCharacterDetails(characterName) {
                 </div>
               `;
             }).join('')}
+
+            <!-- 엘릭서 총합 -->
+            <div class="equipment-item">
+              <div class="item-icon-text">
+                <div class="item-icon">
+                  <img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" />
+                </div>
+                <div class="item-info" style="text-align:left">
+                  <div class="item-sub">엘릭서 총합: Lv.${elixirTotal}</div>
+                  ${specialRefineText ? `<div class="item-sub">${specialRefineText}</div>` : ''}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -313,6 +329,7 @@ export function showCharacterDetails(characterName) {
               `;
             }).join('')}
 
+            <!-- 어빌리티 스톤 -->
             ${abilityStone ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
@@ -325,34 +342,36 @@ export function showCharacterDetails(characterName) {
                 </div>
               </div>
             ` : ''}
+
+            <!-- 팔찌 -->
+            ${bracelet ? `
+              <div class="equipment-item">
+                <div class="item-icon-text">
+                  <div class="item-icon ${getGradeClass(bracelet.Grade)}">
+                    <img src="${bracelet.Icon}" />
+                  </div>
+                  <div class="item-info" style="text-align:left">
+                    <div class="item-sub" onclick="alertBraceletInfo()">팔찌 정보 보기</div>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
           </div>
         </div>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:18px;padding-top:12px;border-top:1px solid #444;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" style="width:18px;height:18px;vertical-align:middle;" />
-          <div style="font-size:0.85rem;line-height:1.2;">
-            <div>엘릭서 총합: Lv.${elixirTotalLevel}</div>
-            ${helmetOptionText ? `<div>${helmetOptionText}</div>` : ''}
-          </div>
-        </div>
-
-        ${braceletItem ? `
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div class="item-icon ${getGradeClass(braceletItem.Grade)}" style="width:40px;height:40px;">
-              <img src="${braceletItem.Icon}" alt="${braceletItem.Name}" />
-            </div>
-            <div style="font-size:0.85rem;">${braceletItem.Name}</div>
-          </div>
-        ` : ''}
       </div>
     `;
+
+    // 팔찌 툴팁 표시용 전역
+    window.alertBraceletInfo = () => {
+      const tooltip = parseTooltip(bracelet.Tooltip);
+      const part = tooltip?.Element_004?.value?.Element_001 || '';
+      const clean = part.replace(/<[^>]+>/g, '').replace(/\s*<br>\s*/gi, '\n');
+      alert(clean || '팔찌 정보가 없습니다.');
+    };
 
     document.getElementById('characterDetailModal').style.display = 'flex';
   });
 }
-
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
