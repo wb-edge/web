@@ -250,17 +250,18 @@ export function showCharacterDetails(characterName) {
       }
     });
 
-    // 투구 특수 연성 효과
-let specialRefineText = '';
-const helmet = gearItems.find(i => i.Type === '투구');
-if (helmet) {
-  const tooltip = parseTooltip(helmet.Tooltip);
-  const topStr = tooltip?.Element_011?.value?.Element_000?.topStr;
-  if (topStr) {
-    const match = topStr.match(/<FONT[^>]*?color=['"]?#91FE02['"]?[^>]*>(.*?)<\/FONT>/i);
-    if (match) specialRefineText = match[1].trim();
-  }
-}
+    // 투구 특수 연성 효과 (ex: 회심 (2단계))
+    let specialRefineText = '';
+    const helmet = gearItems.find(i => i.Type === '투구');
+    if (helmet) {
+      const tooltip = parseTooltip(helmet.Tooltip);
+      const rawTopStr = tooltip?.Element_011?.value?.Element_000?.topStr;
+      if (rawTopStr) {
+        const clean = rawTopStr.replace(/<[^>]+>/g, '').trim(); // HTML 제거
+        const match = clean.match(/(.*?)\s*\(\d+단계\)/); // ex: 회심 (2단계)
+        if (match) specialRefineText = clean;
+      }
+    }
 
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
@@ -295,7 +296,7 @@ if (helmet) {
               `;
             }).join('')}
 
-            <!-- 엘릭서 총합 -->
+            <!-- 엘릭서 총합 + 특수옵션 -->
             <div class="equipment-item">
               <div class="item-icon-text">
                 <div class="item-icon">
@@ -313,22 +314,19 @@ if (helmet) {
         <div class="equipment-right">
           <h3>악세사리</h3>
           <div class="equipment-column">
-            ${accessoryItems.map(item => {
-              return `
-                <div class="equipment-item">
-                  <div class="item-icon-text">
-                    <div class="item-icon ${getGradeClass(item.Grade)}">
-                      <img src="${item.Icon}" />
-                    </div>
-                    <div class="item-info" style="text-align:left">
-                      ${getAccessoryOptions(item.Tooltip, profile.CharacterClassName).join('')}
-                    </div>
+            ${accessoryItems.map(item => `
+              <div class="equipment-item">
+                <div class="item-icon-text">
+                  <div class="item-icon ${getGradeClass(item.Grade)}">
+                    <img src="${item.Icon}" />
+                  </div>
+                  <div class="item-info" style="text-align:left">
+                    ${getAccessoryOptions(item.Tooltip, profile.CharacterClassName).join('')}
                   </div>
                 </div>
-              `;
-            }).join('')}
+              </div>
+            `).join('')}
 
-            <!-- 어빌리티 스톤 -->
             ${abilityStone ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
@@ -342,7 +340,6 @@ if (helmet) {
               </div>
             ` : ''}
 
-            <!-- 팔찌 -->
             ${bracelet ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
@@ -350,7 +347,7 @@ if (helmet) {
                     <img src="${bracelet.Icon}" />
                   </div>
                   <div class="item-info" style="text-align:left">
-                    <div class="item-sub" onclick="alertBraceletInfo()">팔찌 정보 보기</div>
+                    <div class="item-sub" onclick="showBraceletTooltip(\`${bracelet.Tooltip}\`)">팔찌 정보 보기</div>
                   </div>
                 </div>
               </div>
@@ -359,14 +356,6 @@ if (helmet) {
         </div>
       </div>
     `;
-
-    // 팔찌 툴팁 표시용 전역
-    window.alertBraceletInfo = () => {
-      const tooltip = parseTooltip(bracelet.Tooltip);
-      const part = tooltip?.Element_004?.value?.Element_001 || '';
-      const clean = part.replace(/<[^>]+>/g, '').replace(/\s*<br>\s*/gi, '\n');
-      alert(clean || '팔찌 정보가 없습니다.');
-    };
 
     document.getElementById('characterDetailModal').style.display = 'flex';
   });
@@ -377,3 +366,22 @@ function getCookie(name) {
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(';')[0];
 }
+
+window.showBraceletTooltip = (tooltipRaw) => {
+  const tooltip = parseTooltip(tooltipRaw);
+  const html = tooltip?.Element_004?.value?.Element_001 || '';
+  const clean = html
+    .replace(/<img[^>]*>/g, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .trim();
+
+  const modal = document.getElementById('braceletTooltipModal');
+  const content = document.getElementById('braceletTooltipContent');
+  content.textContent = clean || '팔찌 정보가 없습니다.';
+  modal.style.display = 'flex';
+};
+
+window.closeBraceletTooltip = () => {
+  document.getElementById('braceletTooltipModal').style.display = 'none';
+};
