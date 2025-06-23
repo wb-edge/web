@@ -286,18 +286,18 @@ export function showCharacterDetails(characterName) {
       .slice(0, 11)
       .map(gem => {
         const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
-        const type = gem.Name.includes('격노') || gem.Name.includes('겁화') ? '겁'
+        const type = gem.Name.includes('겁화') ? '겁'
                     : gem.Name.includes('작열') ? '작'
                     : gem.Name.includes('홍염') ? '홍'
                     : gem.Name.includes('멸화') ? '멸'
-                    : gem.Name.includes('마수') ? '마'
                     : '?';
+	    const gradeClass = getGemGradeClass(level, gem.Name);
         return `
           <div class="gem-item">
-            <div class="item-icon">
+            <div class="item-icon ${gradeClass}">
               <img src="${gem.Icon}" />
             </div>
-            <div class="item-info"><div class="item-sub">${level}${type}</div></div>
+            <div class="gem-label">${level}${type}</div>
           </div>
         `;
       }).join('');
@@ -388,6 +388,30 @@ export function showCharacterDetails(characterName) {
     document.getElementById('characterDetailModal').style.display = 'flex';
   });
 }
+
+function getGemGradeClass(level, name) {
+  const isTier4 = name.includes('겁화') || name.includes('작열');
+  const isTier3 = name.includes('멸화') || name.includes('홍염');
+
+  if (isTier4) {
+    if (level == 10) return 'grade-ancient';
+    if (level >= 8) return 'grade-relic';
+    if (level >= 5) return 'grade-legendary';
+    if (level >= 3) return 'grade-epic';
+    return 'grade-rare';
+  }
+
+  if (isTier3) {
+    if (level == 10) return 'grade-relic';
+    if (level >= 7) return 'grade-legendary';
+    if (level >= 5) return 'grade-epic';
+    if (level >= 3) return 'grade-rare';
+    return 'grade-uncommon';
+  }
+
+  return ''; // fallback
+}
+
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;

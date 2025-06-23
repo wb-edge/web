@@ -122,3 +122,23 @@
   margin-top: 4px;
 }
 
+/* 보석용 색상 (등급별 배경색) */
+.gem-icon.grade-ancient {
+  background-color: #dcc999 !important;
+}
+.gem-icon.grade-relic {
+  background-color: #a24006 !important;
+}
+.gem-icon.grade-legendary {
+  background-color: #9e5f04 !important;
+}
+.gem-icon.grade-epic {
+  background-color: #480d5d !important;
+}
+.gem-icon.grade-rare {
+  background-color: #2f70b5 !important;
+}
+.gem-icon.grade-uncommon {
+  background-color: #304911 !important; /* 고급 (Uncommon) */
+}
+
