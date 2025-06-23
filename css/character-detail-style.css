@@ -124,26 +124,33 @@
 
 .gem-icon {
   border-radius: 4px;
-  box-shadow: inset 0 0 2px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow:
+    inset 0 0 3px rgba(255,255,255,0.3),
+    0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* 보석용 색상 (등급별 배경색) */
 .gem-icon.grade-ancient {
-  background: linear-gradient(135deg, #c5b276, #e6d6a8);
+  background: linear-gradient(135deg, #5c4a1f, #dcc999); /* 어두운 골드 → 밝은 골드 */
 }
+
 .gem-icon.grade-relic {
-  background: linear-gradient(135deg, #7e3004, #c25513);
+  background: linear-gradient(135deg, #341a09, #a24006); /* 진한 갈색 → 유물 주황 */
 }
+
 .gem-icon.grade-legendary {
-  background: linear-gradient(135deg, #7f4c02, #c4842d);
+  background: linear-gradient(135deg, #3f2205, #d19112); /* 어두운 갈색 → 밝은 주황 */
 }
+
 .gem-icon.grade-epic {
-  background: linear-gradient(135deg, #2e0645, #712d8c);
+  background: linear-gradient(135deg, #1f042e, #8039a6); /* 어두운 보라 → 연보라 */
 }
+
 .gem-icon.grade-rare {
-  background: linear-gradient(135deg, #144a75, #3f7fb7);
+  background: linear-gradient(135deg, #082840, #3f7fb7); /* 어두운 파랑 → 밝은 파랑 */
 }
+
 .gem-icon.grade-uncommon {
-  background: linear-gradient(135deg, #1e3310, #486c2a); /* #304911 계열 */
+  background: linear-gradient(135deg, #1a2d0e, #7bbf3b); /* 어두운 녹색 → 밝은 연두 */
 }
+
 
