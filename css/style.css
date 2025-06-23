@@ -335,28 +335,46 @@ button:hover {
   margin-right: 4px;
 }
 
-.gem-container {
+.character-detail-layout {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+  gap: 20px;
+  padding: 10px;
 }
 
-.gem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 48px;
+.character-summary {
+  width: 35%;
+  max-width: 260px;
+  font-size: 14px;
+  background: #111;
+  border-radius: 8px;
+  padding: 10px;
+  color: #eee;
+  flex-shrink: 0;
 }
 
-.gem img {
-  width: 40px;
-  height: 40px;
+.character-summary .character-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  margin-bottom: 10px;
 }
 
-.gem-label {
-  font-size: 0.75rem;
-  text-align: center;
-  margin-top: 2px;
-  color: #ddd;
+.character-summary .character-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.character-summary .character-ilvl {
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+.character-summary .character-stats div {
+  margin-bottom: 4px;
+}
+
+.equipment-columns {
+  width: 65%;
 }

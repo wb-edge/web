@@ -238,7 +238,7 @@ export function showCharacterDetails(characterName) {
       else if (accessoryOrder.includes(type)) accessoryItems.push(item);
     });
 
-    // 엘릭서 총합
+    // 엘릭서 총합 계산
     let elixirTotal = 0;
     gearItems.forEach(item => {
       const tooltip = parseTooltip(item.Tooltip);
@@ -259,11 +259,11 @@ export function showCharacterDetails(characterName) {
       const rawTopStr = tooltip?.Element_011?.value?.Element_000?.topStr;
       if (rawTopStr) {
         const clean = rawTopStr.replace(/<[^>]+>/g, '').trim();
-        specialRefineText = clean; // 예: "회심 (2단계)"
+        specialRefineText = clean;
       }
     }
 
-    // 팔찌 툴팁 HTML 생성
+    // 팔찌 툴팁 생성
     if (bracelet) {
       const tooltip = parseTooltip(bracelet.Tooltip);
       const html = tooltip?.Element_004?.value?.Element_001 || '';
@@ -275,7 +275,7 @@ export function showCharacterDetails(characterName) {
       document.getElementById('braceletTooltipContent').innerHTML = parsed;
     }
 
-    // 보석 정리
+    // 보석 아이콘 출력
     const gemHtml = (gems?.Gems || [])
       .filter(gem => gem.Name && gem.Icon)
       .sort((a, b) => {
@@ -291,98 +291,127 @@ export function showCharacterDetails(characterName) {
                     : gem.Name.includes('홍염') ? '홍'
                     : gem.Name.includes('멸화') ? '멸'
                     : '?';
-	    const gradeClass = getGemGradeClass(level, gem.Name);
+        let gradeClass = 'grade-rare'; // 기본
+
+        const lv = parseInt(level);
+        if (['겁화', '작열'].some(t => gem.Name.includes(t))) {
+          if (lv === 10) gradeClass = 'grade-ancient';
+          else if (lv >= 8) gradeClass = 'grade-relic';
+          else if (lv >= 5) gradeClass = 'grade-legendary';
+          else if (lv >= 3) gradeClass = 'grade-epic';
+          else gradeClass = 'grade-rare';
+        } else {
+          if (lv === 10) gradeClass = 'grade-relic';
+          else if (lv >= 7) gradeClass = 'grade-legendary';
+          else if (lv >= 5) gradeClass = 'grade-epic';
+          else if (lv >= 3) gradeClass = 'grade-rare';
+          else gradeClass = 'grade-uncommon';
+        }
+
         return `
           <div class="gem-item">
-            <div class="gem-icon ${gradeClass}">
-              <img src="${gem.Icon}" />
-            </div>
-            <div class="gem-label">${level}${type}</div>
+            <div class="item-icon ${gradeClass}"><img src="${gem.Icon}" /></div>
+            <div class="item-info"><div class="item-sub">${level}${type}</div></div>
           </div>
         `;
       }).join('');
 
-    // 렌더링
+    // 캐릭터 정보 렌더링
     const detailContent = document.getElementById('detailContent');
+    const stats = profile.Stats.reduce((acc, s) => {
+      acc[s.Type] = s.Value;
+      return acc;
+    }, {});
+
     detailContent.innerHTML = `
-      <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-        <img src="${jobIconMap[profile.CharacterClassName] || ''}" style="width:40px;height:40px;border-radius:4px;" />
-        <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
-        <div style="font-size:0.95rem;color:#ccc;">${profile.ItemMaxLevel}</div>
-      </div>
-      <div class="equipment-columns">
-        <div class="equipment-left">
-          <h3>장비</h3>
-          <div class="equipment-column">
-            ${gearOrder.map(slot => {
-              const item = gearItems.find(i => i.Type === slot);
-              if (!item) return '';
-              const trans = getTranscendText(item.Tooltip);
-              const reforged = getReinforceText(item.Tooltip, item.Name);
-              const elixir = parseElixir(item.Tooltip);
-              return `
-                <div class="equipment-item">
-                  <div class="item-icon-text">
-                    <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
-                    <div class="item-info">
-                      ${trans ? `<div class="item-sub">${trans}</div>` : ''}
-                      <div class="item-sub">${reforged}</div>
-                      ${elixir ? `<div class="item-sub">${elixir}</div>` : ''}
+      <div class="character-detail-layout">
+        <div class="character-summary">
+          <img class="character-icon" src="${jobIconMap[profile.CharacterClassName] || ''}" />
+          <div class="character-name">${profile.CharacterName}</div>
+          <div class="character-ilvl">${profile.ItemMaxLevel}</div>
+          <div class="character-stats">
+            <div>공격력: ${stats['공격력'] || '-'}</div>
+            <div>최대 생명력: ${stats['최대 생명력'] || '-'}</div>
+            <div>치명: ${stats['치명'] || '-'}</div>
+            <div>특화: ${stats['특화'] || '-'}</div>
+            <div>신속: ${stats['신속'] || '-'}</div>
+          </div>
+        </div>
+
+        <div class="equipment-columns">
+          <div class="equipment-left">
+            <h3>장비</h3>
+            <div class="equipment-column">
+              ${gearOrder.map(slot => {
+                const item = gearItems.find(i => i.Type === slot);
+                if (!item) return '';
+                const trans = getTranscendText(item.Tooltip);
+                const reforged = getReinforceText(item.Tooltip, item.Name);
+                const elixir = parseElixir(item.Tooltip);
+                return `
+                  <div class="equipment-item">
+                    <div class="item-icon-text">
+                      <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                      <div class="item-info">
+                        ${trans ? `<div class="item-sub">${trans}</div>` : ''}
+                        <div class="item-sub">${reforged}</div>
+                        ${elixir ? `<div class="item-sub">${elixir}</div>` : ''}
+                      </div>
                     </div>
                   </div>
-                </div>
-              `;
-            }).join('')}
-            <div class="equipment-item">
-              <div class="item-icon-text">
-                <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
-                <div class="item-info">
-                  <div class="item-sub">엘릭서 총합: Lv.${elixirTotal}</div>
-                  ${specialRefineText ? `<div class="item-sub">${specialRefineText}</div>` : ''}
+                `;
+              }).join('')}
+              <div class="equipment-item">
+                <div class="item-icon-text">
+                  <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
+                  <div class="item-info">
+                    <div class="item-sub">엘릭서 총합: Lv.${elixirTotal}</div>
+                    ${specialRefineText ? `<div class="item-sub">${specialRefineText}</div>` : ''}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="equipment-right">
-          <h3>악세사리</h3>
-          <div class="equipment-column">
-            ${accessoryItems.map(item => `
-              <div class="equipment-item">
-                <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
-                  <div class="item-info">
-                    ${getAccessoryOptions(item.Tooltip, profile.CharacterClassName).join('')}
+          <div class="equipment-right">
+            <h3>악세사리</h3>
+            <div class="equipment-column">
+              ${accessoryItems.map(item => `
+                <div class="equipment-item">
+                  <div class="item-icon-text">
+                    <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                    <div class="item-info">
+                      ${getAccessoryOptions(item.Tooltip, profile.CharacterClassName).join('')}
+                    </div>
                   </div>
                 </div>
-              </div>
-            `).join('')}
-            ${abilityStone ? `
-              <div class="equipment-item">
-                <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(abilityStone.Grade)}"><img src="${abilityStone.Icon}" /></div>
-                  <div class="item-info">
-                    ${parseAbilityStone(abilityStone.Tooltip).map(line => `<div class="item-sub">${line}</div>`).join('')}
+              `).join('')}
+              ${abilityStone ? `
+                <div class="equipment-item">
+                  <div class="item-icon-text">
+                    <div class="item-icon ${getGradeClass(abilityStone.Grade)}"><img src="${abilityStone.Icon}" /></div>
+                    <div class="item-info">
+                      ${parseAbilityStone(abilityStone.Tooltip).map(line => `<div class="item-sub">${line}</div>`).join('')}
+                    </div>
                   </div>
-                </div>
-              </div>` : ''}
-            ${bracelet ? `
-              <div class="equipment-item">
-                <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
-                  <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
-                </div>
-              </div>` : ''}
+                </div>` : ''}
+              ${bracelet ? `
+                <div class="equipment-item">
+                  <div class="item-icon-text">
+                    <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
+                    <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
+                  </div>
+                </div>` : ''}
+            </div>
           </div>
+
+          ${gemHtml ? `
+            <div class="equipment-column gem-container">
+              ${gemHtml}
+            </div>
+          ` : ''}
         </div>
       </div>
-
-      ${gemHtml ? `
-  		<div class="gem-container">
-    		${gemHtml}
-  		</div>
-		` : ''}
     `;
 
     document.getElementById('characterDetailModal').style.display = 'flex';
