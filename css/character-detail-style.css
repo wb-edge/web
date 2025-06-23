@@ -95,14 +95,14 @@
 .gem-container {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
-  gap: 10px;
+  gap: 6px;
   margin-top: 20px;
-  padding: 10px 0;
-  border-top: 1px solid #333;
 }
 
 .gem-item {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .gem-item .item-icon {
