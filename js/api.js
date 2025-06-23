@@ -264,15 +264,19 @@ export function showCharacterDetails(characterName) {
     }
 
 	if (bracelet) {
-		const tooltip = parseTooltip(bracelet.Tooltip);
-	    const html = tooltip?.Element_004?.value?.Element_001 || '';
-	    const clean = html
-  	      //.replace(/<img[^>]*>/g, '')
-	      .replace(/<br\s*\/?>/gi, '\n')
-	      .replace(/<[^>]+>/g, '')
-	      .trim();
-		const content = document.getElementById('braceletTooltipContent');
-        content.textContent = clean || '팔찌 정보가 없습니다.';
+	  const tooltip = parseTooltip(bracelet.Tooltip);
+	  let html = tooltip?.Element_004?.value?.Element_001 || '';
+	
+	  // 이미지 태그 교체
+	  html = html
+	    .replace(/<img[^>]*emoticon_tooltip_bracelet_locked[^>]*>/gi,
+	      `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_locked.png" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" />`)
+	    .replace(/<img[^>]*emoticon_tooltip_bracelet_changeable[^>]*>/gi,
+	      `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_changeable.png" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" />`);
+	
+	  // <br>은 유지해야 줄바꿈이 되므로 제거하지 않음
+	  const content = document.getElementById('braceletTooltipContent');
+	  content.innerHTML = html || '팔찌 정보가 없습니다.';
 	}
 
     const detailContent = document.getElementById('detailContent');
