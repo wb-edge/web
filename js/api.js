@@ -217,11 +217,13 @@ export function showCharacterDetails(characterName) {
   const headers = { Authorization: `bearer ${apiKey}` };
   const profileUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`;
   const equipmentUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`;
+  const gemUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/gems`;
 
   Promise.all([
     fetch(profileUrl, { headers }).then(res => res.json()),
-    fetch(equipmentUrl, { headers }).then(res => res.json())
-  ]).then(([profile, equipment]) => {
+    fetch(equipmentUrl, { headers }).then(res => res.json()),
+    fetch(gemUrl, { headers }).then(res => res.json())
+  ]).then(([profile, equipment, gems]) => {
     const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
     const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
     const gearItems = [], accessoryItems = [];
@@ -236,49 +238,71 @@ export function showCharacterDetails(characterName) {
       else if (accessoryOrder.includes(type)) accessoryItems.push(item);
     });
 
-    // 엘릭서 총합 계산
+    // 엘릭서 총합
     let elixirTotal = 0;
     gearItems.forEach(item => {
       const tooltip = parseTooltip(item.Tooltip);
       const lines = tooltip?.Element_010?.value?.Element_000?.contentStr;
       if (lines) {
         Object.values(lines).forEach(obj => {
-          const line = obj.contentStr.replace(/<[^>]+>/g, '');
-          const match = line.match(/Lv\.(\d+)/);
+          const match = obj.contentStr.replace(/<[^>]+>/g, '').match(/Lv\.(\d+)/);
           if (match) elixirTotal += parseInt(match[1], 10);
         });
       }
     });
 
-    // 투구 특수 연성 효과 (ex: 회심 (2단계))
+    // 투구 특수옵션
     let specialRefineText = '';
     const helmet = gearItems.find(i => i.Type === '투구');
     if (helmet) {
       const tooltip = parseTooltip(helmet.Tooltip);
       const rawTopStr = tooltip?.Element_011?.value?.Element_000?.topStr;
       if (rawTopStr) {
-        const clean = rawTopStr.replace(/<[^>]+>/g, '').trim(); // HTML 제거
-        const match = clean.match(/(.*?)\s*\(\d+단계\)/); // ex: 회심 (2단계)
-        if (match) specialRefineText = clean;
+        const clean = rawTopStr.replace(/<[^>]+>/g, '').trim();
+        specialRefineText = clean; // 예: "회심 (2단계)"
       }
     }
 
-	if (bracelet) {
-	  const tooltip = parseTooltip(bracelet.Tooltip);
-	  let html = tooltip?.Element_004?.value?.Element_001 || '';
-	
-	  // 이미지 태그 교체
-	  html = html
-	    .replace(/<img[^>]*emoticon_tooltip_bracelet_locked[^>]*>/gi,
-	      `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_locked.png" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" />`)
-	    .replace(/<img[^>]*emoticon_tooltip_bracelet_changeable[^>]*>/gi,
-	      `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_changeable.png" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" />`);
-	
-	  // <br>은 유지해야 줄바꿈이 되므로 제거하지 않음
-	  const content = document.getElementById('braceletTooltipContent');
-	  content.innerHTML = html || '팔찌 정보가 없습니다.';
-	}
+    // 팔찌 툴팁 HTML 생성
+    if (bracelet) {
+      const tooltip = parseTooltip(bracelet.Tooltip);
+      const html = tooltip?.Element_004?.value?.Element_001 || '';
+      const parsed = html.replace(/<img[^>]+emoticon_tooltip_bracelet_locked[^>]*>/g,
+        `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_locked.png" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;" />`
+      ).replace(/<img[^>]+emoticon_tooltip_bracelet_changeable[^>]*>/g,
+        `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_changeable.png" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;" />`
+      );
+      document.getElementById('braceletTooltipContent').innerHTML = parsed;
+    }
 
+    // 보석 정리
+    const gemHtml = (gems?.Gems || [])
+      .filter(gem => gem.Name && gem.Icon)
+      .sort((a, b) => {
+        const lvA = parseInt(a.Name.match(/(\d+)레벨/)?.[1] || '0');
+        const lvB = parseInt(b.Name.match(/(\d+)레벨/)?.[1] || '0');
+        return lvB - lvA;
+      })
+      .slice(0, 11)
+      .map(gem => {
+        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
+        const type = gem.Name.includes('격노') || gem.Name.includes('겁화') ? '겁'
+                    : gem.Name.includes('작열') ? '작'
+                    : gem.Name.includes('홍염') ? '홍'
+                    : gem.Name.includes('멸화') ? '멸'
+                    : gem.Name.includes('마수') ? '마'
+                    : '?';
+        return `
+          <div class="gem-item">
+            <div class="item-icon">
+              <img src="${gem.Icon}" />
+            </div>
+            <div class="item-info"><div class="item-sub">${level}${type}</div></div>
+          </div>
+        `;
+      }).join('');
+
+    // 렌더링
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
       <div class="profile" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
@@ -299,10 +323,8 @@ export function showCharacterDetails(characterName) {
               return `
                 <div class="equipment-item">
                   <div class="item-icon-text">
-                    <div class="item-icon ${getGradeClass(item.Grade)}">
-                      <img src="${item.Icon}" />
-                    </div>
-                    <div class="item-info" style="text-align:left">
+                    <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                    <div class="item-info">
                       ${trans ? `<div class="item-sub">${trans}</div>` : ''}
                       <div class="item-sub">${reforged}</div>
                       ${elixir ? `<div class="item-sub">${elixir}</div>` : ''}
@@ -311,14 +333,10 @@ export function showCharacterDetails(characterName) {
                 </div>
               `;
             }).join('')}
-
-            <!-- 엘릭서 총합 + 특수옵션 -->
             <div class="equipment-item">
               <div class="item-icon-text">
-                <div class="item-icon">
-                  <img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" />
-                </div>
-                <div class="item-info" style="text-align:left">
+                <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
+                <div class="item-info">
                   <div class="item-sub">엘릭서 총합: Lv.${elixirTotal}</div>
                   ${specialRefineText ? `<div class="item-sub">${specialRefineText}</div>` : ''}
                 </div>
@@ -333,44 +351,38 @@ export function showCharacterDetails(characterName) {
             ${accessoryItems.map(item => `
               <div class="equipment-item">
                 <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(item.Grade)}">
-                    <img src="${item.Icon}" />
-                  </div>
-                  <div class="item-info" style="text-align:left">
+                  <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                  <div class="item-info">
                     ${getAccessoryOptions(item.Tooltip, profile.CharacterClassName).join('')}
                   </div>
                 </div>
               </div>
             `).join('')}
-
             ${abilityStone ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(abilityStone.Grade)}">
-                    <img src="${abilityStone.Icon}" />
-                  </div>
-                  <div class="item-info" style="text-align:left">
+                  <div class="item-icon ${getGradeClass(abilityStone.Grade)}"><img src="${abilityStone.Icon}" /></div>
+                  <div class="item-info">
                     ${parseAbilityStone(abilityStone.Tooltip).map(line => `<div class="item-sub">${line}</div>`).join('')}
                   </div>
                 </div>
-              </div>
-            ` : ''}
-
+              </div>` : ''}
             ${bracelet ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(bracelet.Grade)}">
-                    <img src="${bracelet.Icon}" />
-                  </div>
-                  <div class="item-info" style="text-align:left">
-                    <div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div>
-                  </div>
+                  <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
+                  <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
                 </div>
-              </div>
-            ` : ''}
+              </div>` : ''}
           </div>
         </div>
       </div>
+
+      ${gemHtml ? `
+        <div class="equipment-column" style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;">
+          ${gemHtml}
+        </div>
+      ` : ''}
     `;
 
     document.getElementById('characterDetailModal').style.display = 'flex';
