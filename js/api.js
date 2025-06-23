@@ -294,7 +294,7 @@ export function showCharacterDetails(characterName) {
 	    const gradeClass = getGemGradeClass(level, gem.Name);
         return `
           <div class="gem-item">
-            <div class="item-icon ${gradeClass}">
+            <div class="gem-icon ${gradeClass}">
               <img src="${gem.Icon}" />
             </div>
             <div class="gem-label">${level}${type}</div>
