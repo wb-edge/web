@@ -379,10 +379,10 @@ export function showCharacterDetails(characterName) {
       </div>
 
       ${gemHtml ? `
-        <div class="equipment-column" style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;">
-          ${gemHtml}
-        </div>
-      ` : ''}
+  		<div class="gem-container">
+    		${gemHtml}
+  		</div>
+		` : ''}
     `;
 
     document.getElementById('characterDetailModal').style.display = 'flex';
