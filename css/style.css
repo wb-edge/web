@@ -31,11 +31,12 @@ body {
 /* 전체 레이아웃 */
 .equipment-columns {
   display: flex;
-  max-width: 1000px;
+  max-width: 1100px;
   width: 100%;
   gap: 20px;
 }
 
+/* 캐릭터 정보 영역 */
 .character-left {
   width: 35%;
   background: #2a2a2a;
@@ -43,11 +44,23 @@ body {
   border-radius: 8px;
 }
 
+.character-info h3 {
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #ccc;
+}
+.character-info .info-item {
+  margin-bottom: 6px;
+  color: #eee;
+  font-size: 14px;
+}
+
+/* 장비/악세/보석 영역 */
 .equipment-right {
   width: 65%;
 }
 
-/* 공통 아이템 UI */
+/* 장비/악세 컬럼 */
 .equipment-column {
   display: flex;
   flex-direction: column;
@@ -102,7 +115,7 @@ body {
   margin-right: 4px;
 }
 
-/* 등급 배경 그라데이션 */
+/* 등급별 배경 그라데이션 */
 .item-icon.grade-ancient {
   background: linear-gradient(135deg, #8d7c52, #dcc999);
 }
@@ -122,7 +135,7 @@ body {
   background: linear-gradient(135deg, #1d2f12, #304911);
 }
 
-/* 옵션 수치 색상 */
+/* 수치 색상 */
 .grade-high {
   color: #f9ae00;
 }
@@ -144,7 +157,7 @@ body {
   margin-bottom: 10px;
 }
 
-/* 보석 스타일 */
+/* 보석 */
 .gem-container {
   margin-top: 20px;
   display: grid;
@@ -170,7 +183,7 @@ body {
   text-align: center;
 }
 
-/* 팔찌 팝업 영역 */
+/* 팔찌 팝업 */
 #braceletTooltipContent {
   white-space: pre-line;
   background: #2d2d2d;
