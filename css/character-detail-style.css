@@ -1,6 +1,6 @@
 /* 캐릭터 상세 모달 전용 스타일 */
 
-/* 등급 색상 배경 (우선 적용을 위해 !important 추가) */
+/* 등급 색상 배경 */
 .item-icon.grade-ancient {
   background-color: #dcc999 !important;
 }
@@ -14,10 +14,13 @@
   background-color: #480d5d !important;
 }
 .item-icon.grade-rare {
-  background-color: #a24006 !important;
+  background-color: #3a62ab !important;
+}
+.item-icon.grade-uncommon {
+  background-color: #304911 !important;
 }
 
-/* 아이콘 컨테이너 */
+/* 아이콘 스타일 */
 .item-icon {
   border: 2px solid #fff;
   padding: 3px;
@@ -29,11 +32,15 @@
   height: 38px;
   box-sizing: border-box;
 }
-
 .item-icon img {
   width: 32px;
   height: 32px;
   object-fit: cover;
+}
+
+/* 장비 아이템 행 */
+.equipment-item {
+  margin-bottom: 1px;
 }
 
 /* 텍스트 */
@@ -43,10 +50,10 @@
   white-space: nowrap;
   line-height: 1.2;
 }
-
-/* 장비 아이템 행 */
-.equipment-item {
-  margin-bottom: 1px;
+.item-info .item-sub strong {
+  color: #fff;
+  margin-right: 4px;
+  font-weight: 600;
 }
 
 /* 컬럼 정렬 */
@@ -56,29 +63,35 @@
   justify-content: space-between;
 }
 
+.equipment-left,
+.equipment-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.character-left {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+}
+
+.equipment-right {
+  width: 65%;
+}
+
+/* 내부 그리드 */
 .equipment-column {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* 악세사리와 장비 제목 */
-.equipment-left h3,
-.equipment-right h3 {
-  margin-bottom: 10px;
-  color: #fff;
-  font-size: 1rem;
-  border-bottom: 1px solid #444;
-  padding-bottom: 4px;
-}
-
-/* 장비 정보 우측 텍스트 정렬 */
+/* 텍스트 옆 아이콘 정렬 */
 .item-icon-text {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
 .item-icon-text .item-info {
   display: flex;
   flex-direction: column;
@@ -86,163 +99,85 @@
   justify-content: center;
 }
 
-.item-info .item-sub strong {
-  color: #fff;
-  margin-right: 4px;
-  font-weight: 600;
-}
-
+/* 보석 */
 .gem-container {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
   gap: 6px;
   margin-top: 20px;
 }
-
 .gem-item {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.gem-item .item-icon {
+.gem-icon {
   width: 40px;
   height: 40px;
-  margin: 0 auto;
-}
-
-.gem-item .item-icon img {
-  width: 100%;
-  height: 100%;
-}
-
-.gem-item .item-sub {
-  font-size: 0.8rem;
-  color: #ccc;
-  margin-top: 4px;
-}
-
-.gem-icon {
   border-radius: 4px;
   box-shadow:
     inset 0 0 3px rgba(255,255,255,0.3),
     0 1px 3px rgba(0,0,0,0.5);
 }
-
-.gem-icon.grade-ancient {
-  background: linear-gradient(135deg, #5c4a1f, #dcc999); /* 어두운 골드 → 밝은 골드 */
-}
-
-.gem-icon.grade-relic {
-  background: linear-gradient(135deg, #341a09, #a24006); /* 진한 갈색 → 유물 주황 */
-}
-
-.gem-icon.grade-legendary {
-  background: linear-gradient(135deg, #3f2205, #d19112); /* 어두운 갈색 → 밝은 주황 */
-}
-
-.gem-icon.grade-epic {
-  background: linear-gradient(135deg, #1f042e, #8039a6); /* 어두운 보라 → 연보라 */
-}
-
-.gem-icon.grade-rare {
-  background: linear-gradient(135deg, #082840, #3f7fb7); /* 어두운 파랑 → 밝은 파랑 */
-}
-
-.gem-icon.grade-uncommon {
-  background: linear-gradient(135deg, #1a2d0e, #7bbf3b); /* 어두운 녹색 → 밝은 연두 */
-}
-
-.character-columns {
-  display: flex;
-  gap: 30px;
-  margin-bottom: 20px;
-}
-
-.character-left {
-  flex: 0 0 35%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.character-left-box {
-  background-color: #2a2a2a;
-  padding: 12px 14px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.character-left-box .label {
-  font-weight: bold;
-  color: #bbb;
-  font-size: 0.9rem;
-}
-
-.character-left-box .value {
-  color: #f5f5f5;
-  font-size: 1rem;
-}
-
-/* 전체 페이지용 스크롤바 커스터마이징 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #444, #888);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #666, #aaa);
-}
-
-::-webkit-scrollbar-track {
-  background: #1f1f1f;
-  border-radius: 10px;
-}
-
-.item-level-box {
-  position: relative;
-  width: 180px;
-  height: 60px;
-  margin: 10px 0;
-  background: linear-gradient(145deg, #0e223a, #1b3c66);
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.item-level-decoration {
-  position: absolute;
-  top: 0;
-  height: 2px;
+.gem-icon img {
   width: 100%;
-  background: linear-gradient(to right, transparent, gold, transparent);
+  height: 100%;
+}
+.gem-item .item-sub {
+  font-size: 0.8rem;
+  color: #ccc;
+  margin-top: 4px;
+}
+.gem-icon.grade-ancient {
+  background: linear-gradient(135deg, #5c4a1f, #dcc999);
+}
+.gem-icon.grade-relic {
+  background: linear-gradient(135deg, #341a09, #a24006);
+}
+.gem-icon.grade-legendary {
+  background: linear-gradient(135deg, #3f2205, #d19112);
+}
+.gem-icon.grade-epic {
+  background: linear-gradient(135deg, #1f042e, #8039a6);
+}
+.gem-icon.grade-rare {
+  background: linear-gradient(135deg, #082840, #3f7fb7);
+}
+.gem-icon.grade-uncommon {
+  background: linear-gradient(135deg, #1a2d0e, #7bbf3b);
 }
 
-.item-level-value {
-  font-size: 1.8rem;
+/* 아이템레벨 강조 효과 */
+.item-level-highlight {
+  font-size: 1.4rem;
   font-weight: bold;
-  color: #ccefff;
+  color: #ffcc33;
+  text-align: left;
+  margin-bottom: 10px;
   position: relative;
 }
-
-/* 하단 빛나는 밑줄 효과 */
-.item-level-value::after {
+.item-level-highlight::after {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 10%;
-  width: 80%;
-  height: 4px;
-  background: radial-gradient(ellipse at center, #33bbff88 0%, transparent 80%);
-  border-radius: 2px;
-  pointer-events: none;
+  left: 0;
+  bottom: 2px;
+  width: 100%;
+  height: 3px;
+  background: radial-gradient(ellipse at center, #ffcc33 0%, rgba(255,255,255,0) 80%);
+  opacity: 0.5;
+}
+
+/* 스크롤 커스터마이징 */
+.modal-content.character-detail-content::-webkit-scrollbar {
+  width: 10px;
+}
+.modal-content.character-detail-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+.modal-content.character-detail-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+}
+.modal-content.character-detail-content::-webkit-scrollbar-thumb:hover {
+  background: #888;
 }
