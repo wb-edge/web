@@ -181,3 +181,11 @@
 .modal-content.character-detail-content::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
+
+.equipment-left {
+  flex: 0 0 35%;
+}
+
+.equipment-right {
+  flex: 0 0 65%;
+}
