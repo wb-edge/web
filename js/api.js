@@ -313,8 +313,10 @@ export function showCharacterDetails(characterName) {
       <div class="character-columns">
         <div class="character-left">
           <div class="character-left-box">
-            <div class="label">아이템 레벨</div>
-            <div class="value">${profile.ItemMaxLevel}</div>
+			<div class="item-level-box">
+			  <div class="item-level-decoration"></div>
+			  <div class="item-level-value">${profile.ItemMaxLevel}</div>
+			</div>
           </div>
           <div class="character-left-box">
             <div class="label">공격력</div>
