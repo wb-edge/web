@@ -335,7 +335,6 @@ export function showCharacterDetails(characterName) {
         <div class="character-right" style="flex:1;">
           <div class="equipment-columns">
             <div class="equipment-left">
-              <h3>장비</h3>
               <div class="equipment-column">
                 ${gearOrder.map(slot => {
                   const item = gearItems.find(i => i.Type === slot);
@@ -369,7 +368,6 @@ export function showCharacterDetails(characterName) {
             </div>
 
             <div class="equipment-right">
-              <h3>악세사리</h3>
               <div class="equipment-column">
                 ${accessoryItems.map(item => `
                   <div class="equipment-item">
