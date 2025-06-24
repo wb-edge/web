@@ -208,14 +208,12 @@
 
 .item-level-box {
   position: relative;
-  width: 200px;
-  height: 80px;
+  width: 180px;
+  height: 60px;
   margin: 10px 0;
-  background: linear-gradient(145deg, #0d2a4d, #1a4fa1);
-  border-radius: 10px;
-  box-shadow: inset 0 0 8px #0d4fa4, 0 0 12px rgba(0, 150, 255, 0.6);
+  background: linear-gradient(145deg, #0e223a, #1b3c66);
+  border-radius: 8px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
@@ -230,10 +228,21 @@
 }
 
 .item-level-value {
-  font-size: 2.4rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  color: #ccf0ff;
-  text-shadow: 0 0 6px #88d9ff, 0 0 12px #33bbff;
-  z-index: 1;
+  color: #ccefff;
+  position: relative;
 }
 
+/* 하단 빛나는 밑줄 효과 */
+.item-level-value::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 10%;
+  width: 80%;
+  height: 4px;
+  background: radial-gradient(ellipse at center, #33bbff88 0%, transparent 80%);
+  border-radius: 2px;
+  pointer-events: none;
+}
