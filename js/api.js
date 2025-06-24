@@ -227,8 +227,7 @@ export function showCharacterDetails(characterName) {
     const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
     const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
     const gearItems = [], accessoryItems = [];
-    let abilityStone = null;
-    let bracelet = null;
+    let abilityStone = null, bracelet = null;
 
     equipment.forEach(item => {
       const type = item.Type;
@@ -259,7 +258,7 @@ export function showCharacterDetails(characterName) {
       const rawTopStr = tooltip?.Element_011?.value?.Element_000?.topStr;
       if (rawTopStr) {
         const clean = rawTopStr.replace(/<[^>]+>/g, '').trim();
-        specialRefineText = clean; // 예: 회심 (2단계)
+        specialRefineText = clean;
       }
     }
 
@@ -285,138 +284,152 @@ export function showCharacterDetails(characterName) {
       })
       .slice(0, 11)
       .map(gem => {
-        const level = parseInt(gem.Name.match(/(\d+)레벨/)?.[1] || '0');
+        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
         const type = gem.Name.includes('겁화') ? '겁'
                     : gem.Name.includes('작열') ? '작'
                     : gem.Name.includes('홍염') ? '홍'
                     : gem.Name.includes('멸화') ? '멸'
                     : '?';
-
-        let grade = '';
-        if (['겁화', '작열'].some(t => gem.Name.includes(t))) {
-          if (level === 10) grade = 'grade-ancient';
-          else if (level >= 8) grade = 'grade-relic';
-          else if (level >= 5) grade = 'grade-legendary';
-          else if (level >= 3) grade = 'grade-epic';
-          else grade = 'grade-rare';
-        } else {
-          if (level === 10) grade = 'grade-relic';
-          else if (level >= 7) grade = 'grade-legendary';
-          else if (level >= 5) grade = 'grade-epic';
-          else if (level >= 3) grade = 'grade-rare';
-          else grade = 'grade-uncommon';
-        }
-
+        const gradeClass = getGemGradeClass(level, type);
         return `
           <div class="gem-item">
-            <div class="item-icon ${grade}"><img src="${gem.Icon}" /></div>
-            <div class="item-info"><div class="item-sub">${level}${type}</div></div>
+            <div class="item-icon gem-icon ${gradeClass}">
+              <img src="${gem.Icon}" />
+            </div>
+            <div class="item-sub">${level}${type}</div>
           </div>
         `;
       }).join('');
 
-    // 특성 추출
-    const getStat = (label) => {
-      const stat = profile?.Stats?.find(s => s.Type === label);
-      return stat ? stat.Value : '-';
-    };
-    const crit = getStat('치명');
-    const spec = getStat('특화');
-    const swift = getStat('신속');
-    const atk = profile?.AttackPower || '-';
-    const hp = profile?.MaxHealth || '-';
-
+    // 렌더링
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
-      <div class="equipment-columns">
+      <div class="profile">
+        <img src="${jobIconMap[profile.CharacterClassName] || ''}" style="width:40px;height:40px;border-radius:4px;" />
+        <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
+        <div style="font-size:0.95rem;color:#ccc;">${profile.ItemMaxLevel}</div>
+      </div>
+
+      <div class="character-columns">
         <div class="character-left">
-          <div class="profile">
-            <img src="${jobIconMap[profile.CharacterClassName] || ''}" />
-            <div>
-              <div class="char-name">${profile.CharacterName}</div>
-              <div class="char-sub">${profile.ServerName} / ${profile.GuildName}</div>
-            </div>
+          <div class="character-left-box">
+            <div class="label">아이템 레벨</div>
+            <div class="value">${profile.ItemMaxLevel}</div>
           </div>
-          <div class="char-stats">
-            <div>아이템 레벨: ${profile.ItemMaxLevel}</div>
-            <div>공격력: ${atk}</div>
-            <div>생명력: ${hp}</div>
-            <div>치명: ${crit}, 특화: ${spec}, 신속: ${swift}</div>
+          <div class="character-left-box">
+            <div class="label">공격력</div>
+            <div class="value">${profile.AttackPower}</div>
+          </div>
+          <div class="character-left-box">
+            <div class="label">생명력</div>
+            <div class="value">${profile.MaxHp}</div>
+          </div>
+          <div class="character-left-box">
+            <div class="label">특성</div>
+            <div class="value">
+              치명 ${profile.Critical} / 특화 ${profile.Specialization} / 신속 ${profile.Swiftness}
+            </div>
           </div>
         </div>
 
-        <div class="equipment-right">
-          <div class="equipment-column">
-            ${gearOrder.map(slot => {
-              const item = gearItems.find(i => i.Type === slot);
-              if (!item) return '';
-              const trans = getTranscendText(item.Tooltip);
-              const reforged = getReinforceText(item.Tooltip, item.Name);
-              const elixir = parseElixir(item.Tooltip);
-              return `
+        <div class="character-right" style="flex:1;">
+          <div class="equipment-columns">
+            <div class="equipment-left">
+              <h3>장비</h3>
+              <div class="equipment-column">
+                ${gearOrder.map(slot => {
+                  const item = gearItems.find(i => i.Type === slot);
+                  if (!item) return '';
+                  const trans = getTranscendText(item.Tooltip);
+                  const reforged = getReinforceText(item.Tooltip, item.Name);
+                  const elixir = parseElixir(item.Tooltip);
+                  return `
+                    <div class="equipment-item">
+                      <div class="item-icon-text">
+                        <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                        <div class="item-info">
+                          ${trans ? `<div class="item-sub">${trans}</div>` : ''}
+                          <div class="item-sub">${reforged}</div>
+                          ${elixir ? `<div class="item-sub">${elixir}</div>` : ''}
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
                 <div class="equipment-item">
                   <div class="item-icon-text">
-                    <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                    <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
                     <div class="item-info">
-                      ${trans ? `<div class="item-sub">${trans}</div>` : ''}
-                      <div class="item-sub">${reforged}</div>
-                      ${elixir ? `<div class="item-sub">${elixir}</div>` : ''}
+                      <div class="item-sub">엘릭서 총합: Lv.${elixirTotal}</div>
+                      ${specialRefineText ? `<div class="item-sub">${specialRefineText}</div>` : ''}
                     </div>
                   </div>
-                </div>
-              `;
-            }).join('')}
-            <div class="equipment-item">
-              <div class="item-icon-text">
-                <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
-                <div class="item-info">
-                  <div class="item-sub">엘릭서 총합: Lv.${elixirTotal}</div>
-                  ${specialRefineText ? `<div class="item-sub">${specialRefineText}</div>` : ''}
                 </div>
               </div>
             </div>
 
-            ${accessoryItems.map(item => `
-              <div class="equipment-item">
-                <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
-                  <div class="item-info">
-                    ${getAccessoryOptions(item.Tooltip, profile.CharacterClassName).join('')}
+            <div class="equipment-right">
+              <h3>악세사리</h3>
+              <div class="equipment-column">
+                ${accessoryItems.map(item => `
+                  <div class="equipment-item">
+                    <div class="item-icon-text">
+                      <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                      <div class="item-info">
+                        ${getAccessoryOptions(item.Tooltip, profile.CharacterClassName).join('')}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                `).join('')}
+                ${abilityStone ? `
+                  <div class="equipment-item">
+                    <div class="item-icon-text">
+                      <div class="item-icon ${getGradeClass(abilityStone.Grade)}"><img src="${abilityStone.Icon}" /></div>
+                      <div class="item-info">
+                        ${parseAbilityStone(abilityStone.Tooltip).map(line => `<div class="item-sub">${line}</div>`).join('')}
+                      </div>
+                    </div>
+                  </div>` : ''}
+                ${bracelet ? `
+                  <div class="equipment-item">
+                    <div class="item-icon-text">
+                      <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
+                      <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
+                    </div>
+                  </div>` : ''}
               </div>
-            `).join('')}
-
-            ${abilityStone ? `
-              <div class="equipment-item">
-                <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(abilityStone.Grade)}"><img src="${abilityStone.Icon}" /></div>
-                  <div class="item-info">
-                    ${parseAbilityStone(abilityStone.Tooltip).map(line => `<div class="item-sub">${line}</div>`).join('')}
-                  </div>
-                </div>
-              </div>` : ''}
-
-            ${bracelet ? `
-              <div class="equipment-item">
-                <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
-                  <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
-                </div>
-              </div>` : ''}
-
-            ${gemHtml ? `
-              <div class="gem-container">
-                ${gemHtml}
-              </div>
-            ` : ''}
+            </div>
           </div>
+
+          ${gemHtml ? `
+            <div class="gem-container">
+              ${gemHtml}
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
 
     document.getElementById('characterDetailModal').style.display = 'flex';
   });
+}
+
+function getGemGradeClass(level, type) {
+  const lv = parseInt(level);
+  if (['겁', '작'].includes(type)) {
+    if (lv === 10) return 'grade-ancient';
+    if (lv >= 8) return 'grade-relic';
+    if (lv >= 5) return 'grade-legendary';
+    if (lv >= 3) return 'grade-epic';
+    return 'grade-rare';
+  } else if (['홍', '멸'].includes(type)) {
+    if (lv === 10) return 'grade-relic';
+    if (lv >= 7) return 'grade-legendary';
+    if (lv >= 5) return 'grade-epic';
+    if (lv >= 3) return 'grade-rare';
+    return 'grade-uncommon';
+  }
+  return '';
 }
 
 function getCookie(name) {

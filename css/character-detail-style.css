@@ -153,4 +153,36 @@
   background: linear-gradient(135deg, #1a2d0e, #7bbf3b); /* 어두운 녹색 → 밝은 연두 */
 }
 
+.character-columns {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.character-left {
+  flex: 0 0 35%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.character-left-box {
+  background-color: #2a2a2a;
+  padding: 12px 14px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.character-left-box .label {
+  font-weight: bold;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.character-left-box .value {
+  color: #f5f5f5;
+  font-size: 1rem;
+}
 
