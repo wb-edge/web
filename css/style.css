@@ -1,195 +1,63 @@
-*,
-*::before,
-*::after {
+/* 기본 리셋 */
+* {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #1e1e1e;
-  color: #f5f5f5;
+  font-family: 'Malgun Gothic', sans-serif;
+  font-size: 14px;
+  background: #1e1e1e;
+  color: #eee;
+  line-height: 1.5;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.navbar {
-  background-color: #121212;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-.nav-container {
-  max-width: 1200px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-#searchInput {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: none;
-  flex: 1;
-  margin: 0 1rem;
-  max-width: 400px;
-}
-
-button {
-  background-color: #333;
-  color: #fff;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #555;
-}
-
-.results {
-  padding: 2rem;
-}
-
-.server-group {
-  margin-bottom: 2rem;
-}
-.server-group h2 {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid #888;
-  padding-left: 0.5rem;
-}
-
-/* 카드 */
-.card-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-}
-
-.card {
-  background-color: #2a2a2a;
-  padding: 1rem;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.card:hover {
-  background-color: #3a3a3a;
-}
-.card img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  margin-right: 1rem;
-}
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-.name {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-.itemLevel {
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-/* 모달 */
-.modal {
-  display: none;
+#characterDetailModal {
   position: fixed;
-  z-index: 1000;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7);
-  align-items: center;
+  background-color: rgba(0,0,0,0.8);
+  z-index: 1000;
+  display: none;
   justify-content: center;
-}
-
-.modal-content.api-key-content {
-  background-color: #1f1f1f;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 400px;
-  width: 100%;
-  max-height: 90vh;
+  align-items: flex-start;
   overflow-y: auto;
-  text-align: center;
+  padding: 40px 20px;
 }
 
-.modal-content.character-detail-content {
-  background-color: #1f1f1f;
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 960px;
-  width: 95%;
-  max-height: 90vh;
-  overflow-y: auto;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal .close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
-}
-
-.profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-/* 장비/악세 레이아웃 */
+/* 전체 레이아웃 */
 .equipment-columns {
   display: flex;
+  max-width: 1000px;
+  width: 100%;
   gap: 20px;
-  align-items: stretch;
 }
 
-.equipment-left, .equipment-right {
-  flex: 1;
+.character-left {
+  width: 35%;
+  background: #2a2a2a;
+  padding: 16px;
+  border-radius: 8px;
 }
 
+.equipment-right {
+  width: 65%;
+}
+
+/* 공통 아이템 UI */
 .equipment-column {
-  display: grid;
-  grid-template-rows: repeat(7, auto);
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .equipment-item {
-  display: flex;
-  align-items: center;
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  padding: 6px 8px;
-  min-height: 72px;
+  background: #2e2e2e;
+  padding: 6px;
+  border-radius: 6px;
 }
 
 .item-icon-text {
@@ -199,164 +67,118 @@ button:hover {
 }
 
 .item-icon {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
+  background-color: #444;
   border-radius: 4px;
   overflow: hidden;
+  flex-shrink: 0;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
+
 .item-icon img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
-/* 등급별 배경 */
-.grade-ancient .item-icon { background-color: #dcc999; }
-.grade-relic .item-icon { background-color: #a24006; }
-.grade-legendary .item-icon { background-color: #9e5f04; }
-.grade-epic .item-icon { background-color: #480d5d; }
-.grade-rare .item-icon { background-color: #3a62ab; }
-
-/* 텍스트 색상 및 서브정보 */
 .item-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .item-sub {
-  font-size: 0.85rem;
-  color: #ccc;
-  position: relative;
-  padding-left: 18px;
-  line-height: 1.5;
-}
-
-/* 수치별 색상 */
-.grade-high { color: #f9ae00; }
-.grade-mid { color: #8045dd; }
-.grade-low { color: #2a81f6; }
-
-/* 별 표시 */
-.item-sub.show-star::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 4px;
-  width: 14px;
-  height: 14px;
-  background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-  #searchInput {
-    max-width: 100%;
-    margin: 1rem 0;
-  }
-  .nav-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .equipment-columns {
-    flex-direction: column;
-  }
-  .equipment-left, .equipment-right {
-    width: 100%;
-  }
-}
-
-.bracelet-tooltip-wrapper {
-  position: relative;
-}
-
-.bracelet-tooltip {
-  position: absolute;
-  top: 60px;
-  left: 0;
-  background: #2a2a2a;
-  padding: 12px;
-  border-radius: 8px;
-  width: 280px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  z-index: 999;
-  display: none;
-}
-
-.bracelet-tooltip.hidden {
-  display: none;
-}
-
-.bracelet-tooltip .tooltip-title {
-  font-weight: bold;
-  color: #ccc;
-  margin-bottom: 8px;
-}
-
-.bracelet-tooltip .tooltip-line {
-  font-size: 0.85rem;
-  margin-bottom: 6px;
+  font-size: 13px;
   color: #ddd;
 }
 
-.modal-content.bracelet-tooltip-content {
-  background-color: #1f1f1f;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 400px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  position: relative;
-}
-
-.modal-content.bracelet-tooltip-content .close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-#braceletTooltipContent {
-  line-height: 1.6;
-  font-size: 14px;
-  color: #f5f5f5;
-}
-#braceletTooltipContent img {
-  vertical-align: middle;
+.item-sub.show-star::before {
+  content: '★';
+  color: gold;
   margin-right: 4px;
 }
 
-.gem-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+/* 등급 배경 그라데이션 */
+.item-icon.grade-ancient {
+  background: linear-gradient(135deg, #8d7c52, #dcc999);
+}
+.item-icon.grade-relic {
+  background: linear-gradient(135deg, #341a09, #a24006);
+}
+.item-icon.grade-legendary {
+  background: linear-gradient(135deg, #3e2502, #9e5f04);
+}
+.item-icon.grade-epic {
+  background: linear-gradient(135deg, #2a0a3c, #480d5d);
+}
+.item-icon.grade-rare {
+  background: linear-gradient(135deg, #1e0c00, #3a82b7);
+}
+.item-icon.grade-uncommon {
+  background: linear-gradient(135deg, #1d2f12, #304911);
 }
 
-.gem {
+/* 옵션 수치 색상 */
+.grade-high {
+  color: #f9ae00;
+}
+.grade-mid {
+  color: #7bc8ff;
+}
+.grade-low {
+  color: #888;
+}
+.grade-unknown {
+  color: #aaa;
+}
+
+/* 프로필 상단 */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* 보석 스타일 */
+.gem-container {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 8px;
+}
+
+.gem-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 48px;
+  gap: 2px;
 }
 
-.gem img {
-  width: 40px;
-  height: 40px;
+.gem-item .item-icon {
+  width: 36px;
+  height: 36px;
 }
 
-.gem-label {
-  font-size: 0.75rem;
+.gem-item .item-sub {
+  font-size: 12px;
+  color: #ccc;
   text-align: center;
-  margin-top: 2px;
-  color: #ddd;
+}
+
+/* 팔찌 팝업 영역 */
+#braceletTooltipContent {
+  white-space: pre-line;
+  background: #2d2d2d;
+  border: 1px solid #666;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  max-width: 600px;
+  color: #eee;
+  font-size: 13px;
 }
