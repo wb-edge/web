@@ -86,17 +86,18 @@ const parseElixir = (tooltipString) => {
   const el = tooltip?.Element_010?.value?.Element_000?.contentStr;
   if (!el) return '';
 
-  const contents = Object.values(el).map(x => x.contentStr.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
+  const contents = Object.values(el)
+    .map(x => x?.contentStr?.replace(/<[^>]+>/g, '').trim())
+    .filter(Boolean);
 
   const parsed = contents.map(line => {
     const match = line.match(/\[(.*?)\]\s*(.*?)Lv\.(\d+)/);
     if (match) {
       const label = match[2].trim().replace(/\s+/g, ' ');
-      const level = parseInt(match[3]);
+      const level = parseInt(match[3], 10);
       let gradeClass = 'grade-low';
       if (level === 4) gradeClass = 'grade-mid';
       else if (level === 5) gradeClass = 'grade-high';
-
       return `${label} <span class="${gradeClass}">Lv.${level}</span>`;
     }
     return '';
@@ -111,15 +112,15 @@ const parseAbilityStone = (tooltipString) => {
   if (!entries) return [];
 
   return Object.values(entries).map(el => {
-    const line = el.contentStr.replace(/<[^>]+>/g, '').replace(/\[|\]/g, '').trim();
+    const raw = el?.contentStr || '';
+    const line = raw.replace(/<[^>]+>/g, '').replace(/\[|\]/g, '').trim();
     if (line.includes('감소')) {
       return `<span style="color:#ff4c4c">${line}</span>`;
     }
-
     const match = line.match(/Lv\.(\d)/);
     if (!match) return line;
 
-    const lv = parseInt(match[1]);
+    const lv = parseInt(match[1], 10);
     let color = '#ccc';
     if (lv === 3) color = '#f9ae00';
     else if (lv === 2) color = '#8045dd';
@@ -135,32 +136,30 @@ const getAccessoryOptions = (tooltipString, job) => {
 
   for (const key in tooltip) {
     const element = tooltip[key];
-    if (
-      element?.type === 'ItemPartBox' &&
-      element.value?.Element_000?.includes('연마 효과')
-    ) {
-      const raw = element.value.Element_001 || '';
-      const lines = raw
-        .split(/<br>|<BR>|\\n|\\r/i)
-        .map(line => {
-          const clean = line.replace(/<img[^>]*>/gi, '').replace(/<[^>]+>/g, '').trim();
-          const gradeClass = getOptionGrade(clean);
-          const match = clean.match(/(.*?)([+\-]?\d[\d.,]*%?)$/);
-          const label = match ? match[1].trim() : clean;
-          const value = match ? match[2] : '';
-          const coloredValue = value ? `<span class="${gradeClass}">${value}</span>` : '';
-          const showStar = shouldShowStar(clean, job);
-          return `
-            <div class="item-sub${showStar ? ' show-star' : ''}">
-              ${showStar ? '' : ''}
-              ${label} ${coloredValue}
-            </div>
-          `;
-        })
-        .filter(Boolean);
-      options.push(...lines);
-    }
+    if (!element?.value?.Element_000?.includes?.('연마 효과')) continue;
+
+    const raw = element.value.Element_001 || '';
+    const lines = raw
+      .split(/<br>|<BR>|\\n|\\r/i)
+      .map(line => {
+        const clean = line.replace(/<img[^>]*>/gi, '').replace(/<[^>]+>/g, '').trim();
+        const gradeClass = getOptionGrade(clean);
+        const match = clean.match(/(.*?)([+\-]?\d[\d.,]*%?)$/);
+        const label = match ? match[1].trim() : clean;
+        const value = match ? match[2] : '';
+        const coloredValue = value ? `<span class="${gradeClass}">${value}</span>` : '';
+        const showStar = shouldShowStar(clean, job);
+        return `
+          <div class="item-sub${showStar ? ' show-star' : ''}">
+            ${label} ${coloredValue}
+          </div>
+        `;
+      })
+      .filter(Boolean);
+
+    options.push(...lines);
   }
+
   return options.slice(0, 3);
 };
 
@@ -202,9 +201,11 @@ const getReinforceText = (tooltipString, name) => {
   const tooltip = parseTooltip(tooltipString);
   for (const key in tooltip) {
     const element = tooltip[key];
-    const value = element?.value || '';
+    if (!element || typeof element !== 'object') continue;
+    const value = element.value || '';
     if (element.type === 'SingleTextBox' && value.includes('상급 재련')) {
-      const match = value.replace(/<[^>]+>/g, '').match(/(\d+)단계/);
+      const clean = value.replace(/<[^>]+>/g, '');
+      const match = clean.match(/(\d+)단계/);
       const stage = match ? match[1] : '';
       return `${name} x${stage}`;
     }
