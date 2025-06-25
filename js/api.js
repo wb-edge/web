@@ -313,7 +313,7 @@ export function showCharacterDetails(characterName) {
       <div class="profile">
         <img src="${jobIconMap[profile.CharacterClassName] || ''}" />
         <div class="character-name">${profile.CharacterName}</div>
-        <div class="item-level-glow">${profile.ItemMaxLevel}</div>
+        <div class="item-level-glow">${profile.ItemAvgLevel}</div>
       </div>
 
       <div class="equipment-columns">
