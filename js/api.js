@@ -258,42 +258,35 @@ export function showCharacterDetails(characterName) {
     const helmet = gearItems.find(i => i.Type === '투구');
     if (helmet) {
       const tooltip = parseTooltip(helmet.Tooltip);
-      const topStr = tooltip?.Element_011?.value?.Element_000?.topStr;
-      if (topStr) {
-        specialRefineText = topStr.replace(/<[^>]+>/g, '').trim();
+      const rawTopStr = tooltip?.Element_011?.value?.Element_000?.topStr;
+      if (rawTopStr) {
+        const clean = rawTopStr.replace(/<[^>]+>/g, '').trim();
+        specialRefineText = clean;
       }
     }
 
-    // 보석 생성
-    const gemHtml = (gems?.Gems || [])
-      .filter(g => g.Name && g.Icon)
-      .sort((a, b) => {
-        const lvA = parseInt(a.Name.match(/(\d+)레벨/)?.[1] || '0');
-        const lvB = parseInt(b.Name.match(/(\d+)레벨/)?.[1] || '0');
-        return lvB - lvA;
-      })
-      .slice(0, 11)
-      .map(gem => {
-        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
-        const type = gem.Name.includes('겁화') ? '겁'
-                    : gem.Name.includes('작열') ? '작'
-                    : gem.Name.includes('홍염') ? '홍'
-                    : gem.Name.includes('멸화') ? '멸'
-                    : '?';
-        const grade =
-          (type === '겁' || type === '작')
-            ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
-            : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
+    // 보석
+    const gemHtml = (gems?.Gems || []).slice(0, 11).map(gem => {
+      const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
+      const type = gem.Name.includes('겁화') ? '겁'
+                  : gem.Name.includes('작열') ? '작'
+                  : gem.Name.includes('홍염') ? '홍'
+                  : gem.Name.includes('멸화') ? '멸'
+                  : '?';
+      const grade =
+        (type === '겁' || type === '작')
+          ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
+          : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
 
-        return `
-          <div class="gem-item">
-            <div class="item-icon gem-icon grade-${grade}">
-              <img src="${gem.Icon}" />
-            </div>
-            <div class="item-sub">${level}${type}</div>
+      return `
+        <div class="gem-item">
+          <div class="item-icon gem-icon grade-${grade}">
+            <img src="${gem.Icon}" />
           </div>
-        `;
-      }).join('');
+          <div class="item-sub">${level}${type}</div>
+        </div>
+      `;
+    }).join('');
 
     // 팔찌 툴팁
     if (bracelet) {
@@ -307,17 +300,17 @@ export function showCharacterDetails(characterName) {
       document.getElementById('braceletTooltipContent').innerHTML = parsed;
     }
 
+    // 최종 렌더링
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
       <div class="profile">
         <img src="${jobIconMap[profile.CharacterClassName] || ''}" />
-        <div class="character-name">${profile.CharacterName}</div>
-        <div class="item-level-glow">Lv.${profile.ItemAvgLevel}</div>
+        <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
+        <div style="font-size:0.95rem;color:#ccc;">${profile.ItemAvgLevel}</div>
       </div>
 
       <div class="equipment-columns">
-        <!-- 캐릭터 정보 영역 -->
-        <div class="equipment-left">
+        <div class="equipment-left" style="flex: 0 0 35%;">
           <div class="equipment-column">
             <div class="equipment-item"><div class="item-sub">공격력: ${profile.Stats.find(s => s.Type === '공격력')?.Value || '-'}</div></div>
             <div class="equipment-item"><div class="item-sub">생명력: ${profile.Stats.find(s => s.Type === '최대 생명력')?.Value || '-'}</div></div>
@@ -327,9 +320,7 @@ export function showCharacterDetails(characterName) {
           </div>
         </div>
 
-        <!-- 장비 및 악세사리 영역 -->
-        <div class="equipment-right">
-          <!-- 장비 -->
+        <div class="equipment-right" style="flex: 0 0 65%;">
           <div class="equipment-column">
             ${gearOrder.map(slot => {
               const item = gearItems.find(i => i.Type === slot);
@@ -350,8 +341,6 @@ export function showCharacterDetails(characterName) {
                 </div>
               `;
             }).join('')}
-
-            <!-- 엘릭서 총합 -->
             <div class="equipment-item">
               <div class="item-icon-text">
                 <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
@@ -363,7 +352,6 @@ export function showCharacterDetails(characterName) {
             </div>
           </div>
 
-          <!-- 악세사리 + 팔찌 + 어빌리티 스톤 -->
           <div class="equipment-column">
             ${accessoryItems.map(item => `
               <div class="equipment-item">
@@ -375,7 +363,6 @@ export function showCharacterDetails(characterName) {
                 </div>
               </div>
             `).join('')}
-
             ${abilityStone ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
@@ -385,19 +372,19 @@ export function showCharacterDetails(characterName) {
                   </div>
                 </div>
               </div>` : ''}
-
             ${bracelet ? `
               <div class="equipment-item">
                 <div class="item-icon-text">
                   <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
-                  <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
+                  <div class="item-info">
+                    <div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div>
+                  </div>
                 </div>
               </div>` : ''}
           </div>
 
-          <!-- 보석 -->
           ${gemHtml ? `
-            <div class="gem-container">
+            <div class="gem-container" style="margin-top:12px;">
               ${gemHtml}
             </div>
           ` : ''}
