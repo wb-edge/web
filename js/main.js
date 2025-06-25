@@ -37,7 +37,7 @@ function fetchCharacters(keyword) {
       const grouped = {};
       data.forEach(char => {
         const server = char.ServerName;
-        const level = parseFloat(char.ItemMaxLevel.replace(/,/g, ''));
+        const level = parseFloat(char.ItemAvgLevel.replace(/,/g, ''));
         if (!grouped[server]) grouped[server] = [];
         grouped[server].push({
           name: char.CharacterName,
