@@ -1,6 +1,6 @@
 /* 캐릭터 상세 모달 전용 스타일 */
 
-/* 등급 색상 배경 */
+/* 등급 색상 배경 (우선 적용을 위해 !important 추가) */
 .item-icon.grade-ancient {
   background-color: #dcc999 !important;
 }
@@ -16,11 +16,8 @@
 .item-icon.grade-rare {
   background-color: #3a62ab !important;
 }
-.item-icon.grade-uncommon {
-  background-color: #304911 !important;
-}
 
-/* 아이콘 스타일 */
+/* 아이콘 컨테이너 */
 .item-icon {
   border: 2px solid #fff;
   padding: 3px;
@@ -38,11 +35,6 @@
   object-fit: cover;
 }
 
-/* 장비 아이템 행 */
-.equipment-item {
-  margin-bottom: 1px;
-}
-
 /* 텍스트 */
 .item-sub {
   font-size: 0.85rem;
@@ -50,48 +42,63 @@
   white-space: nowrap;
   line-height: 1.2;
 }
-.item-info .item-sub strong {
-  color: #fff;
-  margin-right: 4px;
-  font-weight: 600;
+
+/* 장비 아이템 행 */
+.equipment-item {
+  display: flex;
+  align-items: center;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 6px 8px;
+  min-height: 60px;
+  margin-bottom: 1px;
 }
 
-/* 컬럼 정렬 */
+/* 전체 구조 - 좌우 배치 */
 .equipment-columns {
   display: flex;
-  gap: 10px;
+  flex-direction: row;
+  gap: 20px;
   justify-content: space-between;
+  align-items: flex-start;
 }
 
-.equipment-left,
-.equipment-right {
-  display: flex;
-  flex-direction: column;
-}
-
-.character-left {
+/* 좌측: 캐릭터 정보 및 엘릭서/팔찌 */
+.equipment-left {
   width: 35%;
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
+/* 우측: 장비 + 악세사리 */
 .equipment-right {
   width: 65%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* 내부 그리드 */
+/* 컬럼 내부 정렬 */
 .equipment-column {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* 텍스트 옆 아이콘 정렬 */
+/* 타이틀 제거 (장비, 악세사리) */
+.equipment-left h3,
+.equipment-right h3 {
+  display: none;
+}
+
+/* 장비 정보 우측 텍스트 정렬 */
 .item-icon-text {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 .item-icon-text .item-info {
   display: flex;
   flex-direction: column;
@@ -99,27 +106,32 @@
   justify-content: center;
 }
 
-/* 보석 */
+.item-info .item-sub strong {
+  color: #fff;
+  margin-right: 4px;
+  font-weight: 600;
+}
+
+/* 보석 컨테이너 */
 .gem-container {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
   gap: 6px;
   margin-top: 20px;
 }
+
+/* 보석 아이템 */
 .gem-item {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.gem-icon {
+.gem-item .item-icon {
   width: 40px;
   height: 40px;
-  border-radius: 4px;
-  box-shadow:
-    inset 0 0 3px rgba(255,255,255,0.3),
-    0 1px 3px rgba(0,0,0,0.5);
+  margin: 0 auto;
 }
-.gem-icon img {
+.gem-item .item-icon img {
   width: 100%;
   height: 100%;
 }
@@ -127,6 +139,14 @@
   font-size: 0.8rem;
   color: #ccc;
   margin-top: 4px;
+}
+
+/* 보석 그라데이션 배경 */
+.gem-icon {
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 3px rgba(255,255,255,0.3),
+    0 1px 3px rgba(0,0,0,0.5);
 }
 .gem-icon.grade-ancient {
   background: linear-gradient(135deg, #5c4a1f, #dcc999);
@@ -147,45 +167,14 @@
   background: linear-gradient(135deg, #1a2d0e, #7bbf3b);
 }
 
-/* 아이템레벨 강조 효과 */
-.item-level-highlight {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #ffcc33;
-  text-align: left;
-  margin-bottom: 10px;
-  position: relative;
-}
-.item-level-highlight::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 2px;
-  width: 100%;
-  height: 3px;
-  background: radial-gradient(ellipse at center, #ffcc33 0%, rgba(255,255,255,0) 80%);
-  opacity: 0.5;
-}
-
-/* 스크롤 커스터마이징 */
+/* 스크롤 꾸미기 */
 .modal-content.character-detail-content::-webkit-scrollbar {
   width: 10px;
 }
-.modal-content.character-detail-content::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
 .modal-content.character-detail-content::-webkit-scrollbar-thumb {
   background: #555;
-  border-radius: 5px;
+  border-radius: 6px;
 }
-.modal-content.character-detail-content::-webkit-scrollbar-thumb:hover {
-  background: #888;
-}
-
-.equipment-left {
-  flex: 0 0 35%;
-}
-
-.equipment-right {
-  flex: 0 0 65%;
+.modal-content.character-detail-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
 }

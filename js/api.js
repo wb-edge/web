@@ -237,7 +237,7 @@ export function showCharacterDetails(characterName) {
       else if (accessoryOrder.includes(type)) accessoryItems.push(item);
     });
 
-    // 엘릭서 총합 계산
+    // 엘릭서 총합
     let elixirTotal = 0;
     gearItems.forEach(item => {
       const tooltip = parseTooltip(item.Tooltip);
@@ -250,7 +250,7 @@ export function showCharacterDetails(characterName) {
       }
     });
 
-    // 특수 연성 옵션 (투구)
+    // 특수옵션
     let specialRefineText = '';
     const helmet = gearItems.find(i => i.Type === '투구');
     if (helmet) {
@@ -262,7 +262,7 @@ export function showCharacterDetails(characterName) {
       }
     }
 
-    // 보석 정리
+    // 보석 가공
     const gemHtml = (gems?.Gems || [])
       .filter(gem => gem.Name && gem.Icon)
       .sort((a, b) => {
@@ -293,7 +293,7 @@ export function showCharacterDetails(characterName) {
         `;
       }).join('');
 
-    // 팔찌 툴팁 HTML
+    // 팔찌 툴팁 처리
     if (bracelet) {
       const tooltip = parseTooltip(bracelet.Tooltip);
       const html = tooltip?.Element_004?.value?.Element_001 || '';
@@ -305,21 +305,15 @@ export function showCharacterDetails(characterName) {
       document.getElementById('braceletTooltipContent').innerHTML = parsed;
     }
 
-    // HTML 렌더링
-    const detailContent = document.getElementById('detailContent');
-    detailContent.innerHTML = `
+    // 최종 렌더링
+    document.getElementById('detailContent').innerHTML = `
       <div class="profile">
         <img src="${jobIconMap[profile.CharacterClassName] || ''}" />
-        <div style="font-size:1.2rem;font-weight:bold;">
-          ${profile.CharacterName}
-        </div>
-        <div style="font-size:0.95rem;color:#ccc;">
-          ${profile.ItemMaxLevel}
-        </div>
+        <div class="character-name">${profile.CharacterName}</div>
+        <div class="item-level-glow">${profile.ItemMaxLevel}</div>
       </div>
 
       <div class="equipment-columns">
-        <!-- 캐릭터 정보 좌측 영역 -->
         <div class="equipment-left">
           <div class="equipment-column">
             <div class="equipment-item">
@@ -336,12 +330,18 @@ export function showCharacterDetails(characterName) {
             <div class="equipment-item"><div class="item-sub">치명: ${profile.Stats.find(s => s.Type === '치명')?.Value || '-'}</div></div>
             <div class="equipment-item"><div class="item-sub">특화: ${profile.Stats.find(s => s.Type === '특화')?.Value || '-'}</div></div>
             <div class="equipment-item"><div class="item-sub">신속: ${profile.Stats.find(s => s.Type === '신속')?.Value || '-'}</div></div>
+
+            ${bracelet ? `
+              <div class="equipment-item">
+                <div class="item-icon-text">
+                  <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
+                  <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
+                </div>
+              </div>` : ''}
           </div>
         </div>
 
-        <!-- 장비 + 악세사리 영역 우측 -->
         <div class="equipment-right">
-          <!-- 장비 -->
           <div class="equipment-column">
             ${gearOrder.map(slot => {
               const item = gearItems.find(i => i.Type === slot);
@@ -352,9 +352,7 @@ export function showCharacterDetails(characterName) {
               return `
                 <div class="equipment-item">
                   <div class="item-icon-text">
-                    <div class="item-icon ${getGradeClass(item.Grade)}">
-                      <img src="${item.Icon}" />
-                    </div>
+                    <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
                     <div class="item-info">
                       ${trans ? `<div class="item-sub">${trans}</div>` : ''}
                       <div class="item-sub">${reforged}</div>
@@ -364,10 +362,6 @@ export function showCharacterDetails(characterName) {
                 </div>
               `;
             }).join('')}
-          </div>
-
-          <!-- 악세사리 + 팔찌 + 어빌리티 스톤 -->
-          <div class="equipment-column">
             ${accessoryItems.map(item => `
               <div class="equipment-item">
                 <div class="item-icon-text">
@@ -387,25 +381,11 @@ export function showCharacterDetails(characterName) {
                   </div>
                 </div>
               </div>` : ''}
-            ${bracelet ? `
-              <div class="equipment-item">
-                <div class="item-icon-text">
-                  <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
-                  <div class="item-info">
-                    <div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div>
-                  </div>
-                </div>
-              </div>` : ''}
           </div>
-
-          <!-- 보석 영역 -->
-          ${gemHtml ? `
-            <div class="gem-container" style="margin-top:12px;">
-              ${gemHtml}
-            </div>
-          ` : ''}
         </div>
       </div>
+
+      ${gemHtml ? `<div class="gem-container">${gemHtml}</div>` : ''}
     `;
 
     document.getElementById('characterDetailModal').style.display = 'flex';
