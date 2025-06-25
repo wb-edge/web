@@ -178,9 +178,10 @@ const getGradeClass = (grade) => {
 const getTranscendText = (tooltipString) => {
   const tooltip = parseTooltip(tooltipString);
   for (const key in tooltip) {
-	console.log(`${key}`);
     const element = tooltip[key];
-    const value = element?.value;
+    if (!element || typeof element !== 'object') continue;  // element null 체크
+
+    const value = element.value;
     if (
       element.type === 'IndentStringGroup' &&
       value?.Element_000?.topStr?.includes('초월')
