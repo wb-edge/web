@@ -25,5 +25,6 @@ export const jobIconMap = {
   '소울이터': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/soul_eater.png',
   '도화가': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/yinyangshi_m.png',
   '기상술사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/weather_artist_m.png',
-  '환수사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/alchemist.png'
+  '환수사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/alchemist.png',
+  '발키리': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/valkyrie_m.png'
 };
