@@ -213,6 +213,16 @@ const getReinforceText = (tooltipString, name) => {
   return name;
 };
 
+const formatDecimal = (value) => {
+  const num = parseFloat(value);
+  return isNaN(num) ? '-' : num.toFixed(1);
+};
+
+const formatNumberWithComma = (value) => {
+  const num = parseInt(value, 10);
+  return isNaN(num) ? '-' : num.toLocaleString();
+};
+
 export function showCharacterDetails(characterName) {
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return;
@@ -323,8 +333,8 @@ export function showCharacterDetails(characterName) {
         <div class="equipment-left">
           <div class="character-info-card">
             <div class="level-block">
-              <div class="item-level-text">${profile.ItemAvgLevel || '-'}</div>
-              <div class="combat-power-text">${profile.CombatPower || '-'}</div>
+              <div class="item-level-text">${formatDecimal(profile.ItemAvgLevel) || '-'}</div>
+              <div class="combat-power-text">${formatDecimal(profile.CombatPower) || '-'}</div>
             </div>
 
             <div class="stat-block-row">
