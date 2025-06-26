@@ -213,13 +213,13 @@ const getReinforceText = (tooltipString, name) => {
   return name;
 };
 
-const formatDecimal = (value) => {
-  const num = parseFloat(value);
+const formatDecimal = (str) => {
+  const num = parseFloat(str.replace(/,/g, ''));
   return isNaN(num) ? '-' : num.toFixed(1);
 };
 
-const formatNumberWithComma = (value) => {
-  const num = parseInt(value, 10);
+const formatNumberWithComma = (str) => {
+  const num = parseInt(str.replace(/,/g, ''), 10);
   return isNaN(num) ? '-' : num.toLocaleString();
 };
 
@@ -263,7 +263,7 @@ export function showCharacterDetails(characterName) {
       }
     });
 
-    // 투구 특수옵션
+    // 특수 연성 옵션
     let specialRefineText = '';
     const helmet = gearItems.find(i => i.Type === '투구');
     if (helmet) {
@@ -275,7 +275,7 @@ export function showCharacterDetails(characterName) {
       }
     }
 
-    // 보석 처리
+    // 보석 정리
     const gemHtml = (gems?.Gems || [])
       .filter(gem => gem.Name && gem.Icon)
       .sort((a, b) => {
@@ -293,7 +293,7 @@ export function showCharacterDetails(characterName) {
                     : gem.Name.includes('광휘') ? '광'
                     : '?';
         const grade =
-          (type === '겁' || type === '작' || type === '광')
+          (['겁', '작', '광'].includes(type))
             ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
             : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
 
@@ -302,12 +302,12 @@ export function showCharacterDetails(characterName) {
             <div class="item-icon gem-icon grade-${grade}">
               <img src="${gem.Icon}" />
             </div>
-            <div class="item-sub gem-center">${level}${type}</div>
+            <div class="item-sub">${level}${type}</div>
           </div>
         `;
       }).join('');
 
-    // 팔찌 툴팁
+    // 팔찌 툴팁 렌더링
     if (bracelet) {
       const tooltip = parseTooltip(bracelet.Tooltip);
       const html = tooltip?.Element_004?.value?.Element_001 || '';
@@ -319,47 +319,51 @@ export function showCharacterDetails(characterName) {
       document.getElementById('braceletTooltipContent').innerHTML = parsed;
     }
 
+    // 숫자 포맷 유틸
+    const formatDecimal = (str) => {
+      const num = parseFloat(str.replace(/,/g, ''));
+      return isNaN(num) ? '-' : num.toFixed(1);
+    };
+    const formatNumberWithComma = (str) => {
+      const num = parseInt(str.replace(/,/g, ''), 10);
+      return isNaN(num) ? '-' : num.toLocaleString();
+    };
+
+    const itemLevel = formatDecimal(profile.ItemAvgLevel);
+    const combatPower = formatDecimal(profile.CombatPower);
+    const attack = formatNumberWithComma(profile.Stats.find(s => s.Type === '공격력')?.Value || '');
+    const hp = formatNumberWithComma(profile.Stats.find(s => s.Type === '최대 생명력')?.Value || '');
+    const crit = formatNumberWithComma(profile.Stats.find(s => s.Type === '치명')?.Value || '');
+    const spec = formatNumberWithComma(profile.Stats.find(s => s.Type === '특화')?.Value || '');
+    const swift = formatNumberWithComma(profile.Stats.find(s => s.Type === '신속')?.Value || '');
+
     // 렌더링
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
-      <div class="profile">
-        <img src="${jobIconMap[profile.CharacterClassName] || ''}" />
-        <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
-        <div style="font-size:0.95rem;color:#ccc;">${profile.ServerName} / ${profile.GuildName || '-'}</div>
-      </div>
-
       <div class="equipment-columns">
-        <!-- 좌측 캐릭터 정보 영역 -->
+        <!-- 좌측 캐릭터 정보 -->
         <div class="equipment-left">
-          <div class="character-info-card">
-            <div class="level-block">
-			  <div class="item-level-text">${formatDecimal(profile.ItemAvgLevel)}</div>
-			  <div class="combat-power-text">${formatDecimal(profile.CombatPower)}</div>
-			</div>
-
+          <div class="character-summary">
+            <div class="level-combat">
+              <div class="level-block">${itemLevel}</div>
+              <div class="combat-block">${combatPower}</div>
+            </div>
             <div class="stat-block-row">
-			  <div class="stat-card">
-			    <strong>공격력</strong>
-			    <div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '공격력')?.Value)}</div>
-			  </div>
-			  <div class="stat-card">
-			    <strong>생명력</strong>
-			    <div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '최대 생명력')?.Value)}</div>
-			  </div>
-			</div>
-
+              <div class="stat-card"><strong>공격력</strong><div>${attack}</div></div>
+              <div class="stat-card"><strong>생명력</strong><div>${hp}</div></div>
+            </div>
             <div class="stat-block-row">
-              <div class="stat-card"><strong>치명</strong><div>${profile.Stats.find(s => s.Type === '치명')?.Value || '-'}</div></div>
-              <div class="stat-card"><strong>특화</strong><div>${profile.Stats.find(s => s.Type === '특화')?.Value || '-'}</div></div>
-              <div class="stat-card"><strong>신속</strong><div>${profile.Stats.find(s => s.Type === '신속')?.Value || '-'}</div></div>
+              <div class="stat-card"><strong>치명</strong><div>${crit}</div></div>
+              <div class="stat-card"><strong>특화</strong><div>${spec}</div></div>
+              <div class="stat-card"><strong>신속</strong><div>${swift}</div></div>
             </div>
           </div>
         </div>
 
-        <!-- 우측: 장비 / 악세서리 / 보석 -->
+        <!-- 우측 장비 및 악세사리 -->
         <div class="equipment-right">
-          <div class="equipment-columns">
-            <!-- 장비 리스트 -->
+          <div class="equipment-columns-inner">
+            <!-- 장비 (왼쪽) -->
             <div class="equipment-column">
               ${gearOrder.map(slot => {
                 const item = gearItems.find(i => i.Type === slot);
@@ -370,7 +374,9 @@ export function showCharacterDetails(characterName) {
                 return `
                   <div class="equipment-item">
                     <div class="item-icon-text">
-                      <div class="item-icon ${getGradeClass(item.Grade)}"><img src="${item.Icon}" /></div>
+                      <div class="item-icon ${getGradeClass(item.Grade)}">
+                        <img src="${item.Icon}" />
+                      </div>
                       <div class="item-info">
                         ${trans ? `<div class="item-sub">${trans}</div>` : ''}
                         <div class="item-sub">${reforged}</div>
@@ -384,7 +390,9 @@ export function showCharacterDetails(characterName) {
               <!-- 엘릭서 총합 -->
               <div class="equipment-item">
                 <div class="item-icon-text">
-                  <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
+                  <div class="item-icon">
+                    <img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" />
+                  </div>
                   <div class="item-info">
                     <div class="item-sub">엘릭서 총합: Lv.${elixirTotal}</div>
                     ${specialRefineText ? `<div class="item-sub">${specialRefineText}</div>` : ''}
@@ -393,7 +401,7 @@ export function showCharacterDetails(characterName) {
               </div>
             </div>
 
-            <!-- 악세서리 + 스톤 + 팔찌 -->
+            <!-- 악세사리 + 어빌리티스톤 + 팔찌 -->
             <div class="equipment-column">
               ${accessoryItems.map(item => `
                 <div class="equipment-item">
@@ -405,7 +413,6 @@ export function showCharacterDetails(characterName) {
                   </div>
                 </div>
               `).join('')}
-
               ${abilityStone ? `
                 <div class="equipment-item">
                   <div class="item-icon-text">
@@ -415,7 +422,6 @@ export function showCharacterDetails(characterName) {
                     </div>
                   </div>
                 </div>` : ''}
-
               ${bracelet ? `
                 <div class="equipment-item">
                   <div class="item-icon-text">
@@ -430,7 +436,7 @@ export function showCharacterDetails(characterName) {
 
           <!-- 보석 -->
           ${gemHtml ? `
-            <div class="gem-container">
+            <div class="gem-container" style="margin-top:12px;">
               ${gemHtml}
             </div>
           ` : ''}
@@ -441,6 +447,7 @@ export function showCharacterDetails(characterName) {
     document.getElementById('characterDetailModal').style.display = 'flex';
   });
 }
+
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
