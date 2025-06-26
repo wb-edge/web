@@ -124,6 +124,8 @@
   color: #ccc;
   margin-top: 4px;
   text-align: center;
+  padding-left: 0 !important;
+  position: static !important;
 }
 
 /* 보석 등급 배경 그라데이션 */
