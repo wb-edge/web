@@ -83,7 +83,7 @@ const parseTooltip = (tooltip) => {
 
 const parseElixir = (tooltipString) => {
   const tooltip = parseTooltip(tooltipString);
-  const el = tooltip?.Element_010?.value?.Element_000?.contentStr;
+  const el = tooltip?.Element_011?.value?.Element_000?.contentStr;
   if (!el) return '';
 
   const contents = Object.values(el)
