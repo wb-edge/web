@@ -277,14 +277,16 @@ export function showCharacterDetails(characterName) {
       .map(gem => {
         const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
         const type = gem.Name.includes('겁화') ? '겁'
-                    : gem.Name.includes('작열') ? '작'
-                    : gem.Name.includes('홍염') ? '홍'
-                    : gem.Name.includes('멸화') ? '멸'
-                    : '?';
-        const grade =
-          (type === '겁' || type === '작')
-            ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
-            : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
+            : gem.Name.includes('작열') ? '작'
+            : gem.Name.includes('홍염') ? '홍'
+            : gem.Name.includes('멸화') ? '멸'
+            : gem.Name.includes('광휘') ? '광'
+            : '?';
+
+        const isTier4 = ['겁', '작', '광'].includes(type);
+		const grade = isTier4
+		  ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
+		  : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
 
         return `
           <div class="gem-item">
