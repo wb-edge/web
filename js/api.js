@@ -333,14 +333,20 @@ export function showCharacterDetails(characterName) {
         <div class="equipment-left">
           <div class="character-info-card">
             <div class="level-block">
-              <div class="item-level-text">${formatDecimal(profile.ItemAvgLevel) || '-'}</div>
-              <div class="combat-power-text">${formatDecimal(profile.CombatPower) || '-'}</div>
-            </div>
+			  <div class="item-level-text">${formatDecimal(profile.ItemAvgLevel)}</div>
+			  <div class="combat-power-text">${formatDecimal(profile.CombatPower)}</div>
+			</div>
 
             <div class="stat-block-row">
-              <div class="stat-card"><strong>공격력</strong><div>${profile.Stats.find(s => s.Type === '공격력')?.Value || '-'}</div></div>
-              <div class="stat-card"><strong>생명력</strong><div>${profile.Stats.find(s => s.Type === '최대 생명력')?.Value || '-'}</div></div>
-            </div>
+			  <div class="stat-card">
+			    <strong>공격력</strong>
+			    <div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '공격력')?.Value)}</div>
+			  </div>
+			  <div class="stat-card">
+			    <strong>생명력</strong>
+			    <div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '최대 생명력')?.Value)}</div>
+			  </div>
+			</div>
 
             <div class="stat-block-row">
               <div class="stat-card"><strong>치명</strong><div>${profile.Stats.find(s => s.Type === '치명')?.Value || '-'}</div></div>
