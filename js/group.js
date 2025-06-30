@@ -116,7 +116,7 @@ async function loadSiblings(event) {
     const characters = await res.json();
 
     const filtered = characters.filter(c => {
-      const ilvl = parseFloat(c.ItemMaxLevel.replace(/,/g, ''));
+      const ilvl = parseFloat(c.ItemAvgLevel.replace(/,/g, ''));
       return ilvl >= 1640;
     });
 
