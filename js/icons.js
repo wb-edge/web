@@ -28,3 +28,15 @@ export const jobIconMap = {
   '환수사': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/alchemist.png',
   '발키리': 'https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/thumb/valkyrie_m.png'
 };
+
+export const engravingIconMap = {
+  '원한': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Buff/Buff_71.png',
+  '예리한 둔기': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Achieve/achieve_03_40.png',
+  '저주받은 인형': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Buff/Buff_237.png',
+  '질량 증가': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Ability/Ability_231.png',
+  '아드레날린': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Ability/Ability_235.png',
+  '타격의 대가': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Ability/Ability_233.png',
+  '기습의 대가': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Buff/Buff_148.png',
+  '돌격대장': 'https://cdn-lostark.game.onstove.com/EFUI_IconAtlas/Buff/Buff_210.png',
+  // ⬇️ 필요한 각인은 이곳에 계속 추가
+};
