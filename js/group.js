@@ -103,3 +103,4 @@ async function loadSiblings() {
   ul.innerHTML = siblings.map(c => `<li>${c.CharacterName} (${c.CharacterClassName})</li>`).join('');
 }
 
+window.loadSiblings = loadSiblings;
