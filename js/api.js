@@ -329,16 +329,21 @@ export function showCharacterDetails(characterName) {
 	const abilityEffects = (abilityStone?.Tooltip && JSON.parse(abilityStone.Tooltip)?.Element_006?.value?.Element_000?.contentStr) || {};
 	const abilityEffectList = Object.values(abilityEffects).map(e => e?.contentStr?.replace(/<[^>]+>/g, '') ?? '');
 	
+	const gradePositionMap = {
+	  '전설': '-60px',
+	  '영웅': '-88px',
+	  '유물': '-118px'
+	};
+	
 	const engravings = engravingList.map(e => {
 	  const name = e.Name.replace(/\s*\([^)]+\)/g, '');
 	  const level = e.Level;
 	  const icon = engravingIconMap[name] || '';
 	  const grade = e.Grade;
 	
-	  let gradeIndex = grade === '전설' ? 0 : grade === '영웅' ? 1 : grade === '유물' ? 2 : null;
-	  const gradeIcon = gradeIndex !== null
-	    ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:16px;height:16px;object-fit:none;object-position:-${gradeIndex * 32}px -32px;vertical-align:middle;margin:0 4px;" />`
-	    : '';
+	  const gradeIcon = gradePositionMap[grade]
+	  ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:22px;height:22px;object-fit:none;object-position:${gradePositionMap[grade]};vertical-align:middle;margin:0 4px;" />`
+	  : '';
 	
 	  const abilityLv = e.AbilityStoneLevel || '';
 	  const abilityHtml = abilityLv
