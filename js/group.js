@@ -71,3 +71,35 @@ function renderCommonRaids() {
   const ul = document.getElementById('common-raids');
   ul.innerHTML = remainingRaids.map(r => `<li>${r}</li>`).join('');
 }
+
+async function fetchSiblingCharacters(characterName) {
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) {
+    alert('API KEY가 등록되지 않았습니다.');
+    return [];
+  }
+
+  try {
+    const response = await fetch(`https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`, {
+      headers: { Authorization: `bearer ${apiKey}` }
+    });
+    if (!response.ok) throw new Error('서버 응답 오류');
+
+    const characters = await response.json(); // 형식: [{ CharacterName: "abc", CharacterClassName: "데모닉", ... }, ...]
+    return characters;
+  } catch (err) {
+    console.error('원정대 캐릭터 조회 실패:', err);
+    alert('원정대 캐릭터를 불러오는 데 실패했습니다.');
+    return [];
+  }
+}
+
+async function loadSiblings() {
+  const mainChar = document.getElementById('mainCharacter').value.trim();
+  if (!mainChar) return alert('대표 캐릭터명을 입력하세요');
+
+  const siblings = await fetchSiblingCharacters(mainChar);
+  const ul = document.getElementById('siblingList');
+  ul.innerHTML = siblings.map(c => `<li>${c.CharacterName} (${c.CharacterClassName})</li>`).join('');
+}
+
