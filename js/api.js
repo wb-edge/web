@@ -323,29 +323,44 @@ export function showCharacterDetails(characterName) {
     }
 
     // 각인 처리
-    const engravingStatus = engraving.Engravings === null ? '아크패시브 활성' : '아크패시브 비활성';
-    const engravingList = engraving.Engravings ?? engraving.ArkPassiveEffects ?? [];
-    const engravings = engravingList.map(e => {
-      const icon = engravingIconMap[e.Name] || '';
-      return `
-        <div class="engraving-line">
-          <img class="engraving-icon" src="${icon}" />
-          <div class="engraving-name">${e.Name}</div>
-          <div class="engraving-tier">${e.Tier || ''}</div>
-          ${e.Point ? `<div class="engraving-stone">
-            <img class="stone-icon" src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_7_180.png" />
-            ${e.Point}
-          </div>` : ''}
-        </div>
-      `;
-    }).join('');
-
-    const engravingHtml = `
-      <div class="engraving-card">
-        <div class="engraving-status">${engravingStatus}</div>
-        <div class="engraving-section">${engravings}</div>
-      </div>
-    `;
+	const isArkPassive = engraving.Engravings === null;
+	const engravingList = engraving.Engravings ?? engraving.ArkPassiveEffects ?? [];
+	
+	const abilityEffects = (abilityStone?.Tooltip && JSON.parse(abilityStone.Tooltip)?.Element_006?.value?.Element_000?.contentStr) || {};
+	const abilityEffectList = Object.values(abilityEffects).map(e => e?.contentStr?.replace(/<[^>]+>/g, '') ?? '');
+	
+	const engravings = engravingList.map(e => {
+	  const name = e.Name.replace(/\s*\([^)]+\)/g, '');
+	  const level = parseInt(e.Slot || e.Point || '0', 10);
+	  const icon = engravingIconMap[name] || '';
+	  const grade = e.Grade;
+	
+	  let gradeIndex = grade === '전설' ? 0 : grade === '영웅' ? 1 : grade === '유물' ? 2 : null;
+	  const gradeIcon = gradeIndex !== null
+	    ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:16px;height:16px;object-fit:none;object-position:-${gradeIndex * 32}px -32px;vertical-align:middle;margin:0 4px;" />`
+	    : '';
+	
+	  const ability = abilityEffectList.find(line => line.includes(name));
+	  const abilityLv = ability?.match(/Lv\.(\d+)/)?.[1];
+	  const abilityHtml = abilityLv
+	    ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:16px;height:16px;object-fit:none;object-position:0 0;vertical-align:middle;margin-left:4px;" /> Lv.${abilityLv}`
+	    : '';
+	
+	  return `
+	    <div class="engraving-line">
+	      <img class="engraving-icon" src="${icon}" />
+	      <span class="engraving-name">${name}</span>
+	      ${gradeIcon} x${level}${abilityHtml}
+	    </div>
+	  `;
+	}).join('');
+	
+	const engravingHtml = `
+	  <div class="engraving-card">
+	    <div class="engraving-status">${isArkPassive ? '아크패시브 활성' : '아크패시브 비활성'}</div>
+	    <div class="engraving-section">${engravings}</div>
+	  </div>
+	`;
 
     // 렌더링
     const detailContent = document.getElementById('detailContent');
