@@ -18,7 +18,23 @@
   </nav>
 
   <main class="results">
-    <!-- 캐릭터 카드들이 여기에 표시됩니다 -->
+    <div id="raid-entry-section">
+	  <h2>내 레이드 진행 상황</h2>
+	  <input type="text" id="userName" placeholder="닉네임 입력" />
+	  <div id="raid-list">
+	    <label><input type="checkbox" value="카양겔" /> 카양겔</label>
+	    <label><input type="checkbox" value="일리아칸" /> 일리아칸</label>
+	    <label><input type="checkbox" value="상아탑" /> 상아탑</label>
+	  </div>
+	  <button onclick="submitRaidData()">등록</button>
+	</div>
+	
+	<hr />
+	
+	<div id="raid-comparison-section">
+	  <h2>공통으로 남은 레이드</h2>
+	  <ul id="common-raids"></ul>
+	</div>
   </main>
 
   <!-- 모달 -->
@@ -31,7 +47,7 @@
     </div>
   </div>
 
-  <script type="module" src="/web/js/main.js"></script>
+  <script type="module" src="/web/js/group.js"></script>
 
 </body>
 </html>
