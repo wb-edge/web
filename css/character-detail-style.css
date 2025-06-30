@@ -63,8 +63,15 @@
   gap: 4px;
   justify-content: space-between; /* 추가 */
 }
+
 .equipment-split {
-  align-items: stretch; /* 두 컬럼의 높이 일치 */
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.equipment-split .equipment-column {
+  flex: 0 0 50%; /* 무조건 반반 차지하게 고정 */
 }
 
 /* 장비/악세 아이템 행 */
