@@ -323,7 +323,6 @@ export function showCharacterDetails(characterName) {
     }
 
     // 각인 처리
-	const isArkPassive = engraving.Engravings === null;
 	const engravingList = engraving.Engravings ?? engraving.ArkPassiveEffects ?? [];
 	
 	const abilityEffects = (abilityStone?.Tooltip && JSON.parse(abilityStone.Tooltip)?.Element_006?.value?.Element_000?.contentStr) || {};
@@ -371,7 +370,6 @@ export function showCharacterDetails(characterName) {
 	
 	const engravingHtml = `
 	  <div class="engraving-card">
-	    <div class="engraving-status">${isArkPassive ? '아크패시브 활성' : '아크패시브 비활성'}</div>
 	    <div class="engraving-section">${engravings}</div>
 	  </div>
 	`;
