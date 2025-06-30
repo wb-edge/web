@@ -231,12 +231,15 @@ export function showCharacterDetails(characterName) {
   const profileUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`;
   const equipmentUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`;
   const gemUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/gems`;
+  const engravingUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/engravings`;
 
   Promise.all([
     fetch(profileUrl, { headers }).then(res => res.json()),
     fetch(equipmentUrl, { headers }).then(res => res.json()),
-    fetch(gemUrl, { headers }).then(res => res.json())
-  ]).then(([profile, equipment, gems]) => {
+    fetch(gemUrl, { headers }).then(res => res.json()),
+    fetch(engravingUrl, { headers }).then(res => res.json())
+  ])
+  .then(([profile, equipment, gems, engravings]) => {
     const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
     const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
     const gearItems = [], accessoryItems = [];
@@ -250,7 +253,7 @@ export function showCharacterDetails(characterName) {
       else if (accessoryOrder.includes(type)) accessoryItems.push(item);
     });
 
-    // 엘릭서 총합 계산
+    // 엘릭서 총합
     let elixirTotal = 0;
     gearItems.forEach(item => {
       const tooltip = parseTooltip(item.Tooltip);
@@ -263,7 +266,7 @@ export function showCharacterDetails(characterName) {
       }
     });
 
-    // 투구 특수옵션
+    // 특수 옵션
     let specialRefineText = '';
     const helmet = gearItems.find(i => i.Type === '투구');
     if (helmet) {
@@ -274,38 +277,6 @@ export function showCharacterDetails(characterName) {
         specialRefineText = clean;
       }
     }
-
-    // 보석 처리
-    const gemHtml = (gems?.Gems || [])
-      .filter(gem => gem.Name && gem.Icon)
-      .sort((a, b) => {
-        const lvA = parseInt(a.Name.match(/(\d+)레벨/)?.[1] || '0');
-        const lvB = parseInt(b.Name.match(/(\d+)레벨/)?.[1] || '0');
-        return lvB - lvA;
-      })
-      .slice(0, 11)
-      .map(gem => {
-        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
-        const type = gem.Name.includes('겁화') ? '겁'
-                    : gem.Name.includes('작열') ? '작'
-                    : gem.Name.includes('홍염') ? '홍'
-                    : gem.Name.includes('멸화') ? '멸'
-                    : gem.Name.includes('광휘') ? '광'
-                    : '?';
-        const grade =
-          (type === '겁' || type === '작' || type === '광')
-            ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
-            : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
-
-        return `
-          <div class="gem-item">
-            <div class="item-icon gem-icon grade-${grade}">
-              <img src="${gem.Icon}" />
-            </div>
-            <div class="item-sub gem-center">${level}${type}</div>
-          </div>
-        `;
-      }).join('');
 
     // 팔찌 툴팁
     if (bracelet) {
@@ -319,50 +290,82 @@ export function showCharacterDetails(characterName) {
       document.getElementById('braceletTooltipContent').innerHTML = parsed;
     }
 
-    // 렌더링
+    // 각인 정보 HTML
+    const engravingHtml = (engravings?.Engravings || []).slice(0, 5).map(e => {
+      const icon = e.Icon || '';
+      const name = e.Name || '';
+      return `
+        <div class="engraving-line">
+          <div class="engraving-icon"><img src="${icon}" /></div>
+          <div class="engraving-name">${name}</div>
+        </div>
+      `;
+    }).join('');
+
+    // 보석 정보
+    const gemHtml = (gems?.Gems || [])
+      .filter(g => g.Name && g.Icon)
+      .sort((a, b) => parseInt(b.Name.match(/\d+/)) - parseInt(a.Name.match(/\d+/)))
+      .slice(0, 11)
+      .map(gem => {
+        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
+        const type = gem.Name.includes('겁화') ? '겁' :
+                     gem.Name.includes('작열') ? '작' :
+                     gem.Name.includes('홍염') ? '홍' :
+                     gem.Name.includes('멸화') ? '멸' :
+                     gem.Name.includes('광휘') ? '광' : '?';
+
+        const grade =
+          (['겁', '작', '광'].includes(type))
+            ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
+            : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
+
+        return `
+          <div class="gem-item">
+            <div class="item-icon gem-icon grade-${grade}">
+              <img src="${gem.Icon}" />
+            </div>
+            <div class="item-sub gem-center">${level}${type}</div>
+          </div>
+        `;
+      }).join('');
+
+    // HTML 렌더링
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
       <div class="profile">
         <img src="${jobIconMap[profile.CharacterClassName] || ''}" />
-        <div style="font-size:1.2rem;font-weight:bold;">${profile.CharacterName}</div>
-        <div style="font-size:0.95rem;color:#ccc;">${profile.ServerName} / ${profile.GuildName || '-'}</div>
+        <div class="profile-name">${profile.CharacterName}</div>
+        <div class="profile-sub">${profile.ServerName} / ${profile.GuildName || '-'}</div>
       </div>
 
       <div class="equipment-columns">
-        <!-- 좌측 캐릭터 정보 영역 -->
+        <!-- 왼쪽 -->
         <div class="equipment-left">
           <div class="character-info-card">
             <div class="level-block">
-			  <div class="item-level-text">${formatDecimal(profile.ItemAvgLevel)}</div>
-			  <div class="combat-power-text">${formatDecimal(profile.CombatPower)}</div>
-			</div>
-
+              <div class="item-level-text">${formatDecimal(profile.ItemAvgLevel)}</div>
+              <div class="combat-power-text">${formatDecimal(profile.CombatPower)}</div>
+            </div>
             <div class="stat-block-row">
-			  <div class="stat-card">
-			    <strong>공격력</strong>
-			    <div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '공격력')?.Value)}</div>
-			  </div>
-			  <div class="stat-card">
-			    <strong>생명력</strong>
-			    <div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '최대 생명력')?.Value)}</div>
-			  </div>
-			</div>
-
+              <div class="stat-card"><strong>공격력</strong><div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '공격력')?.Value)}</div></div>
+              <div class="stat-card"><strong>생명력</strong><div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '최대 생명력')?.Value)}</div></div>
+            </div>
             <div class="stat-block-row">
               <div class="stat-card"><strong>치명</strong><div>${profile.Stats.find(s => s.Type === '치명')?.Value || '-'}</div></div>
               <div class="stat-card"><strong>특화</strong><div>${profile.Stats.find(s => s.Type === '특화')?.Value || '-'}</div></div>
               <div class="stat-card"><strong>신속</strong><div>${profile.Stats.find(s => s.Type === '신속')?.Value || '-'}</div></div>
             </div>
           </div>
+          <div class="engraving-section">${engravingHtml}</div>
         </div>
 
-        <!-- 우측: 장비 / 악세서리 / 보석 -->
+        <!-- 오른쪽 -->
         <div class="equipment-right">
-          <div class="equipment-columns">
-            <!-- 장비 리스트 -->
+          <div class="equipment-split">
             <div class="equipment-column">
-              ${gearOrder.map(slot => {
-                const item = gearItems.find(i => i.Type === slot);
+              ${gearOrder.map(type => {
+                const item = gearItems.find(i => i.Type === type);
                 if (!item) return '';
                 const trans = getTranscendText(item.Tooltip);
                 const reforged = getReinforceText(item.Tooltip, item.Name);
@@ -380,8 +383,6 @@ export function showCharacterDetails(characterName) {
                   </div>
                 `;
               }).join('')}
-
-              <!-- 엘릭서 총합 -->
               <div class="equipment-item">
                 <div class="item-icon-text">
                   <div class="item-icon"><img src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_11_146.png" /></div>
@@ -393,7 +394,6 @@ export function showCharacterDetails(characterName) {
               </div>
             </div>
 
-            <!-- 악세서리 + 스톤 + 팔찌 -->
             <div class="equipment-column">
               ${accessoryItems.map(item => `
                 <div class="equipment-item">
@@ -405,7 +405,6 @@ export function showCharacterDetails(characterName) {
                   </div>
                 </div>
               `).join('')}
-
               ${abilityStone ? `
                 <div class="equipment-item">
                   <div class="item-icon-text">
@@ -415,7 +414,6 @@ export function showCharacterDetails(characterName) {
                     </div>
                   </div>
                 </div>` : ''}
-
               ${bracelet ? `
                 <div class="equipment-item">
                   <div class="item-icon-text">
@@ -428,12 +426,7 @@ export function showCharacterDetails(characterName) {
             </div>
           </div>
 
-          <!-- 보석 -->
-          ${gemHtml ? `
-            <div class="gem-container">
-              ${gemHtml}
-            </div>
-          ` : ''}
+          ${gemHtml ? `<div class="gem-container">${gemHtml}</div>` : ''}
         </div>
       </div>
     `;
