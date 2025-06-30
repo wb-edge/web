@@ -228,6 +228,7 @@ export function showCharacterDetails(characterName) {
   if (!apiKey) return;
 
   const headers = { Authorization: `bearer ${apiKey}` };
+
   const profileUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`;
   const equipmentUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`;
   const gemUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/gems`;
@@ -245,12 +246,14 @@ export function showCharacterDetails(characterName) {
     let abilityStone = null, bracelet = null;
 
     equipment.forEach(item => {
-      if (gearOrder.includes(item.Type)) gearItems.push(item);
-      else if (item.Type === '어빌리티 스톤') abilityStone = item;
-      else if (item.Type === '팔찌') bracelet = item;
-      else if (accessoryOrder.includes(item.Type)) accessoryItems.push(item);
+      const type = item.Type;
+      if (gearOrder.includes(type)) gearItems.push(item);
+      else if (type === '어빌리티 스톤') abilityStone = item;
+      else if (type === '팔찌') bracelet = item;
+      else if (accessoryOrder.includes(type)) accessoryItems.push(item);
     });
 
+    // 엘릭서 총합 계산
     let elixirTotal = 0;
     gearItems.forEach(item => {
       const tooltip = parseTooltip(item.Tooltip);
@@ -263,16 +266,19 @@ export function showCharacterDetails(characterName) {
       }
     });
 
+    // 투구 특수 옵션
     let specialRefineText = '';
     const helmet = gearItems.find(i => i.Type === '투구');
     if (helmet) {
       const tooltip = parseTooltip(helmet.Tooltip);
       const topStr = tooltip?.Element_011?.value?.Element_000?.topStr;
       if (topStr) {
-        specialRefineText = topStr.replace(/<[^>]+>/g, '').trim();
+        const clean = topStr.replace(/<[^>]+>/g, '').trim();
+        specialRefineText = clean;
       }
     }
 
+    // 보석 처리
     const gemHtml = (gems?.Gems || [])
       .filter(gem => gem.Name && gem.Icon)
       .sort((a, b) => {
@@ -299,11 +305,12 @@ export function showCharacterDetails(characterName) {
             <div class="item-icon gem-icon grade-${grade}">
               <img src="${gem.Icon}" />
             </div>
-            <div class="item-sub">${level}${type}</div>
+            <div class="item-sub gem-center">${level}${type}</div>
           </div>
         `;
       }).join('');
 
+    // 팔찌 툴팁 처리
     if (bracelet) {
       const tooltip = parseTooltip(bracelet.Tooltip);
       const html = tooltip?.Element_005?.value?.Element_001 || '';
@@ -316,29 +323,31 @@ export function showCharacterDetails(characterName) {
     }
 
     // 각인 처리
-    const engravings = engraving.Engravings || engraving.ArkPassiveEffects || [];
+    const engravingStatus = engraving.Engravings === null ? '아크패시브 활성' : '아크패시브 비활성';
+    const engravingList = engraving.Engravings ?? engraving.ArkPassiveEffects ?? [];
+    const engravings = engravingList.map(e => {
+      const icon = engravingIconMap[e.Name] || '';
+      return `
+        <div class="engraving-line">
+          <img class="engraving-icon" src="${icon}" />
+          <div class="engraving-name">${e.Name}</div>
+          <div class="engraving-tier">${e.Tier || ''}</div>
+          ${e.Point ? `<div class="engraving-stone">
+            <img class="stone-icon" src="https://cdn-lostark.game.onstove.com/efui_iconatlas/use/use_7_180.png" />
+            ${e.Point}
+          </div>` : ''}
+        </div>
+      `;
+    }).join('');
+
     const engravingHtml = `
-      <div class="engraving-section">
-        ${engravings.map(e => {
-          const icon = engravingIconMap[e.Name] || '';
-          const tooltip = e.Tooltip || [];
-          const stone = tooltip.find(t => t.Type === 'AbilityStone');
-          return `
-            <div class="engraving-line">
-              <img class="engraving-icon" src="${icon}" />
-              <div class="engraving-name">${e.Name}</div>
-              <div class="engraving-tier">${e.Slot || '-'}</div>
-              ${stone ? `
-              <div class="engraving-stone">
-                <img class="stone-icon" src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_stone.png" />
-                ${stone.Level}레벨
-              </div>` : ''}
-            </div>
-          `;
-        }).join('')}
+      <div class="engraving-card">
+        <div class="engraving-status">${engravingStatus}</div>
+        <div class="engraving-section">${engravings}</div>
       </div>
     `;
 
+    // 렌더링
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
       <div class="profile">
@@ -348,6 +357,7 @@ export function showCharacterDetails(characterName) {
       </div>
 
       <div class="equipment-columns">
+        <!-- 왼쪽: 캐릭터 정보 + 각인 -->
         <div class="equipment-left">
           <div class="character-info-card">
             <div class="level-block">
@@ -363,10 +373,11 @@ export function showCharacterDetails(characterName) {
               <div class="stat-card"><strong>특화</strong><div>${profile.Stats.find(s => s.Type === '특화')?.Value || '-'}</div></div>
               <div class="stat-card"><strong>신속</strong><div>${profile.Stats.find(s => s.Type === '신속')?.Value || '-'}</div></div>
             </div>
-            ${engravingHtml}
           </div>
+          ${engravingHtml}
         </div>
 
+        <!-- 오른쪽: 장비/악세/보석 -->
         <div class="equipment-right">
           <div class="equipment-columns">
             <div class="equipment-column">
@@ -399,6 +410,7 @@ export function showCharacterDetails(characterName) {
                 </div>
               </div>
             </div>
+
             <div class="equipment-column">
               ${accessoryItems.map(item => `
                 <div class="equipment-item">
@@ -434,8 +446,7 @@ export function showCharacterDetails(characterName) {
           ${gemHtml ? `
             <div class="gem-container">
               ${gemHtml}
-            </div>
-          ` : ''}
+            </div>` : ''}
         </div>
       </div>
     `;
