@@ -231,26 +231,26 @@ export function showCharacterDetails(characterName) {
   const profileUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/profiles`;
   const equipmentUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/equipment`;
   const gemUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/gems`;
+  const engravingUrl = `https://developer-lostark.game.onstove.com/armories/characters/${encodeURIComponent(characterName)}/engravings`;
 
   Promise.all([
     fetch(profileUrl, { headers }).then(res => res.json()),
     fetch(equipmentUrl, { headers }).then(res => res.json()),
-    fetch(gemUrl, { headers }).then(res => res.json())
-  ]).then(([profile, equipment, gems]) => {
+    fetch(gemUrl, { headers }).then(res => res.json()),
+    fetch(engravingUrl, { headers }).then(res => res.json())
+  ]).then(([profile, equipment, gems, engraving]) => {
     const gearOrder = ['투구', '어깨', '상의', '하의', '장갑', '무기'];
     const accessoryOrder = ['목걸이', '귀걸이', '귀걸이', '반지', '반지'];
     const gearItems = [], accessoryItems = [];
     let abilityStone = null, bracelet = null;
 
     equipment.forEach(item => {
-      const type = item.Type;
-      if (gearOrder.includes(type)) gearItems.push(item);
-      else if (type === '어빌리티 스톤') abilityStone = item;
-      else if (type === '팔찌') bracelet = item;
-      else if (accessoryOrder.includes(type)) accessoryItems.push(item);
+      if (gearOrder.includes(item.Type)) gearItems.push(item);
+      else if (item.Type === '어빌리티 스톤') abilityStone = item;
+      else if (item.Type === '팔찌') bracelet = item;
+      else if (accessoryOrder.includes(item.Type)) accessoryItems.push(item);
     });
 
-    // 엘릭서 총합
     let elixirTotal = 0;
     gearItems.forEach(item => {
       const tooltip = parseTooltip(item.Tooltip);
@@ -263,7 +263,6 @@ export function showCharacterDetails(characterName) {
       }
     });
 
-    // 투구 특수 연성
     let specialRefineText = '';
     const helmet = gearItems.find(i => i.Type === '투구');
     if (helmet) {
@@ -274,7 +273,6 @@ export function showCharacterDetails(characterName) {
       }
     }
 
-    // 보석
     const gemHtml = (gems?.Gems || [])
       .filter(gem => gem.Name && gem.Icon)
       .sort((a, b) => {
@@ -301,12 +299,11 @@ export function showCharacterDetails(characterName) {
             <div class="item-icon gem-icon grade-${grade}">
               <img src="${gem.Icon}" />
             </div>
-            <div class="item-sub gem-center">${level}${type}</div>
+            <div class="item-sub">${level}${type}</div>
           </div>
         `;
       }).join('');
 
-    // 팔찌 툴팁
     if (bracelet) {
       const tooltip = parseTooltip(bracelet.Tooltip);
       const html = tooltip?.Element_005?.value?.Element_001 || '';
@@ -318,21 +315,30 @@ export function showCharacterDetails(characterName) {
       document.getElementById('braceletTooltipContent').innerHTML = parsed;
     }
 
-    // 각인 정보
-    const engravings = profile.Engravings ?? profile.ArkPassiveEffects;
-    const engravingHtml = Array.isArray(engravings)
-      ? engravings.slice(0, 5).map(e => {
-          const icon = engravingIconMap[e.Name] || 'https://via.placeholder.com/32x32?text=?';
+    // 각인 처리
+    const engravings = engraving.Engravings || engraving.ArkPassiveEffects || [];
+    const engravingHtml = `
+      <div class="engraving-section">
+        ${engravings.map(e => {
+          const icon = engravingIconMap[e.Name] || '';
+          const tooltip = e.Tooltip || [];
+          const stone = tooltip.find(t => t.Type === 'AbilityStone');
           return `
-            <div class="engraving-line" title="${e.Description || ''}">
-              <div class="engraving-icon"><img src="${icon}" /></div>
+            <div class="engraving-line">
+              <img class="engraving-icon" src="${icon}" />
               <div class="engraving-name">${e.Name}</div>
+              <div class="engraving-tier">${e.Slot || '-'}</div>
+              ${stone ? `
+              <div class="engraving-stone">
+                <img class="stone-icon" src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_stone.png" />
+                ${stone.Level}레벨
+              </div>` : ''}
             </div>
           `;
-        }).join('')
-      : '';
+        }).join('')}
+      </div>
+    `;
 
-    // 렌더링
     const detailContent = document.getElementById('detailContent');
     detailContent.innerHTML = `
       <div class="profile">
@@ -342,7 +348,6 @@ export function showCharacterDetails(characterName) {
       </div>
 
       <div class="equipment-columns">
-        <!-- 좌측 캐릭터 정보 -->
         <div class="equipment-left">
           <div class="character-info-card">
             <div class="level-block">
@@ -358,12 +363,10 @@ export function showCharacterDetails(characterName) {
               <div class="stat-card"><strong>특화</strong><div>${profile.Stats.find(s => s.Type === '특화')?.Value || '-'}</div></div>
               <div class="stat-card"><strong>신속</strong><div>${profile.Stats.find(s => s.Type === '신속')?.Value || '-'}</div></div>
             </div>
+            ${engravingHtml}
           </div>
-
-          ${engravingHtml ? `<div class="engraving-section">${engravingHtml}</div>` : ''}
         </div>
 
-        <!-- 우측: 장비/악세/보석 -->
         <div class="equipment-right">
           <div class="equipment-columns">
             <div class="equipment-column">
@@ -420,12 +423,19 @@ export function showCharacterDetails(characterName) {
                 <div class="equipment-item">
                   <div class="item-icon-text">
                     <div class="item-icon ${getGradeClass(bracelet.Grade)}"><img src="${bracelet.Icon}" /></div>
-                    <div class="item-info"><div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div></div>
+                    <div class="item-info">
+                      <div class="item-sub" onclick="showBraceletTooltip()">팔찌 정보 보기</div>
+                    </div>
                   </div>
                 </div>` : ''}
             </div>
           </div>
-          ${gemHtml ? `<div class="gem-container">${gemHtml}</div>` : ''}
+
+          ${gemHtml ? `
+            <div class="gem-container">
+              ${gemHtml}
+            </div>
+          ` : ''}
         </div>
       </div>
     `;

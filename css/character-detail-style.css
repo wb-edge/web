@@ -221,3 +221,42 @@
     grid-template-columns: repeat(5, 1fr);
   }
 }
+
+.engraving-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+.engraving-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #222;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.engraving-icon {
+  width: 24px;
+  height: 24px;
+}
+.engraving-name {
+  font-weight: bold;
+  color: #fff;
+}
+.engraving-tier {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+.engraving-stone {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #99c;
+}
+.stone-icon {
+  width: 18px;
+  height: 18px;
+}
+
