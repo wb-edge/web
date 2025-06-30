@@ -95,25 +95,33 @@ function renderCharacters(characters, userName) {
   });
 }
 
-async function loadSiblings() {
-  const apiKey = getCookie('LOA_API_KEY');
-  if (!apiKey) return alert('API Key를 먼저 등록해주세요.');
+async function loadSiblings(event) {
+  if (event.key === 'Enter') {
+    const keyword = event.target.value.trim();
+    const apiKey = getCookie('LOA_API_KEY');
+    if (!keyword) return;
 
-  const characterName = document.getElementById('searchInput').value.trim();
-  if (!characterName) return alert('닉네임을 입력해주세요.');
+    if (!apiKey) {
+      alert("먼저 API KEY를 입력해주세요.");
+      return;
+    }
 
-  const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`;
-  const headers = { Authorization: `bearer ${apiKey}` };
+    const characterName = document.getElementById('searchInput').value.trim();
+    if (!characterName) return alert('닉네임을 입력해주세요.');
 
-  const res = await fetch(url, { headers });
-  const characters = await res.json();
+    const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`;
+    const headers = { Authorization: `bearer ${apiKey}` };
 
-  const filtered = characters.filter(c => {
-    const ilvl = parseFloat(c.ItemMaxLevel.replace(/,/g, ''));
-    return ilvl >= 1640;
-  });
+    const res = await fetch(url, { headers });
+    const characters = await res.json();
 
-  renderCharacters(filtered, characterName);
+    const filtered = characters.filter(c => {
+      const ilvl = parseFloat(c.ItemMaxLevel.replace(/,/g, ''));
+      return ilvl >= 1640;
+    });
+
+    renderCharacters(filtered, characterName);
+  }
 }
 
 window.loadSiblings = loadSiblings;
