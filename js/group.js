@@ -72,35 +72,48 @@ function renderCommonRaids() {
   ul.innerHTML = remainingRaids.map(r => `<li>${r}</li>`).join('');
 }
 
-async function fetchSiblingCharacters(characterName) {
-  const apiKey = getCookie('LOA_API_KEY');
-  if (!apiKey) {
-    alert('API KEY가 등록되지 않았습니다.');
-    return [];
-  }
+function renderCharacters(characters, userName) {
+  const container = document.getElementById('character-container');
+  container.innerHTML = '';
 
-  try {
-    const response = await fetch(`https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`, {
-      headers: { Authorization: `bearer ${apiKey}` }
-    });
-    if (!response.ok) throw new Error('서버 응답 오류');
+  characters.forEach(char => {
+    const charId = `${userName}_${char.CharacterName}`;
+    const raidHtml = RAID_LIST.map(r => `
+      <label><input type="checkbox" data-user="${userName}" data-char="${char.CharacterName}" value="${r}"> ${r}</label>
+    `).join('<br>');
 
-    const characters = await response.json(); // 형식: [{ CharacterName: "abc", CharacterClassName: "데모닉", ... }, ...]
-    return characters;
-  } catch (err) {
-    console.error('원정대 캐릭터 조회 실패:', err);
-    alert('원정대 캐릭터를 불러오는 데 실패했습니다.');
-    return [];
-  }
+    const html = `
+      <div class="character-card">
+        <div class="char-header">
+          <strong>${char.CharacterName}</strong>
+          <span>${char.ItemMaxLevel}</span>
+        </div>
+        <div class="char-raids">${raidHtml}</div>
+      </div>
+    `;
+    container.innerHTML += html;
+  });
 }
 
 async function loadSiblings() {
-  const mainChar = document.getElementById('mainCharacter').value.trim();
-  if (!mainChar) return alert('대표 캐릭터명을 입력하세요');
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) return alert('API Key를 먼저 등록해주세요.');
 
-  const siblings = await fetchSiblingCharacters(mainChar);
-  const ul = document.getElementById('siblingList');
-  ul.innerHTML = siblings.map(c => `<li>${c.CharacterName} (${c.CharacterClassName})</li>`).join('');
+  const characterName = document.getElementById('userName').value.trim();
+  if (!characterName) return alert('닉네임을 입력해주세요.');
+
+  const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`;
+  const headers = { Authorization: `bearer ${apiKey}` };
+
+  const res = await fetch(url, { headers });
+  const characters = await res.json();
+
+  const filtered = characters.filter(c => {
+    const ilvl = parseFloat(c.ItemMaxLevel.replace(/,/g, ''));
+    return ilvl >= 1640;
+  });
+
+  renderCharacters(filtered, characterName);
 }
 
 window.loadSiblings = loadSiblings;
