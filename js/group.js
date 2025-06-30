@@ -99,7 +99,7 @@ async function loadSiblings() {
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return alert('API Key를 먼저 등록해주세요.');
 
-  const characterName = document.getElementById('userName').value.trim();
+  const characterName = document.getElementById('searchInput').value.trim();
   if (!characterName) return alert('닉네임을 입력해주세요.');
 
   const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`;
