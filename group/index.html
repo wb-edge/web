@@ -15,7 +15,7 @@
         type="text"
         id="userName"
         placeholder="캐릭터명을 입력하세요..."
-        onkeydown="handleSearch(event)"
+        onkeydown="loadSiblings()"
       />
       <ul class="nav-links">
         <li><button id="apiKeyBtn" onclick="showApiKeyModal()">API KEY 입력</button></li>
@@ -24,11 +24,7 @@
   </nav>
 
   <main class="results">
-    <div class="group-container">
-	  <input type="text" id="mainCharacter" placeholder="대표 캐릭터명 입력" />
-	  <button onclick="loadSiblings()">원정대 캐릭터 불러오기</button>
-	  <ul id="siblingList"></ul>
-	</div>
+  	<div id="character-container" class="character-container"></div>
   </main>
 
   <!-- 모달 -->
