@@ -325,3 +325,29 @@
   height: 14px;
 }
 
+.engraving-tier-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url('https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png?3e9f6d074e03983e7d45');
+  background-repeat: no-repeat;
+  background-size: auto;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.tier-legendary { background-position: -88px -16px; } /* 전설 */
+.tier-epic      { background-position: -72px -16px; } /* 영웅 */
+.tier-relic     { background-position: -104px -16px; } /* 유물 */
+
+.stone-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url('https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png?3e9f6d074e03983e7d45');
+  background-repeat: no-repeat;
+  background-size: auto;
+  background-position: -8px -16px; /* 어빌스톤 아이콘 위치 */
+  margin-left: 6px;
+  vertical-align: middle;
+}
