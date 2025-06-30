@@ -310,7 +310,7 @@ export function showCharacterDetails(characterName) {
     // 팔찌 툴팁
     if (bracelet) {
       const tooltip = parseTooltip(bracelet.Tooltip);
-      const html = tooltip?.Element_004?.value?.Element_001 || '';
+      const html = tooltip?.Element_005?.value?.Element_001 || '';
       const parsed = html
         .replace(/<img[^>]+emoticon_tooltip_bracelet_locked[^>]*>/g,
           `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/common/game/ico_tooltip_locked.png" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;" />`)
