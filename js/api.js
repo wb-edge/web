@@ -331,7 +331,7 @@ export function showCharacterDetails(characterName) {
 	
 	const engravings = engravingList.map(e => {
 	  const name = e.Name.replace(/\s*\([^)]+\)/g, '');
-	  const level = parseInt(e.Slot || e.Point || '0', 10);
+	  const level = e.Level;
 	  const icon = engravingIconMap[name] || '';
 	  const grade = e.Grade;
 	
@@ -340,8 +340,7 @@ export function showCharacterDetails(characterName) {
 	    ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:16px;height:16px;object-fit:none;object-position:-${gradeIndex * 32}px -32px;vertical-align:middle;margin:0 4px;" />`
 	    : '';
 	
-	  const ability = abilityEffectList.find(line => line.includes(name));
-	  const abilityLv = ability?.match(/Lv\.(\d+)/)?.[1];
+	  const abilityLv = e.AbilityStoneLevel || '';
 	  const abilityHtml = abilityLv
 	    ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:16px;height:16px;object-fit:none;object-position:0 0;vertical-align:middle;margin-left:4px;" /> Lv.${abilityLv}`
 	    : '';
