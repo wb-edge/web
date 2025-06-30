@@ -43,6 +43,14 @@ window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
 
 
+const RAID_BY_LEVEL = [
+  { min: 1700, raids: ['3막(모르둠) 하드', '2막(아브) 하드', '1막(에기르) 하드'] },
+  { min: 1690, raids: ['3막(모르둠) 노말', '2막(아브) 하드', '1막(에기르) 하드'] },
+  { min: 1680, raids: ['3막(모르둠) 노말', '2막(아브) 노말', '1막(에기르) 하드'] },
+  { min: 1670, raids: ['2막(아브) 노말', '1막(에기르) 노말', '서막(에키드나) 하드', '베히모스'] },
+  { min: 1660, raids: ['1막(에기르) 노말', '서막(에키드나) 하드', '베히모스'] },
+  { min: 1640, raids: ['서막(에키드나) 하드', '베히모스'] }
+];
 
 
 let groupData = {}; // 모든 사용자 데이터
@@ -71,22 +79,33 @@ function renderCommonRaids() {
   const ul = document.getElementById('common-raids');
   ul.innerHTML = remainingRaids.map(r => `<li>${r}</li>`).join('');
 }
+function getRaidsByItemLevel(ilvl) {
+  for (const tier of RAID_BY_LEVEL) {
+    if (ilvl >= tier.min) return tier.raids;
+  }
+  return [];
+}
 
 function renderCharacters(characters, userName) {
   const container = document.getElementById('character-container');
   container.innerHTML = '';
 
   characters.forEach(char => {
-    const charId = `${userName}_${char.CharacterName}`;
-    const raidHtml = RAID_LIST.map(r => `
-      <label><input type="checkbox" data-user="${userName}" data-char="${char.CharacterName}" value="${r}"> ${r}</label>
+    const ilvl = parseFloat(char.ItemAvgLevel.replace(/,/g, ''));
+    const raids = getRaidsByItemLevel(ilvl);
+
+    const raidHtml = raids.map(r => `
+      <label>
+        <input type="checkbox" data-user="${userName}" data-char="${char.CharacterName}" value="${r}">
+        ${r}
+      </label>
     `).join('<br>');
 
     const html = `
       <div class="character-card">
         <div class="char-header">
           <strong>${char.CharacterName}</strong>
-          <span>${char.ItemMaxLevel}</span>
+          <span>${char.ItemAvgLevel}</span>
         </div>
         <div class="char-raids">${raidHtml}</div>
       </div>
