@@ -57,15 +57,14 @@
 }
 
 /* 장비/악세 사이: 수평 정렬 */
-.equipment-split {
-  display: flex;
-  gap: 10px;
-}
 .equipment-column {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  justify-content: space-between; /* 추가 */
+}
+.equipment-split {
+  align-items: stretch; /* 두 컬럼의 높이 일치 */
 }
 
 /* 장비/악세 아이템 행 */
