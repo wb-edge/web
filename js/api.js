@@ -351,12 +351,22 @@ export function showCharacterDetails(characterName) {
 	    : '';
 	
 	  return `
-	    <div class="engraving-line">
+	  <div class="engraving-line">
+	    <div class="engraving-left">
 	      <img class="engraving-icon" src="${icon}" />
 	      <span class="engraving-name">${name}</span>
-	      ${gradeIcon} x${level}${abilityHtml}
+	      ${abilityLv ? `
+	        <img class="engraving-stone-icon" src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" />
+	        <span class="engraving-stone-lv">Lv.${abilityLv}</span>
+	      ` : ''}
 	    </div>
-	  `;
+	    <div class="engraving-right">
+	      ${gradeIcon}
+	      <span class="engraving-grade-lv">x${level}</span>
+	    </div>
+	  </div>
+	`;
+
 	}).join('');
 	
 	const engravingHtml = `
