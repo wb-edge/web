@@ -347,7 +347,7 @@ export function showCharacterDetails(characterName) {
 	
 	  const abilityLv = e.AbilityStoneLevel || '';
 	  const abilityHtml = abilityLv
-	    ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:16px;height:16px;object-fit:none;object-position:0 0;vertical-align:middle;margin-left:4px;" /> Lv.${abilityLv}`
+	    ? `<img src="https://cdn-lostark.game.onstove.com/2018/obt/assets/images/pc/profile/img_engrave_icon.png" style="width:22px;height:22px;object-fit:none;object-position: -1px;vertical-align:middle;margin-left:4px;" /> Lv.${abilityLv}`
 	    : '';
 	
 	  return `
