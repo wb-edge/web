@@ -1,12 +1,13 @@
 /* 캐릭터 상세 모달 전용 스타일 */
 
+/* 등급별 배경색 */
 .item-icon.grade-ancient { background-color: #dcc999 !important; }
 .item-icon.grade-relic   { background-color: #a24006 !important; }
 .item-icon.grade-legendary { background-color: #9e5f04 !important; }
 .item-icon.grade-epic    { background-color: #480d5d !important; }
 .item-icon.grade-rare    { background-color: #3a62ab !important; }
 
-/* 아이콘 컨테이너 */
+/* 아이콘 */
 .item-icon {
   border: 2px solid #fff;
   padding: 3px;
@@ -40,7 +41,7 @@
   margin-top: 12px;
 }
 
-/* 왼쪽: 캐릭터 정보 */
+/* 좌측 캐릭터 정보 */
 .equipment-left {
   flex: 0 0 35%;
   display: flex;
@@ -48,7 +49,7 @@
   gap: 10px;
 }
 
-/* 오른쪽: 장비/악세/보석 */
+/* 우측 장비 + 악세사리 + 보석 */
 .equipment-right {
   flex: 0 0 65%;
   display: flex;
@@ -56,24 +57,20 @@
   gap: 10px;
 }
 
-/* 장비/악세 사이: 수평 정렬 */
-.equipment-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  justify-content: space-between; /* 추가 */
-}
-
+/* 장비 & 악세사리 수평 나열 */
 .equipment-right > .equipment-columns {
   display: flex;
   gap: 10px;
 }
 
 .equipment-right > .equipment-columns > .equipment-column {
-  flex: 0 0 50%; /* 50% 고정 너비 */
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* 장비/악세 아이템 행 */
+/* 아이템 블럭 */
 .equipment-item {
   display: flex;
   align-items: center;
@@ -84,6 +81,7 @@
   margin-bottom: 1px;
 }
 
+/* 아이콘 + 정보 정렬 */
 .item-icon-text {
   display: flex;
   align-items: center;
@@ -135,7 +133,7 @@
     0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* 보석 등급별 그라데이션 */
+/* 보석 등급별 배경 그라데이션 */
 .gem-icon.grade-ancient {
   background: linear-gradient(135deg, #5c4a1f, #dcc999);
 }
@@ -155,8 +153,8 @@
   background: linear-gradient(135deg, #1a2d0e, #7bbf3b);
 }
 
-/* 스탯 블록 스타일 */
-.stat-block {
+/* 스탯 카드 스타일 */
+.character-info-card {
   background-color: #2c2c2c;
   border-radius: 10px;
   padding: 12px 16px;
@@ -164,12 +162,14 @@
   flex-direction: column;
   gap: 12px;
 }
-.stat-levels {
+
+.level-block {
   display: flex;
   justify-content: space-between;
   gap: 10px;
 }
-.stat-levels div {
+.level-block .item-level-text,
+.level-block .combat-power-text {
   font-size: 1.4rem;
   font-weight: bold;
   text-align: center;
@@ -177,7 +177,8 @@
   position: relative;
   color: #f5f5f5;
 }
-.stat-levels div::after {
+.level-block .item-level-text::after,
+.level-block .combat-power-text::after {
   content: '';
   display: block;
   height: 2px;
@@ -186,7 +187,7 @@
   background: linear-gradient(to right, #888, #fff);
 }
 
-/* 기본 스탯 (공격력/체력/특성) */
+/* 공격력/생명력/특성 등 */
 .stat-block-row {
   display: flex;
   justify-content: space-between;
@@ -217,8 +218,11 @@
   .equipment-right {
     flex: 1 1 100%;
   }
-  .equipment-split {
+  .equipment-right > .equipment-columns {
     flex-direction: column;
+  }
+  .equipment-right > .equipment-columns > .equipment-column {
+    flex: 1 1 100%;
   }
   .gem-container {
     grid-template-columns: repeat(5, 1fr);
