@@ -86,6 +86,13 @@ function getRaidsByItemLevel(ilvl) {
   return [];
 }
 
+// 최초 방문 시 고유한 userToken을 쿠키로 저장
+if (!getCookie('USER_TOKEN')) {
+  const uid = crypto.randomUUID();
+  setCookie('USER_TOKEN', uid, 30);
+}
+const userToken = getCookie('USER_TOKEN');
+
 const raidPresets = [
   { ilvl: 1700, raids: ['모르둠|하드', '아브렐슈드|하드', '에기르|하드'] },
   { ilvl: 1690, raids: ['모르둠|노말', '아브렐슈드|하드', '에기르|하드'] },
