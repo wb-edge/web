@@ -86,33 +86,72 @@ function getRaidsByItemLevel(ilvl) {
   return [];
 }
 
-function renderCharacters(characters, userName) {
-  const container = document.getElementById('character-container');
+const raidPresets = [
+  { ilvl: 1700, raids: ['모르둠|하드', '아브렐슈드|하드', '에기르|하드'] },
+  { ilvl: 1690, raids: ['모르둠|노말', '아브렐슈드|하드', '에기르|하드'] },
+  { ilvl: 1680, raids: ['모르둠|노말', '아브렐슈드|노말', '에기르|하드'] },
+  { ilvl: 1670, raids: ['아브렐슈드|노말', '에기르|노말', '에키드나|하드', '베히모스'] },
+  { ilvl: 1660, raids: ['에기르|노말', '에키드나|하드', '베히모스'] },
+  { ilvl: 1640, raids: ['에키드나|하드', '베히모스'] },
+];
+
+
+function renderCharacters(characters, userToken) {
+  const container = document.querySelector('main.results');
   container.innerHTML = '';
 
-  characters.forEach(char => {
-    const ilvl = parseFloat(char.ItemAvgLevel.replace(/,/g, ''));
-    const raids = getRaidsByItemLevel(ilvl);
+  // 아이템레벨 높은순 정렬
+  characters.sort((a, b) => parseFloat(b.ItemAvgLevel.replace(/,/g, '')) - parseFloat(a.ItemAvgLevel.replace(/,/g, '')));
 
-    const raidHtml = raids.map(r => `
-      <label>
-        <input type="checkbox" data-user="${userName}" data-char="${char.CharacterName}" value="${r}">
-        ${r}
-      </label>
-    `).join('<br>');
+  characters.forEach(character => {
+    const ilvl = parseFloat(character.ItemAvgLevel.replace(/,/g, ''));
+    const raidGroup = raidPresets.find(preset => ilvl >= preset.ilvl);
+    if (!raidGroup) return;
 
-    const html = `
-      <div class="character-card">
-        <div class="char-header">
-          <strong>${char.CharacterName}</strong>
-          <span>${char.ItemAvgLevel}</span>
+    const raidHtml = raidGroup.raids.map((r, i) => {
+      const [name, mode] = r.split('|');
+      const raidId = `${character.CharacterName}_${name}_${mode || '없음'}`;
+      return `
+        <div class="raid-row">
+          <span>${name}</span>
+          ${mode ? `
+            <label>
+              <input type="checkbox" data-char="${character.CharacterName}" data-raid="${name}" value="노말" ${mode === '노말' ? 'checked' : ''}> 노말
+            </label>
+            <label>
+              <input type="checkbox" data-char="${character.CharacterName}" data-raid="${name}" value="하드" ${mode === '하드' ? 'checked' : ''}> 하드
+            </label>
+          ` : ''}
         </div>
-        <div class="char-raids">${raidHtml}</div>
+      `;
+    }).join('');
+
+    container.innerHTML += `
+      <div class="char-card">
+        <h3>${character.CharacterName} <span class="ilvl">(${character.ItemAvgLevel})</span></h3>
+        ${raidHtml}
+        <button onclick="saveRaidStatus('${character.CharacterName}', '${userToken}')">저장</button>
       </div>
     `;
-    container.innerHTML += html;
   });
 }
+
+async function saveRaidStatus(charName, userToken) {
+  const checkboxes = document.querySelectorAll(`input[data-char="${charName}"]:checked`);
+  const selected = Array.from(checkboxes).map(cb => ({
+    character_name: charName,
+    raid_id: cb.dataset.raid + '|' + cb.value,
+    cleared: false,
+    user_token: userToken
+  }));
+
+  // 삭제 후 저장 (동일 캐릭터에 대해 초기화)
+  await supabase.from('raid_status').delete().eq('character_name', charName).eq('user_token', userToken);
+  await supabase.from('raid_status').insert(selected);
+
+  alert(`${charName}의 레이드 상태 저장 완료`);
+}
+
 
 async function loadSiblings(event) {
   if (event.key === 'Enter') {
