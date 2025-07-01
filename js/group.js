@@ -104,10 +104,9 @@ const raidPresets = [
 
 
 function renderCharacters(characters, userToken) {
-  const container = document.querySelector('main.results');
+  const container = document.getElementById('characterList');
   container.innerHTML = '';
 
-  // 아이템레벨 높은순 정렬
   characters.sort((a, b) => parseFloat(b.ItemAvgLevel.replace(/,/g, '')) - parseFloat(a.ItemAvgLevel.replace(/,/g, '')));
 
   characters.forEach(character => {
@@ -117,48 +116,66 @@ function renderCharacters(characters, userToken) {
 
     const raidHtml = raidGroup.raids.map((r, i) => {
       const [name, mode] = r.split('|');
-      const raidId = `${character.CharacterName}_${name}_${mode || '없음'}`;
       return `
         <div class="raid-row">
-          <span>${name}</span>
-          ${mode ? `
-            <label>
-              <input type="checkbox" data-char="${character.CharacterName}" data-raid="${name}" value="노말" ${mode === '노말' ? 'checked' : ''}> 노말
-            </label>
-            <label>
-              <input type="checkbox" data-char="${character.CharacterName}" data-raid="${name}" value="하드" ${mode === '하드' ? 'checked' : ''}> 하드
-            </label>
-          ` : ''}
+          <span class="raid-name">${name}</span>
+          <div class="raid-toggle" data-char="${character.CharacterName}" data-raid="${name}">
+            <button class="toggle-btn" data-value="노말">노말</button>
+            <button class="toggle-btn" data-value="하드">하드</button>
+          </div>
         </div>
       `;
     }).join('');
 
     container.innerHTML += `
-      <div class="char-card">
+      <div class="char-card" data-char="${character.CharacterName}">
         <h3>${character.CharacterName} <span class="ilvl">(${character.ItemAvgLevel})</span></h3>
         ${raidHtml}
-        <button onclick="saveRaidStatus('${character.CharacterName}', '${userToken}')">저장</button>
       </div>
     `;
   });
+
+  // 토글 버튼 이벤트 바인딩
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const wrapper = e.target.closest('.raid-toggle');
+      wrapper.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('selected'));
+      e.target.classList.add('selected');
+    });
+  });
 }
 
-async function saveRaidStatus(charName, userToken) {
-  const checkboxes = document.querySelectorAll(`input[data-char="${charName}"]:checked`);
-  const selected = Array.from(checkboxes).map(cb => ({
-    character_name: charName,
-    raid_id: cb.dataset.raid + '|' + cb.value,
-    cleared: false,
-    user_token: userToken
-  }));
+async function saveAllRaidStatus() {
+  const userToken = getCookie('USER_TOKEN');
+  const records = [];
 
-  // 삭제 후 저장 (동일 캐릭터에 대해 초기화)
-  await supabase.from('raid_status').delete().eq('character_name', charName).eq('user_token', userToken);
-  await supabase.from('raid_status').insert(selected);
+  document.querySelectorAll('.char-card').forEach(card => {
+    const charName = card.dataset.char;
+    const toggles = card.querySelectorAll('.raid-toggle');
 
-  alert(`${charName}의 레이드 상태 저장 완료`);
+    toggles.forEach(toggle => {
+      const raid = toggle.dataset.raid;
+      const selected = toggle.querySelector('.toggle-btn.selected');
+      if (selected) {
+        records.push({
+          character_name: charName,
+          raid_id: `${raid}|${selected.dataset.value}`,
+          cleared: false,
+          user_token: userToken
+        });
+      }
+    });
+  });
+
+  if (records.length === 0) {
+    alert('선택된 레이드가 없습니다.');
+    return;
+  }
+
+  await supabase.from('raid_status').delete().eq('user_token', userToken);
+  await supabase.from('raid_status').insert(records);
+  alert('레이드 상태가 저장되었습니다.');
 }
-
 
 async function loadSiblings(event) {
   if (event.key === 'Enter') {
