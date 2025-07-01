@@ -35,6 +35,7 @@ function saveApiKey() {
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
+window.loadSiblings = loadSiblings;
 
 window.addEventListener('click', e => {
   const modal = document.getElementById('apiKeyModal');
