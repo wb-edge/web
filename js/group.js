@@ -1,27 +1,29 @@
-// group.js 최상단에 추가
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient('https://iujkvqdslefxilrnwtrz.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1amt2cWRzbGVmeGlscm53dHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjYzNjgsImV4cCI6MjA2Njk0MjM2OH0.1y9L8G9qQ2fHplS7vKxuOKE69Ni5duRplE8GChsoUec');
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+// Supabase 설정
+const SUPABASE_URL = 'https://iujkvqdslefxilrnwtrz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1amt2cWRzbGVmeGlscm53dHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjYzNjgsImV4cCI6MjA2Njk0MjM2OH0.1y9L8G9qQ2fHplS7vKxuOKE69Ni5duRplE8GChsoUec';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 쿠키 처리
 function setCookie(name, value, days) {
   const date = new Date();
   date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
   document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
 }
-
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
+// 모달 관련
 function showApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'flex';
 }
-
 function closeApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'none';
 }
-
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (key) {
@@ -30,185 +32,173 @@ function saveApiKey() {
   }
 }
 
-
-window.addEventListener('click', (e) => {
-  const modal2 = document.getElementById('apiKeyModal');
-  if (e.target === modal2) closeApiKeyModal();
-});
-
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeApiKeyModal();
-  }
-});
-
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
 
+window.addEventListener('click', e => {
+  const modal = document.getElementById('apiKeyModal');
+  if (e.target === modal) closeApiKeyModal();
+});
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeApiKeyModal();
+});
 
-const RAID_BY_LEVEL = [
-  { min: 1700, raids: ['3막(모르둠) 하드', '2막(아브) 하드', '1막(에기르) 하드'] },
-  { min: 1690, raids: ['3막(모르둠) 노말', '2막(아브) 하드', '1막(에기르) 하드'] },
-  { min: 1680, raids: ['3막(모르둠) 노말', '2막(아브) 노말', '1막(에기르) 하드'] },
-  { min: 1670, raids: ['2막(아브) 노말', '1막(에기르) 노말', '서막(에키드나) 하드', '베히모스'] },
-  { min: 1660, raids: ['1막(에기르) 노말', '서막(에키드나) 하드', '베히모스'] },
-  { min: 1640, raids: ['서막(에키드나) 하드', '베히모스'] }
+// 레이드 목록 정의
+const RAID_LIST = [
+  { id: 'morodoom_hard', name: '3막 모르둠', diff: '하드' },
+  { id: 'morodoom_normal', name: '3막 모르둠', diff: '노말' },
+  { id: 'abrelshud_hard', name: '2막 아브렐', diff: '하드' },
+  { id: 'abrelshud_normal', name: '2막 아브렐', diff: '노말' },
+  { id: 'egir_hard', name: '1막 에기르', diff: '하드' },
+  { id: 'egir_normal', name: '1막 에기르', diff: '노말' },
+  { id: 'ekidna_hard', name: '서막 에키드나', diff: '하드' },
+  { id: 'ekidna_normal', name: '서막 에키드나', diff: '노말' },
+  { id: 'behemoth_normal', name: '베히모스', diff: '노말' },
 ];
 
+// 메인 캐릭터 검색 및 테이블 출력
+export async function loadSiblings(event) {
+  if (event.key !== 'Enter') return;
 
-let groupData = {}; // 모든 사용자 데이터
+  const keyword = event.target.value.trim();
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) return alert('먼저 API KEY를 입력해주세요.');
+  if (!keyword) return alert('닉네임을 입력해주세요.');
 
-function submitRaidData() {
-  const name = document.getElementById('userName').value.trim();
-  if (!name) return alert('닉네임을 입력해주세요');
-
-  const raidInputs = document.querySelectorAll('#raid-list input[type=checkbox]');
-  const raids = {};
-  raidInputs.forEach(input => {
-    raids[input.value] = !input.checked; // 체크 시 클리어로 간주
+  const res = await fetch(`https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(keyword)}/siblings`, {
+    headers: { Authorization: `bearer ${apiKey}` }
   });
+  const allChars = await res.json();
 
-  groupData[name] = { name, raids };
+  const characters = allChars
+    .map(c => ({ name: c.CharacterName, ilvl: parseFloat(c.ItemAvgLevel.replace(/,/g, '')) }))
+    .filter(c => c.ilvl >= 1640)
+    .sort((a, b) => b.ilvl - a.ilvl);
 
-  renderCommonRaids();
+  const userToken = getUserToken(keyword);
+  const { data: saved } = await supabase
+    .from('raid_status')
+    .select('*')
+    .eq('user_token', userToken);
+
+  renderTable(characters, saved || []);
 }
 
-function renderCommonRaids() {
-  const allRaids = Object.keys(groupData[Object.keys(groupData)[0]].raids || {});
-  const remainingRaids = allRaids.filter(raid =>
-    Object.values(groupData).every(user => user.raids[raid] === false)
-  );
-
-  const ul = document.getElementById('common-raids');
-  ul.innerHTML = remainingRaids.map(r => `<li>${r}</li>`).join('');
-}
-function getRaidsByItemLevel(ilvl) {
-  for (const tier of RAID_BY_LEVEL) {
-    if (ilvl >= tier.min) return tier.raids;
-  }
-  return [];
+// 유저 식별 토큰 (캐릭터명 기반)
+function getUserToken(name) {
+  return `USER_${name.toLowerCase()}`;
 }
 
-// 최초 방문 시 고유한 userToken을 쿠키로 저장
-if (!getCookie('USER_TOKEN')) {
-  const uid = crypto.randomUUID();
-  setCookie('USER_TOKEN', uid, 30);
-}
-const userToken = getCookie('USER_TOKEN');
+// 테이블 렌더링
+function renderTable(characters, saved) {
+  const container = document.querySelector('.results');
+  const raidGroups = groupRaidsByName(RAID_LIST);
 
-const raidPresets = [
-  { ilvl: 1700, raids: ['모르둠|하드', '아브렐슈드|하드', '에기르|하드'] },
-  { ilvl: 1690, raids: ['모르둠|노말', '아브렐슈드|하드', '에기르|하드'] },
-  { ilvl: 1680, raids: ['모르둠|노말', '아브렐슈드|노말', '에기르|하드'] },
-  { ilvl: 1670, raids: ['아브렐슈드|노말', '에기르|노말', '에키드나|하드', '베히모스'] },
-  { ilvl: 1660, raids: ['에기르|노말', '에키드나|하드', '베히모스'] },
-  { ilvl: 1640, raids: ['에키드나|하드', '베히모스'] },
-];
-
-
-function renderCharacters(characters, userToken) {
-  const container = document.getElementById('characterList');
-  container.innerHTML = '';
-
-  characters.sort((a, b) => parseFloat(b.ItemAvgLevel.replace(/,/g, '')) - parseFloat(a.ItemAvgLevel.replace(/,/g, '')));
-
-  characters.forEach(character => {
-    const ilvl = parseFloat(character.ItemAvgLevel.replace(/,/g, ''));
-    const raidGroup = raidPresets.find(preset => ilvl >= preset.ilvl);
-    if (!raidGroup) return;
-
-    const raidHtml = raidGroup.raids.map((r, i) => {
-      const [name, mode] = r.split('|');
-      return `
-        <div class="raid-row">
-          <span class="raid-name">${name}</span>
-          <div class="raid-toggle" data-char="${character.CharacterName}" data-raid="${name}">
-            <button class="toggle-btn" data-value="노말">노말</button>
-            <button class="toggle-btn" data-value="하드">하드</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    container.innerHTML += `
-      <div class="char-card" data-char="${character.CharacterName}">
-        <h3>${character.CharacterName} <span class="ilvl">(${character.ItemAvgLevel})</span></h3>
-        ${raidHtml}
-      </div>
-    `;
-  });
-
-  // 토글 버튼 이벤트 바인딩
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const wrapper = e.target.closest('.raid-toggle');
-      wrapper.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('selected'));
-      e.target.classList.add('selected');
+  // 상단 헤더 구성 (2줄)
+  const thead1 = document.createElement('tr');
+  const thead2 = document.createElement('tr');
+  thead1.innerHTML = `<th rowspan="2">캐릭터</th>`;
+  Object.keys(raidGroups).forEach(name => {
+    const count = raidGroups[name].length;
+    thead1.innerHTML += `<th colspan="${count}">${name}</th>`;
+    raidGroups[name].forEach(r => {
+      thead2.innerHTML += `<th>${r.diff}</th>`;
     });
   });
-}
 
-async function saveAllRaidStatus() {
-  const userToken = getCookie('USER_TOKEN');
-  const records = [];
+  const thead = document.createElement('thead');
+  thead.appendChild(thead1);
+  thead.appendChild(thead2);
 
-  document.querySelectorAll('.char-card').forEach(card => {
-    const charName = card.dataset.char;
-    const toggles = card.querySelectorAll('.raid-toggle');
+  // 바디 구성
+  const tbody = document.createElement('tbody');
+  characters.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${c.name}</td>`;
+    RAID_LIST.forEach(raid => {
+      const td = document.createElement('td');
+      td.classList.add('raid-cell');
+      td.dataset.char = c.name;
+      td.dataset.raid = raid.id;
 
-    toggles.forEach(toggle => {
-      const raid = toggle.dataset.raid;
-      const selected = toggle.querySelector('.toggle-btn.selected');
-      if (selected) {
-        records.push({
-          character_name: charName,
-          raid_id: `${raid}|${selected.dataset.value}`,
-          cleared: false,
-          user_token: userToken
-        });
+      const matched = saved.find(s => s.character_name === c.name && s.raid_id === raid.id);
+      if (matched) {
+        if (matched.cleared) td.classList.add('selected-cleared');
+        else if (matched.difficulty === '하드') td.classList.add('selected-hard');
+        else if (matched.difficulty === '노말') td.classList.add('selected-normal');
       }
+
+      td.addEventListener('click', () => {
+        td.classList.remove('selected-normal', 'selected-hard', 'selected-cleared');
+        if (td.dataset.state === 'normal') {
+          td.dataset.state = 'hard';
+          td.classList.add('selected-hard');
+        } else if (td.dataset.state === 'hard') {
+          td.dataset.state = 'cleared';
+          td.classList.add('selected-cleared');
+        } else {
+          td.dataset.state = 'normal';
+          td.classList.add('selected-normal');
+        }
+      });
+
+      tbody.appendChild(tr);
+      tr.appendChild(td);
     });
   });
 
-  if (records.length === 0) {
-    alert('선택된 레이드가 없습니다.');
-    return;
-  }
+  const table = document.createElement('table');
+  table.className = 'raid-table';
+  table.appendChild(thead);
+  table.appendChild(tbody);
+
+  // 저장 버튼
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = '저장하기';
+  saveBtn.className = 'save-button';
+  saveBtn.onclick = () => saveRaidStatus(characters);
+
+  container.innerHTML = '';
+  container.appendChild(table);
+  container.appendChild(saveBtn);
+}
+
+function groupRaidsByName(list) {
+  const map = {};
+  list.forEach(r => {
+    if (!map[r.name]) map[r.name] = [];
+    map[r.name].push(r);
+  });
+  return map;
+}
+
+// 저장 처리
+async function saveRaidStatus(characters) {
+  const userToken = getUserToken(characters[0].name);
+  const data = [];
+
+  document.querySelectorAll('.raid-cell').forEach(cell => {
+    const char = cell.dataset.char;
+    const raid = cell.dataset.raid;
+
+    let val = null;
+    if (cell.classList.contains('selected-cleared')) val = '완료';
+    else if (cell.classList.contains('selected-hard')) val = '하드';
+    else if (cell.classList.contains('selected-normal')) val = '노말';
+    else return;
+
+    data.push({
+      character_name: char,
+      raid_id: raid,
+      difficulty: val,
+      cleared: val === '완료',
+      user_token: userToken
+    });
+  });
 
   await supabase.from('raid_status').delete().eq('user_token', userToken);
-  await supabase.from('raid_status').insert(records);
-  alert('레이드 상태가 저장되었습니다.');
+  await supabase.from('raid_status').insert(data);
+
+  alert('저장 완료');
 }
-
-async function loadSiblings(event) {
-  if (event.key === 'Enter') {
-    const keyword = event.target.value.trim();
-    const apiKey = getCookie('LOA_API_KEY');
-    if (!keyword) return;
-
-    if (!apiKey) {
-      alert("먼저 API KEY를 입력해주세요.");
-      return;
-    }
-
-    const characterName = document.getElementById('searchInput').value.trim();
-    if (!characterName) return alert('닉네임을 입력해주세요.');
-
-    const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`;
-    const headers = { Authorization: `bearer ${apiKey}` };
-
-    const res = await fetch(url, { headers });
-    const characters = await res.json();
-
-    const filtered = characters.filter(c => {
-      const ilvl = parseFloat(c.ItemAvgLevel.replace(/,/g, ''));
-      return ilvl >= 1640;
-    });
-
-    renderCharacters(filtered, characterName);
-  }
-}
-
-window.loadSiblings = loadSiblings;
-window.saveAllRaidStatus = saveAllRaidStatus;
