@@ -207,3 +207,4 @@ async function loadSiblings(event) {
 }
 
 window.loadSiblings = loadSiblings;
+window.saveAllRaidStatus = saveAllRaidStatus;
