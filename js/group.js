@@ -1,23 +1,16 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-const SUPABASE_URL = 'https://iujkvqdslefxilrnwtrz.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1amt2cWRzbGVmeGlscm53dHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjYzNjgsImV4cCI6MjA2Njk0MjM2OH0.1y9L8G9qQ2fHplS7vKxuOKE69Ni5duRplE8GChsoUec';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// 쿠키 유틸
+// ---------------- 공통 유틸 ----------------
 function setCookie(name, value, days) {
   const date = new Date();
-  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
   document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
 }
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  return parts.length === 2 ? parts.pop().split(';').shift() : null;
+  if (parts.length === 2) return parts.pop().split(';')[0];
 }
 
-// API KEY 모달
 function showApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'flex';
 }
@@ -37,189 +30,181 @@ function saveApiKey() {
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
-window.loadSiblings = loadSiblings;
 
-// 토글 가능한 레이드 정보
-const raidDefs = [
-  { name: '3막 모르둠', hard: 1700, normal: 1680 },
-  { name: '2막 아브렐', hard: 1690, normal: 1670 },
-  { name: '1막 에기르', hard: 1680, normal: 1660 },
-  { name: '서막 에키드나', hard: 1640, normal: 1620 },
-  { name: '베히모스', hard: null, normal: 1640 }
-];
+window.addEventListener('click', (e) => {
+  const modal = document.getElementById('apiKeyModal');
+  if (e.target === modal) closeApiKeyModal();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeApiKeyModal();
+});
 
-// 현재 상태
-let state = {}; // { 캐릭터명: { 레이드명: "hard"|"normal"|"" } }
+// ---------------- 캐릭터 불러오기 ----------------
 
-// 캐릭터 검색
-async function loadSiblings(event) {
+const raidRequirements = {
+  '모르둠': { normal: 1680, hard: 1700 },
+  '아브렐': { normal: 1670, hard: 1690 },
+  '에기르': { normal: 1660, hard: 1680 },
+  '에키드나': { normal: 1620, hard: 1640 },
+  '베히모스': { normal: 1640 }
+};
+
+const raidOrder = ['모르둠', '아브렐', '에기르', '에키드나', '베히모스'];
+
+let currentCharacters = [];
+
+window.loadSiblings = async function (event) {
   if (event.key !== 'Enter') return;
-
+  const characterName = document.getElementById('searchInput').value.trim();
   const apiKey = getCookie('LOA_API_KEY');
-  if (!apiKey) return alert('API KEY를 먼저 입력해주세요.');
-  const name = document.getElementById('searchInput').value.trim();
-  if (!name) return;
+  if (!characterName || !apiKey) {
+    alert('닉네임과 API KEY를 입력해주세요.');
+    return;
+  }
 
-  const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(name)}/siblings`;
+  const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`;
   const headers = { Authorization: `bearer ${apiKey}` };
-
   const res = await fetch(url, { headers });
-  const list = await res.json();
+  const characters = await res.json();
 
-  const characters = list
-    .map(c => ({ name: c.CharacterName, level: parseFloat(c.ItemAvgLevel.replace(/,/g, '')) }))
+  currentCharacters = characters
+    .map(c => ({
+      name: c.CharacterName,
+      level: parseFloat(c.ItemAvgLevel.replace(/,/g, ''))
+    }))
     .filter(c => c.level >= 1640)
     .sort((a, b) => b.level - a.level);
 
-  state = {};
-  characters.forEach(c => {
-    state[c.name] = {};
-    raidDefs.forEach(r => state[c.name][r.name] = "");
+  renderCharacterTable();
+  loadExistingStatus();
+};
+
+// ---------------- 테이블 렌더링 ----------------
+
+function renderCharacterTable() {
+  const container = document.getElementById('characterList');
+  if (!currentCharacters.length) return (container.innerHTML = '');
+
+  let html = '<div id="characterTableContainer"><table class="character-table"><thead><tr><th>레이드</th>';
+  currentCharacters.forEach(c => {
+    html += `<th>${c.name}<br><span style="font-size:0.8rem;color:#999;">(${c.level})</span></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  raidOrder.forEach(raid => {
+    html += `<tr><td>${raid}</td>`;
+    currentCharacters.forEach(char => {
+      const req = raidRequirements[raid];
+      const hard = req.hard ? char.level >= req.hard : false;
+      const normal = req.normal ? char.level >= req.normal : false;
+
+      const isBehemoth = raid === '베히모스';
+
+      html += `<td><div class="toggle-group">`;
+
+      if (!isBehemoth) {
+        html += `
+          <label class="toggle-btn">
+            <input type="radio" name="${raid}-${char.name}" value="hard" ${!hard ? 'disabled' : ''}>
+            <span>하드</span>
+          </label>`;
+      }
+
+      html += `
+        <label class="toggle-btn">
+          <input type="radio" name="${raid}-${char.name}" value="normal" ${!normal ? 'disabled' : ''}>
+          <span>노말</span>
+        </label>
+        <label class="toggle-btn">
+          <input type="radio" name="${raid}-${char.name}" value="done">
+          <span>완료</span>
+        </label>`;
+
+      html += `</div></td>`;
+    });
+    html += '</tr>';
   });
 
-  renderTable(characters);
-  await loadPreviousData();
+  html += '</tbody></table></div>';
+
+  container.innerHTML = html;
 }
 
-function renderTable(characters) {
-  const table = document.createElement('table');
-  table.className = 'raid-table';
+// ---------------- Supabase 저장 ----------------
 
-  // 헤더
-  const thead = document.createElement('thead');
-  const headRow = document.createElement('tr');
-  headRow.innerHTML = `<th>캐릭터명</th>` + raidDefs.map(r => `<th>${r.name}</th>`).join('');
-  thead.appendChild(headRow);
-  table.appendChild(thead);
+const SUPABASE_URL = 'https://iujkvqdslefxilrnwtrz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1amt2cWRzbGVmeGlscm53dHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjYzNjgsImV4cCI6MjA2Njk0MjM2OH0.1y9L8G9qQ2fHplS7vKxuOKE69Ni5duRplE8GChsoUec';
 
-  // 바디
-  const tbody = document.createElement('tbody');
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-  characters.forEach(c => {
-    const row = document.createElement('tr');
-    row.innerHTML = `<td>${c.name}</td>` + raidDefs.map(r => {
-      const disabledHard = r.hard && c.level < r.hard;
-      const disabledNormal = r.normal && c.level < r.normal;
+async function saveAllRaidStatus() {
+  const token = getCookie('LOA_API_KEY');
+  if (!token) return alert('API KEY가 없습니다.');
 
-      return `
-        <td>
-          <div class="raid-toggle">
-            <button class="toggle-btn hard ${disabledHard ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="hard">하드</button>
-            <button class="toggle-btn normal ${disabledNormal ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="normal">노말</button>
-          </div>
-        </td>
-      `;
-    }).join('');
+  const data = [];
 
-    tbody.appendChild(row);
-  });
-
-  table.appendChild(tbody);
-  document.querySelector('.results').innerHTML = '';
-  document.querySelector('.results').appendChild(table);
-
-  const saveBtn = document.createElement('button');
-  saveBtn.textContent = '저장';
-  saveBtn.className = 'save-button';
-  saveBtn.onclick = saveToDatabase;
-  document.querySelector('.results').appendChild(saveBtn);
-
-  // 이벤트 바인딩
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const char = btn.dataset.char;
-      const raid = btn.dataset.raid;
-      const mode = btn.dataset.mode;
-
-      if (btn.classList.contains('disabled')) return;
-
-      const otherBtn = document.querySelector(`.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode === 'hard' ? 'normal' : 'hard'}"]`);
-
-      // 상태 토글
-      if (state[char][raid] === mode) {
-        state[char][raid] = "";
-        btn.classList.remove('active');
-      } else {
-        state[char][raid] = mode;
-        btn.classList.add('active');
-        if (otherBtn) otherBtn.classList.remove('active');
+  currentCharacters.forEach(char => {
+    raidOrder.forEach(raid => {
+      const radios = document.getElementsByName(`${raid}-${char.name}`);
+      let selected = '';
+      radios.forEach(r => {
+        if (r.checked) selected = r.value;
+      });
+      if (selected) {
+        data.push({
+          user_token: token,
+          character_name: char.name,
+          raid_name: raid,
+          difficulty: selected
+        });
       }
     });
   });
-}
-
-async function saveToDatabase() {
-  const token = getCookie('LOA_API_KEY');
-  if (!token) return alert('API KEY가 필요합니다.');
 
   const { error } = await supabase
     .from('raid_status')
-    .upsert({
-      user_token: token,
-      data: JSON.stringify(state),
-      updated_at: new Date().toISOString()
-    }, { onConflict: ['user_token'] });
+    .delete()
+    .eq('user_token', token);
 
-  if (!error) alert('저장 완료');
-  else alert('저장 실패: ' + error.message);
+  if (error) {
+    console.error('삭제 실패:', error);
+    alert('저장 실패(삭제 단계)');
+    return;
+  }
+
+  const { error: insertError } = await supabase
+    .from('raid_status')
+    .insert(data);
+
+  if (insertError) {
+    console.error('저장 실패:', insertError);
+    alert('저장 실패');
+  } else {
+    alert('레이드 정보가 저장되었습니다!');
+  }
 }
 
-async function loadPreviousData() {
+window.saveAllRaidStatus = saveAllRaidStatus;
+
+// ---------------- 기존 상태 불러오기 ----------------
+
+async function loadExistingStatus() {
   const token = getCookie('LOA_API_KEY');
   if (!token) return;
 
   const { data, error } = await supabase
     .from('raid_status')
-    .select('data, updated_at')
-    .eq('user_token', token)
-    .single();
+    .select('*')
+    .eq('user_token', token);
 
-console.log(data);
-  if (!data || !data.data) return;
+  if (error || !data || !data.length) return;
 
-  const updated = new Date(data.updated_at);
-  const resetTime = getMostRecentResetTime();
-console.log(updated);
-console.log(resetTime);
-console.log(updated < resetTime);
-
-  if (updated < resetTime) return; // 지난주 데이터면 무시
-
-  const parsed = JSON.parse(data.data);
-  for (const char in parsed) {
-    for (const raid in parsed[char]) {
-      const mode = parsed[char][raid];
-      if (!mode) continue;
-
-      const selector = `.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode}"]`;
-      const btn = document.querySelector(selector);
-      if (btn) btn.classList.add('active');
-
-      state[char][raid] = mode;
-    }
-  }
+  data.forEach(row => {
+    const selector = `input[name="${row.raid_name}-${row.character_name}"][value="${row.difficulty}"]`;
+    const input = document.querySelector(selector);
+    if (input) input.checked = true;
+  });
 }
-
-function getMostRecentResetTime() {
-  const now = new Date();
-  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000); // 현재 시간을 KST 기준으로 변환
-
-  // 수요일(3) 오전 10시 기준을 계산
-  const day = kstNow.getDay(); // 0(일)~6(토)
-  const hour = kstNow.getHours();
-
-  let daysSinceReset = (day + 7 - 3) % 7; // 수요일까지 며칠 지났는지
-  if (day === 3 && hour < 10) {
-    daysSinceReset = 7; // 이번 주 수요일 오전 10시 전이면 지난주 수요일을 기준으로
-  }
-
-  // KST 기준 이번 주 수요일 10시
-  const kstReset = new Date(kstNow);
-  kstReset.setHours(10, 0, 0, 0);
-  kstReset.setDate(kstReset.getDate() - daysSinceReset);
-
-  // 다시 UTC로 변환해서 반환
-  const utcReset = new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
-  return utcReset;
-}
-
