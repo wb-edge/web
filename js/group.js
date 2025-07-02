@@ -1,31 +1,51 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+// Supabase 초기화
 const SUPABASE_URL = 'https://iujkvqdslefxilrnwtrz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1amt2cWRzbGVmeGlscm53dHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjYzNjgsImV4cCI6MjA2Njk0MjM2OH0.1y9L8G9qQ2fHplS7vKxuOKE69Ni5duRplE8GChsoUec';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 쿠키 유틸
-function setCookie(name, value, days) {
-  const date = new Date();
-  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
-}
+// 레이드 기준 정보
+const RAIDS = [
+  { name: '모르둠', hard: 1700, normal: 1680 },
+  { name: '아브렐', hard: 1690, normal: 1670 },
+  { name: '에기르', hard: 1680, normal: 1660 },
+  { name: '에키드나', hard: 1640, normal: 1620 },
+  { name: '베히모스', hard: null, normal: 1640 }
+];
 
+// 유틸 함수
+function setCookie(name, value, days) {
+  const d = new Date();
+  d.setTime(d.getTime() + days * 86400000);
+  document.cookie = `${name}=${value}; expires=${d.toUTCString()}; path=/`;
+}
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  return parts.length === 2 ? parts.pop().split(';').shift() : null;
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+function getMostRecentResetTime() {
+  const now = new Date();
+  const utc = new Date(now.toISOString());
+  const day = utc.getUTCDay();
+  const diff = (day >= 3 ? day - 3 : 7 - (3 - day));
+  utc.setUTCDate(utc.getUTCDate() - diff);
+  utc.setUTCHours(1, 0, 0, 0); // 한국 수요일 10시 → UTC 1시
+  return utc;
+}
+function isRaidAvailable(ilvl, raid, difficulty) {
+  const required = raid[difficulty.toLowerCase()];
+  return required ? ilvl >= required : false;
 }
 
-// API KEY 모달
+// 모달 처리
 function showApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'flex';
 }
-
 function closeApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'none';
 }
-
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (key) {
@@ -33,193 +53,165 @@ function saveApiKey() {
     closeApiKeyModal();
   }
 }
-
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
-window.loadSiblings = loadSiblings;
 
-// 토글 가능한 레이드 정보
-const raidDefs = [
-  { name: '3막 모르둠', hard: 1700, normal: 1680 },
-  { name: '2막 아브렐', hard: 1690, normal: 1670 },
-  { name: '1막 에기르', hard: 1680, normal: 1660 },
-  { name: '서막 에키드나', hard: 1640, normal: 1620 },
-  { name: '베히모스', hard: null, normal: 1640 }
-];
+window.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('apiKeyModal')) closeApiKeyModal();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeApiKeyModal();
+});
 
-// 현재 상태
-let state = {}; // { 캐릭터명: { 레이드명: "hard"|"normal"|"" } }
-
-// 캐릭터 검색
+// 캐릭터 불러오기
 async function loadSiblings(event) {
   if (event.key !== 'Enter') return;
 
+  const characterName = document.getElementById('searchInput').value.trim();
   const apiKey = getCookie('LOA_API_KEY');
-  if (!apiKey) return alert('API KEY를 먼저 입력해주세요.');
-  const name = document.getElementById('searchInput').value.trim();
-  if (!name) return;
+  if (!apiKey) return alert('API KEY를 먼저 입력해주세요');
 
-  const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(name)}/siblings`;
   const headers = { Authorization: `bearer ${apiKey}` };
+  const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(characterName)}/siblings`;
 
   const res = await fetch(url, { headers });
-  const list = await res.json();
+  const siblings = await res.json();
 
-  const characters = list
-    .map(c => ({ name: c.CharacterName, level: parseFloat(c.ItemAvgLevel.replace(/,/g, '')) }))
-    .filter(c => c.level >= 1640)
-    .sort((a, b) => b.level - a.level);
+  const characters = siblings
+    .map(c => ({
+      name: c.CharacterName,
+      ilvl: parseFloat(c.ItemAvgLevel.replace(/,/g, '')),
+    }))
+    .filter(c => c.ilvl >= 1640)
+    .sort((a, b) => b.ilvl - a.ilvl);
 
-  state = {};
-  characters.forEach(c => {
-    state[c.name] = {};
-    raidDefs.forEach(r => state[c.name][r.name] = "");
-  });
-
-  renderTable(characters);
-  await loadPreviousData();
+  renderCharacterCards(characters);
+  await loadSavedRaidStatus(apiKey);
 }
 
-function renderTable(characters) {
-  const table = document.createElement('table');
-  table.className = 'raid-table';
+// 카드 렌더링
+function renderCharacterCards(characters) {
+  const container = document.getElementById('characterList');
+  container.innerHTML = '';
 
-  // 헤더
-  const thead = document.createElement('thead');
-  const headRow = document.createElement('tr');
-  headRow.innerHTML = `<th>캐릭터명</th>` + raidDefs.map(r => `<th>${r.name}</th>`).join('');
-  thead.appendChild(headRow);
-  table.appendChild(thead);
+  characters.forEach(char => {
+    const card = document.createElement('div');
+    card.className = 'character-card';
 
-  // 바디
-  const tbody = document.createElement('tbody');
+    const title = `<div class="char-header"><strong>${char.name}</strong> <span class="ilvl">${char.ilvl}</span></div>`;
 
-  characters.forEach(c => {
-    const row = document.createElement('tr');
-    row.innerHTML = `<td>${c.name}</td>` + raidDefs.map(r => {
-      const disabledHard = r.hard && c.level < r.hard;
-      const disabledNormal = r.normal && c.level < r.normal;
+    const raidRows = RAIDS.map(raid => {
+      const isHardAvailable = raid.hard && char.ilvl >= raid.hard;
+      const isNormalAvailable = raid.normal && char.ilvl >= raid.normal;
+
+      const hardDisabled = !isHardAvailable ? 'disabled' : '';
+      const normalDisabled = !isNormalAvailable ? 'disabled' : '';
+
+      const onlyNormal = raid.hard === null;
 
       return `
-        <td>
-          <div class="raid-toggle">
-            <button class="toggle-btn hard ${disabledHard ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="hard">하드</button>
-            <button class="toggle-btn normal ${disabledNormal ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="normal">노말</button>
+        <div class="raid-row">
+          <span class="raid-name">${raid.name}</span>
+          <div class="toggle-group">
+            ${!onlyNormal ? `
+              <label class="toggle-btn">
+                <input type="radio" name="${char.name}_${raid.name}" value="하드" ${hardDisabled}>
+                <span>하드</span>
+              </label>` : ''}
+            <label class="toggle-btn">
+              <input type="radio" name="${char.name}_${raid.name}" value="노말" ${normalDisabled}>
+              <span>노말</span>
+            </label>
           </div>
-        </td>
+        </div>
       `;
     }).join('');
 
-    tbody.appendChild(row);
-  });
-
-  table.appendChild(tbody);
-  document.querySelector('.results').innerHTML = '';
-  document.querySelector('.results').appendChild(table);
-
-  const saveBtn = document.createElement('button');
-  saveBtn.textContent = '저장';
-  saveBtn.className = 'save-button';
-  saveBtn.onclick = saveToDatabase;
-  document.querySelector('.results').appendChild(saveBtn);
-
-  // 이벤트 바인딩
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const char = btn.dataset.char;
-      const raid = btn.dataset.raid;
-      const mode = btn.dataset.mode;
-
-      if (btn.classList.contains('disabled')) return;
-
-      const otherBtn = document.querySelector(`.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode === 'hard' ? 'normal' : 'hard'}"]`);
-
-      // 상태 토글
-      if (state[char][raid] === mode) {
-        state[char][raid] = "";
-        btn.classList.remove('active');
-      } else {
-        state[char][raid] = mode;
-        btn.classList.add('active');
-        if (otherBtn) otherBtn.classList.remove('active');
-      }
-    });
+    card.innerHTML = title + raidRows;
+    container.appendChild(card);
   });
 }
 
-async function saveToDatabase() {
-  const token = getCookie('LOA_API_KEY');
-  if (!token) return alert('API KEY가 필요합니다.');
+// 저장
+async function saveAllRaidStatus() {
+  const apiKey = getCookie('LOA_API_KEY');
+  if (!apiKey) return alert('API KEY 없음');
 
-  const { error } = await supabase
-    .from('raid_status')
-    .upsert({
-      user_token: token,
-      data: JSON.stringify(state),
-      updated_at: new Date().toISOString()
-    }, { onConflict: ['user_token'] });
+  const inputs = document.querySelectorAll('.toggle-btn input:checked');
+  const entries = [];
 
-  if (!error) alert('저장 완료');
-  else alert('저장 실패: ' + error.message);
+  inputs.forEach(input => {
+    const [character_name, raid_name] = input.name.split('_');
+    const difficulty = input.value;
+
+    const card = input.closest('.character-card');
+    const ilvl = parseFloat(card.querySelector('.ilvl').innerText);
+
+    entries.push({ user_token: apiKey, character_name, raid_name, difficulty, ilvl });
+  });
+
+  if (entries.length === 0) return alert('선택 항목이 없습니다.');
+
+  await supabase.from('raid_status').delete().eq('user_token', apiKey);
+  const { error } = await supabase.from('raid_status').insert(entries);
+  if (error) return alert('저장 실패');
+
+  alert('저장 완료');
+  await loadOtherUsers();
 }
 
-async function loadPreviousData() {
-  const token = getCookie('LOA_API_KEY');
-  if (!token) return;
-
-  const { data, error } = await supabase
+// 내 데이터 불러오기
+async function loadSavedRaidStatus(apiKey) {
+  const { data } = await supabase
     .from('raid_status')
-    .select('data, updated_at')
-    .eq('user_token', token)
-    .single();
+    .select('*')
+    .eq('user_token', apiKey);
 
-console.log(data);
-  if (!data || !data.data) return;
+  data?.forEach(row => {
+    const selector = `input[name="${row.character_name}_${row.raid_name}"][value="${row.difficulty}"]`;
+    const radio = document.querySelector(selector);
+    if (radio) radio.checked = true;
+  });
+}
 
-  const updated = new Date(data.updated_at);
+// 다른 사용자 표시
+async function loadOtherUsers() {
+  const { data } = await supabase
+    .from('raid_status')
+    .select('*')
+    .order('updated_at', { ascending: false });
+
   const resetTime = getMostRecentResetTime();
-console.log(updated);
-console.log(resetTime);
-console.log(updated < resetTime);
+  const recent = data.filter(row => new Date(row.updated_at) >= resetTime);
 
-  if (updated < resetTime) return; // 지난주 데이터면 무시
+  const grouped = {};
+  recent.forEach(row => {
+    if (!grouped[row.user_token]) grouped[row.user_token] = [];
+    grouped[row.user_token].push(row);
+  });
 
-  const parsed = JSON.parse(data.data);
-  for (const char in parsed) {
-    for (const raid in parsed[char]) {
-      const mode = parsed[char][raid];
-      if (!mode) continue;
+  const tbody = document.getElementById('user-table-body');
+  tbody.innerHTML = '';
 
-      const selector = `.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode}"]`;
-      const btn = document.querySelector(selector);
-      if (btn) btn.classList.add('active');
-
-      state[char][raid] = mode;
-    }
-  }
+  Object.entries(grouped).forEach(([token, list]) => {
+    const main = list.sort((a, b) => b.ilvl - a.ilvl)[0];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="checkbox" data-token="${token}" /></td>
+      <td>${main.character_name}</td>
+      ${RAIDS.map(raid => {
+        const found = list.find(x => x.raid_name === raid.name);
+        if (!found) return `<td>-</td>`;
+        const cls = found.difficulty === '하드' ? 'hard' : 'normal';
+        return `<td><span class="tag ${cls}">${found.difficulty}</span></td>`;
+      }).join('')}
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-function getMostRecentResetTime() {
-  const now = new Date();
-  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000); // 현재 시간을 KST 기준으로 변환
-
-  // 수요일(3) 오전 10시 기준을 계산
-  const day = kstNow.getDay(); // 0(일)~6(토)
-  const hour = kstNow.getHours();
-
-  let daysSinceReset = (day + 7 - 3) % 7; // 수요일까지 며칠 지났는지
-  if (day === 3 && hour < 10) {
-    daysSinceReset = 7; // 이번 주 수요일 오전 10시 전이면 지난주 수요일을 기준으로
-  }
-
-  // KST 기준 이번 주 수요일 10시
-  const kstReset = new Date(kstNow);
-  kstReset.setHours(10, 0, 0, 0);
-  kstReset.setDate(kstReset.getDate() - daysSinceReset);
-
-  // 다시 UTC로 변환해서 반환
-  const utcReset = new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
-  return utcReset;
-}
-
+// 등록
+window.loadSiblings = loadSiblings;
+window.saveAllRaidStatus = saveAllRaidStatus;
+loadOtherUsers();
