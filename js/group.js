@@ -117,6 +117,7 @@ function renderTable(characters) {
     tbody.appendChild(row);
   });
 
+  table.appendChild(tbody);
   const listContainer = document.getElementById('characterList');
 listContainer.innerHTML = '';
 listContainer.appendChild(table);
