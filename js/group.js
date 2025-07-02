@@ -202,10 +202,24 @@ console.log(updated < resetTime);
 
 function getMostRecentResetTime() {
   const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
-  const reset = new Date();
-  reset.setHours(10, 0, 0, 0);
-  reset.setDate(reset.getDate() - ((day < 3 || (day === 3 && hour < 10)) ? (7 + day - 3) : (day - 3)));
-  return reset;
+  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000); // 현재 시간을 KST 기준으로 변환
+
+  // 수요일(3) 오전 10시 기준을 계산
+  const day = kstNow.getDay(); // 0(일)~6(토)
+  const hour = kstNow.getHours();
+
+  let daysSinceReset = (day + 7 - 3) % 7; // 수요일까지 며칠 지났는지
+  if (day === 3 && hour < 10) {
+    daysSinceReset = 7; // 이번 주 수요일 오전 10시 전이면 지난주 수요일을 기준으로
+  }
+
+  // KST 기준 이번 주 수요일 10시
+  const kstReset = new Date(kstNow);
+  kstReset.setHours(10, 0, 0, 0);
+  kstReset.setDate(kstReset.getDate() - daysSinceReset);
+
+  // 다시 UTC로 변환해서 반환
+  const utcReset = new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
+  return utcReset;
 }
+
