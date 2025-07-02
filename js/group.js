@@ -1,65 +1,81 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const supabase = createClient('https://YOUR_SUPABASE_URL.supabase.co', 'YOUR_PUBLIC_API_KEY');
+const supabase = createClient('https://YOUR_PROJECT_ID.supabase.co', 'YOUR_PUBLIC_ANON_KEY');
 
+// 쿠키 유틸
 function setCookie(name, value, days) {
   const date = new Date();
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
   document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
 }
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
+  return parts.length === 2 ? parts.pop().split(';').shift() : null;
 }
 
-window.showApiKeyModal = () => document.getElementById('apiKeyModal').style.display = 'flex';
-window.closeApiKeyModal = () => document.getElementById('apiKeyModal').style.display = 'none';
-window.saveApiKey = () => {
+// API KEY 모달
+function showApiKeyModal() {
+  document.getElementById('apiKeyModal').style.display = 'flex';
+}
+
+function closeApiKeyModal() {
+  document.getElementById('apiKeyModal').style.display = 'none';
+}
+
+function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (key) {
     setCookie('LOA_API_KEY', key, 30);
     closeApiKeyModal();
   }
-};
+}
 
-window.addEventListener('click', e => {
-  if (e.target === document.getElementById('apiKeyModal')) closeApiKeyModal();
-});
-window.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeApiKeyModal();
-});
+window.showApiKeyModal = showApiKeyModal;
+window.closeApiKeyModal = closeApiKeyModal;
+window.saveApiKey = saveApiKey;
 
-const raidInfo = [
-  { name: '3막 모르둠', key: 'mordor', levels: { normal: 1680, hard: 1700 } },
-  { name: '2막 아브렐', key: 'abrel', levels: { normal: 1670, hard: 1690 } },
-  { name: '1막 에기르', key: 'egir', levels: { normal: 1660, hard: 1680 } },
-  { name: '서막 에키드나', key: 'ekidna', levels: { normal: 1620, hard: 1640 } },
-  { name: '베히모스', key: 'behemoth', levels: { normal: 1640 } }
+// 토글 가능한 레이드 정보
+const raidDefs = [
+  { name: '3막 모르둠', hard: 1700, normal: 1680 },
+  { name: '2막 아브렐', hard: 1690, normal: 1670 },
+  { name: '1막 에기르', hard: 1680, normal: 1660 },
+  { name: '서막 에키드나', hard: 1640, normal: 1620 },
+  { name: '베히모스', hard: null, normal: 1640 }
 ];
 
+// 현재 상태
+let state = {}; // { 캐릭터명: { 레이드명: "hard"|"normal"|"" } }
+
+// 캐릭터 검색
 async function loadSiblings(event) {
   if (event.key !== 'Enter') return;
 
-  const nickname = document.getElementById('searchInput').value.trim();
   const apiKey = getCookie('LOA_API_KEY');
-  if (!nickname || !apiKey) return alert('닉네임과 API KEY를 입력해주세요.');
+  if (!apiKey) return alert('API KEY를 먼저 입력해주세요.');
+  const name = document.getElementById('searchInput').value.trim();
+  if (!name) return;
 
-  const res = await fetch(`https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(nickname)}/siblings`, {
-    headers: { Authorization: `bearer ${apiKey}` }
-  });
+  const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(name)}/siblings`;
+  const headers = { Authorization: `bearer ${apiKey}` };
 
-  const siblings = await res.json();
-  const filtered = siblings
-    .map(c => ({
-      name: c.CharacterName,
-      level: parseFloat(c.ItemAvgLevel.replace(/,/g, ''))
-    }))
+  const res = await fetch(url, { headers });
+  const list = await res.json();
+
+  const characters = list
+    .map(c => ({ name: c.CharacterName, level: parseFloat(c.ItemAvgLevel.replace(/,/g, '')) }))
     .filter(c => c.level >= 1640)
     .sort((a, b) => b.level - a.level);
 
-  renderTable(filtered);
+  state = {};
+  characters.forEach(c => {
+    state[c.name] = {};
+    raidDefs.forEach(r => state[c.name][r.name] = "");
+  });
+
+  renderTable(characters);
+  await loadPreviousData();
 }
 
 function renderTable(characters) {
@@ -68,96 +84,120 @@ function renderTable(characters) {
 
   // 헤더
   const thead = document.createElement('thead');
-  const headerRow1 = document.createElement('tr');
-  const headerRow2 = document.createElement('tr');
-  headerRow1.innerHTML = `<th rowspan="2">캐릭터명</th>`;
-
-  raidInfo.forEach(r => {
-    const colspan = Object.keys(r.levels).length;
-    headerRow1.innerHTML += `<th colspan="${colspan}">${r.name}</th>`;
-    ['hard', 'normal'].forEach(type => {
-      headerRow2.innerHTML += `<th>${type === 'hard' ? '하드' : '노말'}</th>`;
-    });
-  });
-
-  thead.appendChild(headerRow1);
-  thead.appendChild(headerRow2);
+  const headRow = document.createElement('tr');
+  headRow.innerHTML = `<th>캐릭터명</th>` + raidDefs.map(r => `<th>${r.name}</th>`).join('');
+  thead.appendChild(headRow);
   table.appendChild(thead);
 
   // 바디
   const tbody = document.createElement('tbody');
-  characters.forEach(char => {
-    const row = document.createElement('tr');
-    row.innerHTML = `<td>${char.name}</td>`;
 
-    raidInfo.forEach(raid => {
-      ['hard', 'normal'].forEach(type => {
-        if (raid.levels[type] !== undefined) {
-          const key = `${char.name}_${raid.key}_${type}`;
-          const disabled = char.level < raid.levels[type];
-          row.innerHTML += `
-            <td>
-              <label class="toggle-wrapper">
-                <input type="checkbox" data-key="${key}" ${disabled ? 'disabled' : ''} />
-                <span class="toggle-btn"></span>
-              </label>
-            </td>`;
-        }
-      });
-    });
+  characters.forEach(c => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${c.name}</td>` + raidDefs.map(r => {
+      const disabledHard = r.hard && c.level < r.hard;
+      const disabledNormal = r.normal && c.level < r.normal;
+
+      return `
+        <td>
+          <div class="raid-toggle">
+            <button class="toggle-btn hard ${disabledHard ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="hard">하드</button>
+            <button class="toggle-btn normal ${disabledNormal ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="normal">노말</button>
+          </div>
+        </td>
+      `;
+    }).join('');
 
     tbody.appendChild(row);
   });
 
   table.appendChild(tbody);
-
-  const main = document.querySelector('main');
-  main.innerHTML = '';
-  main.appendChild(table);
+  document.querySelector('.results').innerHTML = '';
+  document.querySelector('.results').appendChild(table);
 
   const saveBtn = document.createElement('button');
   saveBtn.textContent = '저장';
-  saveBtn.className = 'save-btn';
-  saveBtn.onclick = saveRaidData;
-  main.appendChild(saveBtn);
+  saveBtn.className = 'save-button';
+  saveBtn.onclick = saveToDatabase;
+  document.querySelector('.results').appendChild(saveBtn);
 
-  // 동시 선택 방지
-  document.querySelectorAll('input[type=checkbox]').forEach(input => {
-    input.addEventListener('change', () => {
-      const [char, raid, type] = input.dataset.key.split('_');
-      if (input.checked) {
-        const otherType = type === 'hard' ? 'normal' : 'hard';
-        const otherInput = document.querySelector(`input[data-key="${char}_${raid}_${otherType}"]`);
-        if (otherInput) otherInput.checked = false;
+  // 이벤트 바인딩
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const char = btn.dataset.char;
+      const raid = btn.dataset.raid;
+      const mode = btn.dataset.mode;
+
+      if (btn.classList.contains('disabled')) return;
+
+      const otherBtn = document.querySelector(`.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode === 'hard' ? 'normal' : 'hard'}"]`);
+
+      // 상태 토글
+      if (state[char][raid] === mode) {
+        state[char][raid] = "";
+        btn.classList.remove('active');
+      } else {
+        state[char][raid] = mode;
+        btn.classList.add('active');
+        if (otherBtn) otherBtn.classList.remove('active');
       }
     });
   });
 }
 
-async function saveRaidData() {
-  const inputs = document.querySelectorAll('input[type=checkbox]');
-  const data = {};
+async function saveToDatabase() {
+  const token = getCookie('LOA_API_KEY');
+  if (!token) return alert('API KEY가 필요합니다.');
 
-  inputs.forEach(input => {
-    const [char, raid, type] = input.dataset.key.split('_');
-    if (!data[char]) data[char] = {};
-    if (input.checked) data[char][`${raid}_${type}`] = true;
-  });
-
-  // Supabase 저장 예시
   const { error } = await supabase
-    .from('raid_checklist')
-    .upsert(Object.entries(data).map(([character, raids]) => ({
-      character,
-      raids
-    })));
+    .from('raid_status')
+    .upsert({
+      user_token: token,
+      data: JSON.stringify(state),
+      updated_at: new Date().toISOString()
+    }, { onConflict: ['user_token'] });
 
-  if (error) {
-    alert('저장 실패');
-    console.error(error);
-  } else {
-    alert('저장되었습니다.');
+  if (!error) alert('저장 완료');
+  else alert('저장 실패: ' + error.message);
+}
+
+async function loadPreviousData() {
+  const token = getCookie('LOA_API_KEY');
+  if (!token) return;
+
+  const { data, error } = await supabase
+    .from('raid_status')
+    .select('data, updated_at')
+    .eq('user_token', token)
+    .single();
+
+  if (!data || !data.data) return;
+
+  const updated = new Date(data.updated_at);
+  const resetTime = getMostRecentResetTime();
+  if (updated < resetTime) return; // 지난주 데이터면 무시
+
+  const parsed = JSON.parse(data.data);
+  for (const char in parsed) {
+    for (const raid in parsed[char]) {
+      const mode = parsed[char][raid];
+      if (!mode) continue;
+
+      const selector = `.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode}"]`;
+      const btn = document.querySelector(selector);
+      if (btn) btn.classList.add('active');
+
+      state[char][raid] = mode;
+    }
   }
 }
 
-window.loadSiblings = loadSiblings;
+function getMostRecentResetTime() {
+  const now = new Date();
+  const day = now.getDay();
+  const hour = now.getHours();
+  const reset = new Date();
+  reset.setHours(10, 0, 0, 0);
+  reset.setDate(reset.getDate() - ((day < 3 || (day === 3 && hour < 10)) ? (7 + day - 3) : (day - 3)));
+  return reset;
+}
