@@ -286,7 +286,7 @@ Object.values(userState).forEach(characterData => {
 });
 
 // 4. <tr> 태그 생성
-let row = `<tr>\n  <td>${대표캐릭터명}</td>`;
+let row = `<tr>\n  <td>${titleChar}</td>`;
 
 raidDefs.forEach(raid => {
   row += `\n  <td>${stageCounts[raid.name].hard}</td>`;
