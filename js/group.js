@@ -35,6 +35,7 @@ function saveApiKey() {
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
+window.loadSiblings = loadSiblings;
 
 // 토글 가능한 레이드 정보
 const raidDefs = [
