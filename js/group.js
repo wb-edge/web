@@ -264,6 +264,11 @@ function buildUserTable(userState) {
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
+
+  const keys = Object.keys(userState);
+  const titleChar = keys[0];
+console.log(titleChar);
+
   for (const char in userState) {
     const row = document.createElement('tr');
     row.innerHTML = `<td>${char}</td>` + raidDefs.map(r => {
