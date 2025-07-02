@@ -34,6 +34,27 @@ function saveApiKey() {
   }
 }
 
+function handleSearch(event) {
+  if (event.key === 'Enter') {
+    const keyword = event.target.value.trim();
+    const apiKey = getCookie('LOA_API_KEY');
+    if (!keyword) return;
+
+    if (!apiKey) {
+      alert("먼저 API KEY를 입력해주세요.");
+      return;
+    }
+
+    window.location.href = `/web/group/?q=${encodeURIComponent(keyword)}`;
+  }
+}
+
+function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+window.handleSearch = handleSearch;
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
@@ -52,12 +73,10 @@ const raidDefs = [
 let state = {};
 
 // 캐릭터 검색 및 렌더링
-async function loadSiblings(event) {
-  if (event.key !== 'Enter') return;
+async function loadSiblings(name) {
 
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return alert('API KEY를 먼저 입력해주세요.');
-  const name = document.getElementById('searchInput').value.trim();
   if (!name) return;
 
   const url = `https://developer-lostark.game.onstove.com/characters/${encodeURIComponent(name)}/siblings`;
@@ -303,3 +322,5 @@ function buildUserTable(userState) {
   return table;
 }
 
+const keyword = getQueryParam('q');
+if (keyword) loadSiblings(keyword);
