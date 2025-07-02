@@ -277,7 +277,7 @@ raidDefs.forEach(raid => {
 });
 
 // 3. 데이터 순회하여 카운트 집계
-Object.values(jsonData).forEach(characterData => {
+Object.values(userState).forEach(characterData => {
   raidDefs.forEach(raid => {
     const status = characterData[raid.name];
     if (status === 'hard') stageCounts[raid.name].hard++;
