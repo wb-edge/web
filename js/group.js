@@ -266,20 +266,36 @@ function buildUserTable(userState) {
   const tbody = document.createElement('tbody');
 
   const keys = Object.keys(userState);
+  // 1. 대표 캐릭터명
   const titleChar = keys[0];
 console.log(titleChar);
 
-  for (const char in userState) {
-    const row = document.createElement('tr');
-    row.innerHTML = `<td>${char}</td>` + raidDefs.map(r => {
-      const val = userState[char][r.name];
-      let label = '';
-      if (val === 'hard') label = '하드';
-      else if (val === 'normal') label = '노말';
-      return `<td>${label}</td>`;
-    }).join('');
-    tbody.appendChild(row);
-  }
+// 2. 난이도별 카운트 초기화
+const stageCounts = {};
+raidDefs.forEach(raid => {
+  stageCounts[raid.name] = { hard: 0, normal: 0 };
+});
+
+// 3. 데이터 순회하여 카운트 집계
+Object.values(jsonData).forEach(characterData => {
+  raidDefs.forEach(raid => {
+    const status = characterData[raid.name];
+    if (status === 'hard') stageCounts[raid.name].hard++;
+    else if (status === 'normal') stageCounts[raid.name].normal++;
+  });
+});
+
+// 4. <tr> 태그 생성
+let row = `<tr>\n  <td>${대표캐릭터명}</td>`;
+
+raidDefs.forEach(raid => {
+  row += `\n  <td>${stageCounts[raid.name].hard}</td>`;
+  row += `\n  <td>${stageCounts[raid.name].normal}</td>`;
+});
+
+row += `\n</tr>`;
+
+tbody.appendChild(row);
 
   table.appendChild(tbody);
   return table;
