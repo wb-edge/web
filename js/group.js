@@ -39,7 +39,7 @@ window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
 window.loadSiblings = loadSiblings;
 
-// 토글 가능한 레이드 정보
+// 레이드 정의
 const raidDefs = [
   { name: '3막 모르둠', hard: 1700, normal: 1680 },
   { name: '2막 아브렐', hard: 1690, normal: 1670 },
@@ -48,10 +48,10 @@ const raidDefs = [
   { name: '베히모스', hard: null, normal: 1640 }
 ];
 
-// 현재 상태
-let state = {}; // { 캐릭터명: { 레이드명: "hard"|"normal"|"" } }
+// 상태 저장용
+let state = {};
 
-// 캐릭터 검색
+// 캐릭터 검색 및 렌더링
 async function loadSiblings(event) {
   if (event.key !== 'Enter') return;
 
@@ -74,35 +74,36 @@ async function loadSiblings(event) {
   state = {};
   characters.forEach(c => {
     state[c.name] = {};
-    raidDefs.forEach(r => state[c.name][r.name] = "");
+    raidDefs.forEach(r => (state[c.name][r.name] = ""));
   });
 
   renderTable(characters);
   await loadPreviousData();
-  await loadOtherUsersData(); // 추가
+  await loadOtherUsersData();
 }
 
 function renderTable(characters) {
   const table = document.createElement('table');
   table.className = 'raid-table';
 
-  // 헤더
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
   headRow.innerHTML = `<th>캐릭터명</th>` + raidDefs.map(r => `<th>${r.name}</th>`).join('');
   thead.appendChild(headRow);
   table.appendChild(thead);
 
-  // 바디
   const tbody = document.createElement('tbody');
 
   characters.forEach(c => {
     const row = document.createElement('tr');
-    row.innerHTML = `<td>${c.name}</td>` + raidDefs.map(r => {
-      const disabledHard = r.hard && c.level < r.hard;
-      const disabledNormal = r.normal && c.level < r.normal;
+    row.innerHTML =
+      `<td>${c.name}</td>` +
+      raidDefs
+        .map(r => {
+          const disabledHard = r.hard && c.level < r.hard;
+          const disabledNormal = r.normal && c.level < r.normal;
 
-      return `
+          return `
         <td>
           <div class="raid-toggle">
             <button class="toggle-btn hard ${disabledHard ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="hard">하드</button>
@@ -110,7 +111,8 @@ function renderTable(characters) {
           </div>
         </td>
       `;
-    }).join('');
+        })
+        .join('');
 
     tbody.appendChild(row);
   });
@@ -125,7 +127,7 @@ function renderTable(characters) {
   saveBtn.onclick = saveToDatabase;
   document.querySelector('.results').appendChild(saveBtn);
 
-  // 이벤트 바인딩
+  // 버튼 이벤트
   document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const char = btn.dataset.char;
@@ -134,9 +136,10 @@ function renderTable(characters) {
 
       if (btn.classList.contains('disabled')) return;
 
-      const otherBtn = document.querySelector(`.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode === 'hard' ? 'normal' : 'hard'}"]`);
+      const otherBtn = document.querySelector(
+        `.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode === 'hard' ? 'normal' : 'hard'}"]`
+      );
 
-      // 상태 토글
       if (state[char][raid] === mode) {
         state[char][raid] = "";
         btn.classList.remove('active');
@@ -153,13 +156,14 @@ async function saveToDatabase() {
   const token = getCookie('LOA_API_KEY');
   if (!token) return alert('API KEY가 필요합니다.');
 
-  const { error } = await supabase
-    .from('raid_status')
-    .upsert({
+  const { error } = await supabase.from('raid_status').upsert(
+    {
       user_token: token,
       data: JSON.stringify(state),
       updated_at: new Date().toISOString()
-    }, { onConflict: ['user_token'] });
+    },
+    { onConflict: ['user_token'] }
+  );
 
   if (!error) alert('저장 완료');
   else alert('저장 실패: ' + error.message);
@@ -175,16 +179,12 @@ async function loadPreviousData() {
     .eq('user_token', token)
     .single();
 
-console.log(data);
   if (!data || !data.data) return;
 
   const updated = new Date(data.updated_at);
   const resetTime = getMostRecentResetTime();
-console.log(updated);
-console.log(resetTime);
-console.log(updated < resetTime);
 
-  if (updated < resetTime) return; // 지난주 데이터면 무시
+  if (updated < resetTime) return;
 
   const parsed = JSON.parse(data.data);
   for (const char in parsed) {
@@ -203,27 +203,22 @@ console.log(updated < resetTime);
 
 function getMostRecentResetTime() {
   const now = new Date();
-  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000); // 현재 시간을 KST 기준으로 변환
-
-  // 수요일(3) 오전 10시 기준을 계산
-  const day = kstNow.getDay(); // 0(일)~6(토)
+  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const day = kstNow.getDay();
   const hour = kstNow.getHours();
 
-  let daysSinceReset = (day + 7 - 3) % 7; // 수요일까지 며칠 지났는지
-  if (day === 3 && hour < 10) {
-    daysSinceReset = 7; // 이번 주 수요일 오전 10시 전이면 지난주 수요일을 기준으로
-  }
+  let daysSinceReset = (day + 7 - 3) % 7;
+  if (day === 3 && hour < 10) daysSinceReset = 7;
 
-  // KST 기준 이번 주 수요일 10시
   const kstReset = new Date(kstNow);
   kstReset.setHours(10, 0, 0, 0);
   kstReset.setDate(kstReset.getDate() - daysSinceReset);
 
-  // 다시 UTC로 변환해서 반환
   const utcReset = new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
   return utcReset;
 }
 
+// 다른 유저 데이터 불러오기
 async function loadOtherUsersData() {
   const token = getCookie('LOA_API_KEY');
   if (!token) return;
@@ -231,9 +226,9 @@ async function loadOtherUsersData() {
   const { data, error } = await supabase
     .from('raid_status')
     .select('user_token, data, updated_at')
-    .neq('user_token', token)  // 내 데이터 제외
+    .neq('user_token', token)
     .order('updated_at', { ascending: false })
-    .limit(5); // 최근 5명만 예시
+    .limit(5);
 
   if (error) {
     console.error('다른 유저 데이터 로딩 실패:', error);
@@ -241,7 +236,8 @@ async function loadOtherUsersData() {
   }
 
   const container = document.getElementById('otherUsersData');
-  container.innerHTML = ''; // 초기화
+  if (!container) return;
+  container.innerHTML = '';
 
   data.forEach(user => {
     const parsed = JSON.parse(user.data);
@@ -267,7 +263,6 @@ function buildUserTable(userState) {
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-
   for (const char in userState) {
     const row = document.createElement('tr');
     row.innerHTML = `<td>${char}</td>` + raidDefs.map(r => {
@@ -283,4 +278,3 @@ function buildUserTable(userState) {
   table.appendChild(tbody);
   return table;
 }
-
