@@ -117,15 +117,15 @@ function renderTable(characters) {
     tbody.appendChild(row);
   });
 
-  table.appendChild(tbody);
-  document.querySelector('.results').innerHTML = '';
-  document.querySelector('.results').appendChild(table);
+  const listContainer = document.getElementById('characterList');
+listContainer.innerHTML = '';
+listContainer.appendChild(table);
 
-  const saveBtn = document.createElement('button');
-  saveBtn.textContent = '저장';
-  saveBtn.className = 'save-button';
-  saveBtn.onclick = saveToDatabase;
-  document.querySelector('.results').appendChild(saveBtn);
+const saveBtn = document.createElement('button');
+saveBtn.textContent = '저장';
+saveBtn.className = 'save-button';
+saveBtn.onclick = saveToDatabase;
+listContainer.appendChild(saveBtn);
 
   // 버튼 이벤트
   document.querySelectorAll('.toggle-btn').forEach(btn => {
