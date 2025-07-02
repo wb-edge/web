@@ -256,3 +256,10 @@ button:hover {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.user-raid-block {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}

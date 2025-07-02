@@ -79,6 +79,7 @@ async function loadSiblings(event) {
 
   renderTable(characters);
   await loadPreviousData();
+  await loadOtherUsersData(); // 추가
 }
 
 function renderTable(characters) {
@@ -221,5 +222,65 @@ function getMostRecentResetTime() {
   // 다시 UTC로 변환해서 반환
   const utcReset = new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
   return utcReset;
+}
+
+async function loadOtherUsersData() {
+  const token = getCookie('LOA_API_KEY');
+  if (!token) return;
+
+  const { data, error } = await supabase
+    .from('raid_status')
+    .select('user_token, data, updated_at')
+    .neq('user_token', token)  // 내 데이터 제외
+    .order('updated_at', { ascending: false })
+    .limit(5); // 최근 5명만 예시
+
+  if (error) {
+    console.error('다른 유저 데이터 로딩 실패:', error);
+    return;
+  }
+
+  const container = document.getElementById('otherUsersData');
+  container.innerHTML = ''; // 초기화
+
+  data.forEach(user => {
+    const parsed = JSON.parse(user.data);
+    const updated = new Date(user.updated_at).toLocaleString();
+
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('user-raid-block');
+    wrapper.innerHTML = `<p><strong>업데이트:</strong> ${updated}</p>`;
+    const table = buildUserTable(parsed);
+    wrapper.appendChild(table);
+    container.appendChild(wrapper);
+  });
+}
+
+function buildUserTable(userState) {
+  const table = document.createElement('table');
+  table.className = 'raid-table';
+
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  headRow.innerHTML = `<th>캐릭터명</th>` + raidDefs.map(r => `<th>${r.name}</th>`).join('');
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  for (const char in userState) {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${char}</td>` + raidDefs.map(r => {
+      const val = userState[char][r.name];
+      let label = '';
+      if (val === 'hard') label = '하드';
+      else if (val === 'normal') label = '노말';
+      return `<td>${label}</td>`;
+    }).join('');
+    tbody.appendChild(row);
+  }
+
+  table.appendChild(tbody);
+  return table;
 }
 
