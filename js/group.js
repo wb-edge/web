@@ -174,10 +174,15 @@ async function loadPreviousData() {
     .eq('user_token', token)
     .single();
 
+console.log(data);
   if (!data || !data.data) return;
 
   const updated = new Date(data.updated_at);
   const resetTime = getMostRecentResetTime();
+console.log(updated);
+console.log(resetTime);
+console.log(updated < resetTime);
+
   if (updated < resetTime) return; // 지난주 데이터면 무시
 
   const parsed = JSON.parse(data.data);
