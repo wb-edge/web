@@ -295,7 +295,7 @@ raidDefs.forEach(raid => {
 
 row += `\n</tr>`;
 
-tbody.appendChild(row);
+tbody.innerHTML(row);
 
   table.appendChild(tbody);
   return table;
