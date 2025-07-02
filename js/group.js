@@ -75,7 +75,7 @@ function renderTable(characters) {
   raidInfo.forEach(r => {
     const colspan = Object.keys(r.levels).length;
     headerRow1.innerHTML += `<th colspan="${colspan}">${r.name}</th>`;
-    Object.keys(r.levels).forEach(type => {
+    ['hard', 'normal'].forEach(type => {
       headerRow2.innerHTML += `<th>${type === 'hard' ? '하드' : '노말'}</th>`;
     });
   });

@@ -170,4 +170,81 @@ button:hover {
   opacity: 0.5;
 }
 
+/* 테이블 스타일 */
+.raid-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+.raid-table th,
+.raid-table td {
+  border: 1px solid #444;
+  padding: 6px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #eee;
+}
+
+/* 토글 스타일 */
+.toggle-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+.toggle-wrapper input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-btn {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #666;
+  border-radius: 20px;
+  transition: background-color 0.2s;
+}
+.toggle-btn::before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-wrapper input:checked + .toggle-btn {
+  background-color: #2a9d8f;
+}
+.toggle-wrapper input:checked + .toggle-btn::before {
+  transform: translateX(16px);
+}
+
+/* 비활성화 토글 */
+.toggle-wrapper input:disabled + .toggle-btn {
+  background-color: #333;
+  cursor: not-allowed;
+}
+.toggle-wrapper input:disabled + .toggle-btn::before {
+  background-color: #777;
+}
+
+/* 저장 버튼 */
+.save-btn {
+  background-color: #2a9d8f;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.save-btn:hover {
+  background-color: #21867a;
+}
 
