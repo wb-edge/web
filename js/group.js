@@ -257,46 +257,49 @@ function buildUserTable(userState) {
   const table = document.createElement('table');
   table.className = 'raid-table';
 
+  // thead 생성
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  headRow.innerHTML = `<th>캐릭터명</th>` + raidDefs.map(r => `<th>${r.name}</th>`).join('');
+
+  // 첫 번째 칼럼: 캐릭터명
+  headRow.innerHTML = `<th>대표 캐릭터</th>` + 
+    raidDefs.map(r => `<th>${r.name} (하드)</th><th>${r.name} (노말)</th>`).join('');
   thead.appendChild(headRow);
   table.appendChild(thead);
 
+  // tbody 생성
   const tbody = document.createElement('tbody');
 
   const keys = Object.keys(userState);
-  // 1. 대표 캐릭터명
-  const titleChar = keys[0];
-console.log(titleChar);
+  const titleChar = keys[0]; // 대표 캐릭터명
 
-// 2. 난이도별 카운트 초기화
-const stageCounts = {};
-raidDefs.forEach(raid => {
-  stageCounts[raid.name] = { hard: 0, normal: 0 };
-});
-
-// 3. 데이터 순회하여 카운트 집계
-Object.values(userState).forEach(characterData => {
+  // 스테이지별 클리어 수 초기화
+  const stageCounts = {};
   raidDefs.forEach(raid => {
-    const status = characterData[raid.name];
-    if (status === 'hard') stageCounts[raid.name].hard++;
-    else if (status === 'normal') stageCounts[raid.name].normal++;
+    stageCounts[raid.name] = { hard: 0, normal: 0 };
   });
-});
 
-// 4. <tr> 태그 생성
-let row = `<tr>\n  <td>${titleChar}</td>`;
+  // 캐릭터 데이터 순회하며 클리어 수 집계
+  Object.values(userState).forEach(characterData => {
+    raidDefs.forEach(raid => {
+      const status = characterData[raid.name];
+      if (status === 'hard') stageCounts[raid.name].hard++;
+      else if (status === 'normal') stageCounts[raid.name].normal++;
+    });
+  });
 
-raidDefs.forEach(raid => {
-  row += `\n  <td>${stageCounts[raid.name].hard}</td>`;
-  row += `\n  <td>${stageCounts[raid.name].normal}</td>`;
-});
+  // tr 행 생성
+  let row = `<tr>\n  <td>${titleChar}</td>`;
+  raidDefs.forEach(raid => {
+    row += `\n  <td>${stageCounts[raid.name].hard}</td>`;
+    row += `\n  <td>${stageCounts[raid.name].normal}</td>`;
+  });
+  row += `\n</tr>`;
 
-row += `\n</tr>`;
-
-tbody.innerHTML(row);
+  // tbody에 HTML 삽입 (여기서 수정 필요했던 부분)
+  tbody.innerHTML = row;
 
   table.appendChild(tbody);
   return table;
 }
+
