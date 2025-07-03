@@ -10,14 +10,13 @@ function setCookie(name, value, days) {
   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
   document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
 }
-
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   return parts.length === 2 ? parts.pop().split(';').shift() : null;
 }
 
-// API KEY 모달
+// API Key 모달
 function showApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'flex';
 }
@@ -32,7 +31,7 @@ function saveApiKey() {
   }
 }
 
-// 검색
+// 검색 핸들링
 function handleSearch(event) {
   if (event.key === 'Enter') {
     const keyword = event.target.value.trim();
@@ -62,7 +61,7 @@ function closeCompareModal() {
   document.getElementById('compareModal').style.display = 'none';
 }
 
-// 전역 등록
+// 전역 함수 등록
 window.handleSearch = handleSearch;
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
@@ -121,22 +120,18 @@ function renderTable(characters) {
 
   characters.forEach(c => {
     const row = document.createElement('tr');
-    row.innerHTML =
-      `<td>${c.name}</td>` +
-      raidDefs.map(r => {
-        const disabledHard = r.hard !== null && c.level < r.hard;
-        const disabledNormal = r.normal && c.level < r.normal;
+    row.innerHTML = `<td>${c.name}</td>` + raidDefs.map(r => {
+      const disabledHard = r.hard !== null && c.level < r.hard;
+      const disabledNormal = r.normal && c.level < r.normal;
 
-        return `
+      return `
         <td>
           <div class="raid-toggle">
             ${r.hard !== null ? `<button class="toggle-btn hard ${disabledHard ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="hard">하드</button>` : ''}
             <button class="toggle-btn normal ${disabledNormal ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="normal">노말</button>
           </div>
-        </td>
-      `;
-      }).join('');
-
+        </td>`;
+    }).join('');
     tbody.appendChild(row);
   });
 
@@ -237,7 +232,6 @@ function getMostRecentResetTime() {
   return new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
 }
 
-// ✅ 다른 유저들 데이터 로드 및 선택 가능 처리
 async function loadOtherUsersData() {
   const token = getCookie('LOA_API_KEY');
   const { data } = await supabase
@@ -269,33 +263,64 @@ async function loadOtherUsersData() {
       wrapper.dataset.selected = wrapper.classList.contains('selected') ? 'true' : 'false';
     });
 
-    wrapper.dataset.raw = JSON.stringify(parsed); // 비교용 raw 데이터 저장
+    wrapper.dataset.raw = JSON.stringify(parsed);
     container.appendChild(wrapper);
   });
 
-  // 비교 버튼 이벤트 연결
-  const compareBtn = document.getElementById('compareSelectedBtn');
-  compareBtn.onclick = () => {
+  document.getElementById('compareSelectedBtn').onclick = () => {
     const selected = [...document.querySelectorAll('.user-raid-block.selected')];
     const otherStates = selected.map(el => JSON.parse(el.dataset.raw));
     compareWithUsers(otherStates);
   };
 }
 
-// ✅ 비교 함수 (다중 유저)
+function buildUserTable(userState) {
+  const table = document.createElement('table');
+  table.className = 'raid-table';
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  headRow.innerHTML = `<th>대표 캐릭터</th>` +
+    raidDefs.map(r => `<th>${r.name} (하드)</th><th>${r.name} (노말)</th>`).join('');
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  const titleChar = Object.keys(userState)[0];
+
+  const stageCounts = {};
+  raidDefs.forEach(raid => {
+    stageCounts[raid.name] = { hard: 0, normal: 0 };
+  });
+
+  Object.values(userState).forEach(characterData => {
+    raidDefs.forEach(raid => {
+      const status = characterData[raid.name];
+      if (status === 'hard') stageCounts[raid.name].hard++;
+      else if (status === 'normal') stageCounts[raid.name].normal++;
+    });
+  });
+
+  let row = `<tr><td>${titleChar}</td>`;
+  raidDefs.forEach(raid => {
+    row += `<td>${stageCounts[raid.name].hard}</td><td>${stageCounts[raid.name].normal}</td>`;
+  });
+  row += `</tr>`;
+  tbody.innerHTML = row;
+
+  table.appendChild(tbody);
+  return table;
+}
+
 function compareWithUsers(otherStates) {
   const overlapMap = new Map();
-
   raidDefs.forEach(r => {
     ['hard', 'normal'].forEach(mode => {
       let myCount = Object.values(state).filter(c => c[r.name] === mode).length;
       if (!myCount) return;
-
       let minCount = otherStates.reduce((acc, userState) => {
         let userCount = Object.values(userState).filter(c => c[r.name] === mode).length;
         return Math.min(acc, userCount);
       }, Infinity);
-
       if (minCount > 0) {
         const label = `${r.name} [${mode === 'hard' ? '하드' : '노말'}]`;
         overlapMap.set(label, Math.min(myCount, minCount));
