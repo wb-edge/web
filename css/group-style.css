@@ -205,17 +205,6 @@ button:hover {
   cursor: pointer;
   font-size: 0.9rem;
 }
-.toggle-btn::before {
-  position: absolute;
-  content: "";
-  height: 16px; width: 16px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  border-radius: 50%;
-  transition: transform 0.2s;
-}
-
 .toggle-wrapper input:checked + .toggle-btn {
   background-color: #2a9d8f;
 }
