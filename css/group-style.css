@@ -263,3 +263,30 @@ button:hover {
   border-radius: 8px;
   margin-bottom: 2rem;
 }
+
+.my-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.compare-result {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  white-space: pre-wrap;
+}
+
+.toggle-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: #444;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.toggle-btn:hover {
+  background-color: #666;
+}

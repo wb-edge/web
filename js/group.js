@@ -21,11 +21,9 @@ function getCookie(name) {
 function showApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'flex';
 }
-
 function closeApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'none';
 }
-
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (key) {
@@ -34,6 +32,7 @@ function saveApiKey() {
   }
 }
 
+// 검색 및 쿼리 처리
 function handleSearch(event) {
   if (event.key === 'Enter') {
     const keyword = event.target.value.trim();
@@ -48,17 +47,23 @@ function handleSearch(event) {
     window.location.href = `/web/group/?q=${encodeURIComponent(keyword)}`;
   }
 }
-
 function getQueryParam(name) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(name);
 }
 
+// 펼치기/접기
+function toggleMySection() {
+  const el = document.getElementById('characterList');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// 전역 등록
 window.handleSearch = handleSearch;
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
-window.loadSiblings = loadSiblings;
+window.toggleMySection = toggleMySection;
 
 // 레이드 정의
 const raidDefs = [
@@ -69,12 +74,9 @@ const raidDefs = [
   { name: '베히모스', hard: null, normal: 1640 }
 ];
 
-// 상태 저장용
 let state = {};
 
-// 캐릭터 검색 및 렌더링
 async function loadSiblings(name) {
-
   const apiKey = getCookie('LOA_API_KEY');
   if (!apiKey) return alert('API KEY를 먼저 입력해주세요.');
   if (!name) return;
@@ -117,37 +119,35 @@ function renderTable(characters) {
     const row = document.createElement('tr');
     row.innerHTML =
       `<td>${c.name}</td>` +
-      raidDefs
-        .map(r => {
-          const disabledHard = r.hard && c.level < r.hard;
-          const disabledNormal = r.normal && c.level < r.normal;
+      raidDefs.map(r => {
+        const disabledHard = r.hard !== null && c.level < r.hard;
+        const disabledNormal = r.normal && c.level < r.normal;
 
-          return `
+        return `
         <td>
           <div class="raid-toggle">
-            <button class="toggle-btn hard ${disabledHard ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="hard">하드</button>
+            ${r.hard !== null ? `<button class="toggle-btn hard ${disabledHard ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="hard">하드</button>` : ''}
             <button class="toggle-btn normal ${disabledNormal ? 'disabled' : ''}" data-char="${c.name}" data-raid="${r.name}" data-mode="normal">노말</button>
           </div>
         </td>
       `;
-        })
-        .join('');
+      }).join('');
 
     tbody.appendChild(row);
   });
 
   table.appendChild(tbody);
+
   const listContainer = document.getElementById('characterList');
-listContainer.innerHTML = '';
-listContainer.appendChild(table);
+  listContainer.innerHTML = '';
+  listContainer.appendChild(table);
 
-const saveBtn = document.createElement('button');
-saveBtn.textContent = '저장';
-saveBtn.className = 'save-button';
-saveBtn.onclick = saveToDatabase;
-listContainer.appendChild(saveBtn);
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = '저장';
+  saveBtn.className = 'save-button';
+  saveBtn.onclick = saveToDatabase;
+  listContainer.appendChild(saveBtn);
 
-  // 버튼 이벤트
   document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const char = btn.dataset.char;
@@ -193,7 +193,7 @@ async function loadPreviousData() {
   const token = getCookie('LOA_API_KEY');
   if (!token) return;
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('raid_status')
     .select('data, updated_at')
     .eq('user_token', token)
@@ -203,7 +203,6 @@ async function loadPreviousData() {
 
   const updated = new Date(data.updated_at);
   const resetTime = getMostRecentResetTime();
-
   if (updated < resetTime) return;
 
   const parsed = JSON.parse(data.data);
@@ -234,8 +233,7 @@ function getMostRecentResetTime() {
   kstReset.setHours(10, 0, 0, 0);
   kstReset.setDate(kstReset.getDate() - daysSinceReset);
 
-  const utcReset = new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
-  return utcReset;
+  return new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
 }
 
 // 다른 유저 데이터 불러오기
@@ -243,17 +241,12 @@ async function loadOtherUsersData() {
   const token = getCookie('LOA_API_KEY');
   if (!token) return;
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('raid_status')
     .select('user_token, data, updated_at')
     .neq('user_token', token)
     .order('updated_at', { ascending: false })
     .limit(5);
-
-  if (error) {
-    console.error('다른 유저 데이터 로딩 실패:', error);
-    return;
-  }
 
   const container = document.getElementById('otherUsersData');
   if (!container) return;
@@ -266,8 +259,15 @@ async function loadOtherUsersData() {
     const wrapper = document.createElement('div');
     wrapper.classList.add('user-raid-block');
     wrapper.innerHTML = `<p><strong>업데이트:</strong> ${updated}</p>`;
+
     const table = buildUserTable(parsed);
     wrapper.appendChild(table);
+
+    const compareBtn = document.createElement('button');
+    compareBtn.textContent = '비교';
+    compareBtn.onclick = () => compareWithUser(parsed);
+    wrapper.appendChild(compareBtn);
+
     container.appendChild(wrapper);
   });
 }
@@ -276,29 +276,22 @@ function buildUserTable(userState) {
   const table = document.createElement('table');
   table.className = 'raid-table';
 
-  // thead 생성
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-
-  // 첫 번째 칼럼: 캐릭터명
-  headRow.innerHTML = `<th>대표 캐릭터</th>` + 
+  headRow.innerHTML = `<th>대표 캐릭터</th>` +
     raidDefs.map(r => `<th>${r.name} (하드)</th><th>${r.name} (노말)</th>`).join('');
   thead.appendChild(headRow);
   table.appendChild(thead);
 
-  // tbody 생성
   const tbody = document.createElement('tbody');
-
   const keys = Object.keys(userState);
-  const titleChar = keys[0]; // 대표 캐릭터명
+  const titleChar = keys[0];
 
-  // 스테이지별 클리어 수 초기화
   const stageCounts = {};
   raidDefs.forEach(raid => {
     stageCounts[raid.name] = { hard: 0, normal: 0 };
   });
 
-  // 캐릭터 데이터 순회하며 클리어 수 집계
   Object.values(userState).forEach(characterData => {
     raidDefs.forEach(raid => {
       const status = characterData[raid.name];
@@ -307,20 +300,47 @@ function buildUserTable(userState) {
     });
   });
 
-  // tr 행 생성
-  let row = `<tr>\n  <td>${titleChar}</td>`;
+  let row = `<tr><td>${titleChar}</td>`;
   raidDefs.forEach(raid => {
-    row += `\n  <td>${stageCounts[raid.name].hard}</td>`;
-    row += `\n  <td>${stageCounts[raid.name].normal}</td>`;
+    row += `<td>${stageCounts[raid.name].hard}</td><td>${stageCounts[raid.name].normal}</td>`;
   });
-  row += `\n</tr>`;
-
-  // tbody에 HTML 삽입 (여기서 수정 필요했던 부분)
+  row += `</tr>`;
   tbody.innerHTML = row;
 
   table.appendChild(tbody);
   return table;
 }
 
+function compareWithUser(otherState) {
+  const overlap = {};
+  for (const char in state) {
+    for (const raid in state[char]) {
+      const myValue = state[char][raid];
+      if (!myValue) continue;
+
+      const countOther = Object.values(otherState).filter(
+        c => c[raid] === myValue
+      ).length;
+
+      if (countOther > 0) {
+        const key = `${raid}-${myValue}`;
+        overlap[key] = Math.min(
+          Object.values(state).filter(c => c[raid] === myValue).length,
+          countOther
+        );
+      }
+    }
+  }
+
+  const lines = Object.entries(overlap).map(
+    ([key, count]) => `${key}: ${count}`
+  );
+  document.getElementById('compareResult').innerText = lines.join('\n') || '겹치는 레이드가 없습니다.';
+}
+
+// 자동 실행
 const keyword = getQueryParam('q');
-if (keyword) loadSiblings(keyword);
+if (keyword) {
+  document.getElementById('searchInput').value = keyword;
+  loadSiblings(keyword);
+}

@@ -9,31 +9,45 @@
   <link rel="stylesheet" href="/web/css/group-style.css" />
 </head>
 <body>
-  <!-- 네비게이션 -->
+
   <nav class="navbar">
     <div class="nav-container">
       <div class="logo" onclick="window.location.href='/web'">Edge LOA</div>
       <input type="text" id="searchInput" placeholder="캐릭터명을 입력하세요..." onkeydown="handleSearch(event)" />
       <ul class="nav-links">
-        <li><button id="apiKeyBtn" onclick="showApiKeyModal()">API KEY 입력</button></li>
+        <li><button onclick="showApiKeyModal()">API KEY 입력</button></li>
       </ul>
     </div>
   </nav>
 
-  <!-- 메인 결과 영역 -->
   <main class="results">
-    <div class="character-list" id="characterList"></div>
+    <!-- 내 신청 현황 -->
+    <section class="my-section">
+      <div class="my-section-header">
+        <h2>내 신청 현황</h2>
+        <button class="toggle-btn" onclick="toggleMySection()">펼치기/접기</button>
+      </div>
+      <div id="characterList" class="character-list"></div>
+    </section>
 
     <hr />
 
-    <!-- 다른 유저 레이드 데이터 영역 -->
+    <!-- 다른 유저 현황 -->
     <section id="otherUsersSection">
-      <h2>레이드 신청 현황</h2>
+      <h2>다른 유저들의 상태</h2>
       <div id="otherUsersData"></div>
+    </section>
+
+    <hr />
+
+    <!-- 비교 결과 -->
+    <section id="compareSection">
+      <h2>비교 결과</h2>
+      <div id="compareResult" class="compare-result"></div>
     </section>
   </main>
 
-  <!-- API Key 모달 -->
+  <!-- API KEY 모달 -->
   <div id="apiKeyModal" class="modal api-key-modal">
     <div class="modal-content api-key-content">
       <span class="close" onclick="closeApiKeyModal()">&times;</span>
