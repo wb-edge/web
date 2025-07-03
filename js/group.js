@@ -32,18 +32,13 @@ function saveApiKey() {
   }
 }
 
-// 검색 및 쿼리 처리
+// 검색
 function handleSearch(event) {
   if (event.key === 'Enter') {
     const keyword = event.target.value.trim();
     const apiKey = getCookie('LOA_API_KEY');
     if (!keyword) return;
-
-    if (!apiKey) {
-      alert("먼저 API KEY를 입력해주세요.");
-      return;
-    }
-
+    if (!apiKey) return alert("먼저 API KEY를 입력해주세요.");
     window.location.href = `/web/group/?q=${encodeURIComponent(keyword)}`;
   }
 }
@@ -58,14 +53,23 @@ function toggleMySection() {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
+// 모달 제어
+function showCompareModal(content) {
+  document.getElementById('compareModalContent').textContent = content;
+  document.getElementById('compareModal').style.display = 'flex';
+}
+function closeCompareModal() {
+  document.getElementById('compareModal').style.display = 'none';
+}
+
 // 전역 등록
 window.handleSearch = handleSearch;
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
 window.saveApiKey = saveApiKey;
 window.toggleMySection = toggleMySection;
+window.closeCompareModal = closeCompareModal;
 
-// 레이드 정의
 const raidDefs = [
   { name: '3막 모르둠', hard: 1700, normal: 1680 },
   { name: '2막 아브렐', hard: 1690, normal: 1670 },
@@ -201,11 +205,11 @@ async function loadPreviousData() {
 
   if (!data || !data.data) return;
 
+  const parsed = JSON.parse(data.data);
   const updated = new Date(data.updated_at);
   const resetTime = getMostRecentResetTime();
   if (updated < resetTime) return;
 
-  const parsed = JSON.parse(data.data);
   for (const char in parsed) {
     for (const raid in parsed[char]) {
       const mode = parsed[char][raid];
@@ -225,120 +229,87 @@ function getMostRecentResetTime() {
   const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
   const day = kstNow.getDay();
   const hour = kstNow.getHours();
-
   let daysSinceReset = (day + 7 - 3) % 7;
   if (day === 3 && hour < 10) daysSinceReset = 7;
-
   const kstReset = new Date(kstNow);
   kstReset.setHours(10, 0, 0, 0);
   kstReset.setDate(kstReset.getDate() - daysSinceReset);
-
   return new Date(kstReset.getTime() - 9 * 60 * 60 * 1000);
 }
 
-// 다른 유저 데이터 불러오기
+// ✅ 다른 유저들 데이터 로드 및 선택 가능 처리
 async function loadOtherUsersData() {
   const token = getCookie('LOA_API_KEY');
-  if (!token) return;
-
   const { data } = await supabase
     .from('raid_status')
     .select('user_token, data, updated_at')
     .neq('user_token', token)
     .order('updated_at', { ascending: false })
-    .limit(5);
+    .limit(10);
 
   const container = document.getElementById('otherUsersData');
-  if (!container) return;
   container.innerHTML = '';
+  container.dataset.selectedUsers = '';
 
-  data.forEach(user => {
+  data.forEach((user, idx) => {
     const parsed = JSON.parse(user.data);
     const updated = new Date(user.updated_at).toLocaleString();
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('user-raid-block');
-    wrapper.innerHTML = `<p><strong>업데이트:</strong> ${updated}</p>`;
+    wrapper.className = 'user-raid-block';
+    wrapper.dataset.index = idx;
+    wrapper.dataset.selected = 'false';
 
+    wrapper.innerHTML = `<p><strong>업데이트:</strong> ${updated}</p>`;
     const table = buildUserTable(parsed);
     wrapper.appendChild(table);
 
-    const compareBtn = document.createElement('button');
-    compareBtn.textContent = '비교';
-    compareBtn.onclick = () => compareWithUser(parsed);
-    wrapper.appendChild(compareBtn);
+    wrapper.addEventListener('click', () => {
+      wrapper.classList.toggle('selected');
+      wrapper.dataset.selected = wrapper.classList.contains('selected') ? 'true' : 'false';
+    });
 
+    wrapper.dataset.raw = JSON.stringify(parsed); // 비교용 raw 데이터 저장
     container.appendChild(wrapper);
   });
+
+  // 비교 버튼 이벤트 연결
+  const compareBtn = document.getElementById('compareSelectedBtn');
+  compareBtn.onclick = () => {
+    const selected = [...document.querySelectorAll('.user-raid-block.selected')];
+    const otherStates = selected.map(el => JSON.parse(el.dataset.raw));
+    compareWithUsers(otherStates);
+  };
 }
 
-function buildUserTable(userState) {
-  const table = document.createElement('table');
-  table.className = 'raid-table';
+// ✅ 비교 함수 (다중 유저)
+function compareWithUsers(otherStates) {
+  const overlapMap = new Map();
 
-  const thead = document.createElement('thead');
-  const headRow = document.createElement('tr');
-  headRow.innerHTML = `<th>대표 캐릭터</th>` +
-    raidDefs.map(r => `<th>${r.name} (하드)</th><th>${r.name} (노말)</th>`).join('');
-  thead.appendChild(headRow);
-  table.appendChild(thead);
+  raidDefs.forEach(r => {
+    ['hard', 'normal'].forEach(mode => {
+      let myCount = Object.values(state).filter(c => c[r.name] === mode).length;
+      if (!myCount) return;
 
-  const tbody = document.createElement('tbody');
-  const keys = Object.keys(userState);
-  const titleChar = keys[0];
+      let minCount = otherStates.reduce((acc, userState) => {
+        let userCount = Object.values(userState).filter(c => c[r.name] === mode).length;
+        return Math.min(acc, userCount);
+      }, Infinity);
 
-  const stageCounts = {};
-  raidDefs.forEach(raid => {
-    stageCounts[raid.name] = { hard: 0, normal: 0 };
-  });
-
-  Object.values(userState).forEach(characterData => {
-    raidDefs.forEach(raid => {
-      const status = characterData[raid.name];
-      if (status === 'hard') stageCounts[raid.name].hard++;
-      else if (status === 'normal') stageCounts[raid.name].normal++;
+      if (minCount > 0) {
+        const label = `${r.name} [${mode === 'hard' ? '하드' : '노말'}]`;
+        overlapMap.set(label, Math.min(myCount, minCount));
+      }
     });
   });
 
-  let row = `<tr><td>${titleChar}</td>`;
-  raidDefs.forEach(raid => {
-    row += `<td>${stageCounts[raid.name].hard}</td><td>${stageCounts[raid.name].normal}</td>`;
-  });
-  row += `</tr>`;
-  tbody.innerHTML = row;
+  const result = [...overlapMap.entries()]
+    .map(([key, val]) => `${key} : ${val}`)
+    .join('\n') || '겹치는 레이드가 없습니다.';
 
-  table.appendChild(tbody);
-  return table;
+  showCompareModal(result);
 }
 
-function compareWithUser(otherState) {
-  const overlap = {};
-  for (const char in state) {
-    for (const raid in state[char]) {
-      const myValue = state[char][raid];
-      if (!myValue) continue;
-
-      const countOther = Object.values(otherState).filter(
-        c => c[raid] === myValue
-      ).length;
-
-      if (countOther > 0) {
-        const key = `${raid}-${myValue}`;
-        overlap[key] = Math.min(
-          Object.values(state).filter(c => c[raid] === myValue).length,
-          countOther
-        );
-      }
-    }
-  }
-
-  const lines = Object.entries(overlap).map(
-    ([key, count]) => `${key}: ${count}`
-  );
-  document.getElementById('compareResult').innerText = lines.join('\n') || '겹치는 레이드가 없습니다.';
-}
-
-// 자동 실행
 const keyword = getQueryParam('q');
 if (keyword) {
   document.getElementById('searchInput').value = keyword;
