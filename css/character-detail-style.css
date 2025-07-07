@@ -379,3 +379,10 @@
 .stat-panel.collapsed {
   display: none;
 }
+
+.stat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
