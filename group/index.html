@@ -28,7 +28,10 @@
     <section class="my-section">
       <div class="my-section-header">
         <h2>내 신청 현황</h2>
-        <button class="toggle-btn" onclick="toggleMySection()">펼치기/접기</button>
+        <div>
+	      <button class="toggle-btn" onclick="toggleMySection()">펼치기/접기</button>
+	      <button id="saveButton" class="save-button small">저장</button>
+	    </div>
       </div>
       <div id="characterList" class="character-list"></div>
     </section>

@@ -16,7 +16,7 @@ function getCookie(name) {
   return parts.length === 2 ? parts.pop().split(';').shift() : null;
 }
 
-// API Key 모달
+// 모달 및 검색
 function showApiKeyModal() {
   document.getElementById('apiKeyModal').style.display = 'flex';
 }
@@ -30,8 +30,6 @@ function saveApiKey() {
     closeApiKeyModal();
   }
 }
-
-// 검색 핸들링
 function handleSearch(event) {
   if (event.key === 'Enter') {
     const keyword = event.target.value.trim();
@@ -45,14 +43,10 @@ function getQueryParam(name) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(name);
 }
-
-// 펼치기/접기
 function toggleMySection() {
   const el = document.getElementById('characterList');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
-
-// 모달 제어
 function showCompareModal(content) {
   document.getElementById('compareModalContent').textContent = content;
   document.getElementById('compareModal').style.display = 'flex';
@@ -61,7 +55,7 @@ function closeCompareModal() {
   document.getElementById('compareModal').style.display = 'none';
 }
 
-// 전역 함수 등록
+// 글로벌 등록
 window.handleSearch = handleSearch;
 window.showApiKeyModal = showApiKeyModal;
 window.closeApiKeyModal = closeApiKeyModal;
@@ -136,29 +130,25 @@ function renderTable(characters) {
   });
 
   table.appendChild(tbody);
-
   const listContainer = document.getElementById('characterList');
   listContainer.innerHTML = '';
   listContainer.appendChild(table);
 
-  const saveBtn = document.createElement('button');
-  saveBtn.textContent = '저장';
-  saveBtn.className = 'save-button';
-  saveBtn.onclick = saveToDatabase;
-  listContainer.appendChild(saveBtn);
+  // 저장 버튼 상단으로 이동
+  const saveBtn = document.getElementById('saveButton');
+  if (saveBtn) saveBtn.onclick = saveToDatabase;
 
+  // 버튼 클릭 이벤트
   document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const char = btn.dataset.char;
       const raid = btn.dataset.raid;
       const mode = btn.dataset.mode;
-
       if (btn.classList.contains('disabled')) return;
 
       const otherBtn = document.querySelector(
         `.toggle-btn[data-char="${char}"][data-raid="${raid}"][data-mode="${mode === 'hard' ? 'normal' : 'hard'}"]`
       );
-
       if (state[char][raid] === mode) {
         state[char][raid] = "";
         btn.classList.remove('active');
@@ -247,14 +237,23 @@ async function loadOtherUsersData() {
 
   data.forEach((user, idx) => {
     const parsed = JSON.parse(user.data);
-    const updated = new Date(user.updated_at).toLocaleString();
+    const updated = new Date(user.updated_at);
+    const kst = new Date(updated.getTime() + 9 * 60 * 60 * 1000);
+    const formatted = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}-${String(kst.getDate()).padStart(2,'0')} ${String(kst.getHours()).padStart(2,'0')}:${String(kst.getMinutes()).padStart(2,'0')}`;
 
     const wrapper = document.createElement('div');
     wrapper.className = 'user-raid-block';
     wrapper.dataset.index = idx;
     wrapper.dataset.selected = 'false';
 
-    wrapper.innerHTML = `<p><strong>업데이트:</strong> ${updated}</p>`;
+    const titleChar = Object.keys(parsed)[0];
+
+    wrapper.innerHTML = `
+      <div class="user-raid-header">
+        <span class="title">${titleChar}</span>
+        <span class="updated-time">${formatted}</span>
+      </div>`;
+
     const table = buildUserTable(parsed);
     wrapper.appendChild(table);
 
@@ -279,13 +278,11 @@ function buildUserTable(userState) {
   table.className = 'raid-table';
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  headRow.innerHTML = `<th>대표 캐릭터</th>` +
-    raidDefs.map(r => `<th>${r.name} (하드)</th><th>${r.name} (노말)</th>`).join('');
+  headRow.innerHTML = raidDefs.map(r => `<th>${r.name} (하드)</th><th>${r.name} (노말)</th>`).join('');
   thead.appendChild(headRow);
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-  const titleChar = Object.keys(userState)[0];
 
   const stageCounts = {};
   raidDefs.forEach(raid => {
@@ -300,11 +297,11 @@ function buildUserTable(userState) {
     });
   });
 
-  let row = `<tr><td>${titleChar}</td>`;
+  let row = '<tr>';
   raidDefs.forEach(raid => {
-    row += `<td>${stageCounts[raid.name].hard}</td><td>${stageCounts[raid.name].normal}</td>`;
+    row += `<td class="count-cell">${stageCounts[raid.name].hard}</td><td class="count-cell">${stageCounts[raid.name].normal}</td>`;
   });
-  row += `</tr>`;
+  row += '</tr>';
   tbody.innerHTML = row;
 
   table.appendChild(tbody);
