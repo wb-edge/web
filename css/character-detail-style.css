@@ -348,3 +348,34 @@
   font-size: 0.85rem;
   color: #ccc;
 }
+
+.character-info-card {
+  position: relative; /* 🔑 화살표 위치를 위한 기준 */
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 화살표 버튼 우측 상단 고정 */
+.toggle-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #bbb;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.toggle-btn:hover {
+  color: #fff;
+}
+
+.stat-panel.collapsed {
+  display: none;
+}

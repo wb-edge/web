@@ -387,19 +387,26 @@ export function showCharacterDetails(characterName) {
         <!-- 왼쪽: 캐릭터 정보 + 각인 -->
         <div class="equipment-left">
           <div class="character-info-card">
+			<button class="toggle-btn" onclick="toggleStatsPanel()">
+              <span class="stats-toggle-icon">▼</span>
+            </button>
+
             <div class="level-block">
               <div class="item-level-text">${formatDecimal(profile.ItemAvgLevel)}</div>
               <div class="combat-power-text">${formatDecimal(profile.CombatPower)}</div>
             </div>
-            <div class="stat-block-row">
-              <div class="stat-card"><strong>공격력</strong><div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '공격력')?.Value)}</div></div>
-              <div class="stat-card"><strong>생명력</strong><div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '최대 생명력')?.Value)}</div></div>
-            </div>
-            <div class="stat-block-row">
-              <div class="stat-card"><strong>치명</strong><div>${profile.Stats.find(s => s.Type === '치명')?.Value || '-'}</div></div>
-              <div class="stat-card"><strong>특화</strong><div>${profile.Stats.find(s => s.Type === '특화')?.Value || '-'}</div></div>
-              <div class="stat-card"><strong>신속</strong><div>${profile.Stats.find(s => s.Type === '신속')?.Value || '-'}</div></div>
-            </div>
+
+			<div class="stat-panel collapsed">
+              <div class="stat-block-row">
+                <div class="stat-card"><strong>공격력</strong><div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '공격력')?.Value)}</div></div>
+                <div class="stat-card"><strong>생명력</strong><div>${formatNumberWithComma(profile.Stats.find(s => s.Type === '최대 생명력')?.Value)}</div></div>
+              </div>
+              <div class="stat-block-row">
+                <div class="stat-card"><strong>치명</strong><div>${profile.Stats.find(s => s.Type === '치명')?.Value || '-'}</div></div>
+                <div class="stat-card"><strong>특화</strong><div>${profile.Stats.find(s => s.Type === '특화')?.Value || '-'}</div></div>
+                <div class="stat-card"><strong>신속</strong><div>${profile.Stats.find(s => s.Type === '신속')?.Value || '-'}</div></div>
+              </div>
+			</div>
           </div>
           ${engravingHtml}
         </div>
@@ -496,3 +503,10 @@ window.showBraceletTooltip = () => {
 window.closeBraceletTooltip = () => {
   document.getElementById('braceletTooltipModal').style.display = 'none';
 };
+
+function toggleStatsPanel() {
+  const panel = document.querySelector('.stat-panel');
+  const icon = document.querySelector('.stats-toggle-icon');
+  panel.classList.toggle('collapsed');
+  icon.textContent = panel.classList.contains('collapsed') ? '▼' : '▲';
+}
