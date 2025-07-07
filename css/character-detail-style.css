@@ -386,3 +386,41 @@
   gap: 10px;
   margin-top: 10px;
 }
+
+.gem-card {
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  padding: 12px 16px;
+  position: relative;
+  margin-top: 14px;
+}
+
+.gem-card .toggle-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #bbb;
+  cursor: pointer;
+}
+
+.gem-detail-panel {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gem-detail-panel.collapsed {
+  display: none;
+}
+
+.gem-detail-line {
+  padding: 4px 8px;
+  background-color: #1e1e1e;
+  border-radius: 4px;
+}

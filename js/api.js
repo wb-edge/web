@@ -478,9 +478,20 @@ export function showCharacterDetails(characterName) {
           </div>
 
           ${gemHtml ? `
-            <div class="gem-container">
-              ${gemHtml}
-            </div>` : ''}
+			  <div class="gem-card">
+			    <button class="toggle-btn" onclick="toggleGemPanel()">
+			      <span class="gem-toggle-icon">▼</span>
+			    </button>
+			    <div class="gem-container">${gemHtml}</div>
+			    <div class="gem-detail-panel collapsed">
+			      ${gems.Gems.map(gem => {
+			        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '-';
+			        const name = gem.Name.replace(/<[^>]+>/g, '');
+			        return `<div class="gem-detail-line">Lv.${level} - ${name}</div>`;
+			      }).join('')}
+			    </div>
+			  </div>
+			` : ''}
         </div>
       </div>
     `;
@@ -510,3 +521,11 @@ window.toggleStatsPanel = () => {
   panel.classList.toggle('collapsed');
   icon.textContent = panel.classList.contains('collapsed') ? '▼' : '▲';
 }
+
+window.toggleGemPanel = () => {
+  const panel = document.querySelector('.gem-detail-panel');
+  const icon = document.querySelector('.gem-toggle-icon');
+  panel.classList.toggle('collapsed');
+  icon.textContent = panel.classList.contains('collapsed') ? '▼' : '▲';
+};
+
