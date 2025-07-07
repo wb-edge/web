@@ -504,7 +504,7 @@ window.closeBraceletTooltip = () => {
   document.getElementById('braceletTooltipModal').style.display = 'none';
 };
 
-function toggleStatsPanel() {
+window.toggleStatsPanel = () => {
   const panel = document.querySelector('.stat-panel');
   const icon = document.querySelector('.stats-toggle-icon');
   panel.classList.toggle('collapsed');
