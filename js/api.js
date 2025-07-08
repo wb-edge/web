@@ -295,31 +295,59 @@ export function showCharacterDetails(characterName) {
 	      : gem.Name.includes('광휘') ? '광'
 	      : '?';
 	
-	    const skillName = tooltip?.Element_007?.value?.Element_000?.contentStr?.replace(/<[^>]+>/g, '') || '-';
-	    const desc = tooltip?.Element_007?.value?.Element_001?.replace(/<[^>]+>/g, '') || '';
-	    const extraText = Object.values(tooltip)
+	    const grade =
+	      (['겁', '작', '광'].includes(type))
+	        ? (level >= 10 ? 'ancient'
+	          : level >= 8 ? 'relic'
+	          : level >= 5 ? 'legendary'
+	          : level >= 3 ? 'epic' : 'rare')
+	        : (level >= 10 ? 'relic'
+	          : level >= 7 ? 'legendary'
+	          : level >= 5 ? 'epic'
+	          : level >= 3 ? 'rare' : 'uncommon');
+	
+	    const levelType = `${level}${type}`;
+	
+	    const rawSkill = tooltip?.Element_007?.value?.Element_000?.contentStr || '';
+	    const rawDesc = tooltip?.Element_007?.value?.Element_001 || '';
+	
+	    let skillName = rawSkill.replace(/<[^>]+>/g, '').replace(/\[.*?\]/g, '').trim();
+	    let effect = rawDesc.replace(/<[^>]+>/g, '').trim();
+	
+	    // 🎯 중복 제거: "추가 효과" 이후 잘라냄
+	    if (effect.includes('추가 효과')) {
+	      effect = effect.split('추가 효과')[0].trim();
+	    }
+	
+	    // 🎯 기본 공격력 ~ 증가 제거
+	    effect = effect.replace(/기본 공격력\s[\d.]+% 증가/g, '').trim();
+	
+	    // 🎯 마지막 불필요한 콤마 제거
+	    if (effect.endsWith(',')) effect = effect.slice(0, -1);
+	
+	    // 카운트
+	    if (effect.includes('피해')) damageGemCount++;
+	    if (effect.includes('재사용 대기시간')) cooldownGemCount++;
+	
+	    // 기본 공격력 % 합산
+	    const atkBoosts = Object.values(tooltip)
 	      .map(e => e?.value?.Element_001 || '')
 	      .filter(s => s.includes('기본 공격력'))
-	      .map(s => s.replace(/<[^>]+>/g, ''))
-	      .join(', ');
+	      .map(s => s.replace(/<[^>]+>/g, '').match(/([\d.]+)%/))
+	      .filter(Boolean)
+	      .map(match => parseFloat(match[1]));
 	
-	    if (desc.includes('피해')) damageGemCount++;
-	    if (desc.includes('재사용 대기시간')) cooldownGemCount++;
-	
-	    const rawHtml = Object.values(tooltip).map(e => e?.value?.Element_001 || '').join('\n');
-	    const atkMatches = rawHtml.match(/기본 공격력\s([\d.]+)% 증가/g);
-	    if (atkMatches) {
-	      atkMatches.forEach(line => {
-	        const val = parseFloat(line.match(/([\d.]+)%/)[1]);
-	        baseAtkPercent += val;
-	      });
-	    }
+	    const atkSum = atkBoosts.reduce((acc, val) => acc + val, 0);
+	    baseAtkPercent += atkSum;
 	
 	    return `
 	      <div class="gem-detail-item">
-	        <img class="gem-detail-icon" src="${gem.Icon}" />
+	        <div class="item-icon gem-icon grade-${grade}">
+	          <img src="${gem.Icon}" />
+	        </div>
 	        <div class="gem-detail-text">
-	          ${level}${type} ${skillName} ${desc}${extraText ? `, ${extraText}` : ''}
+	          <span class="gem-tag">${levelType}</span>
+	          ${skillName} ${effect}
 	        </div>
 	      </div>
 	    `;
@@ -328,12 +356,11 @@ export function showCharacterDetails(characterName) {
 	  }
 	}).join('');
 
-
     const gemHtml = `
 	  <div class="gem-card">
 	    <div class="gem-summary">
 		  <div class="gem-metrics">
-		    <div class="metric damage">피해 증가 <strong>${damageGemCount}</strong></div>
+		    <div class="metric damage">피증 <strong>${damageGemCount}</strong></div>
 		    <div class="metric cooldown">쿨감 <strong>${cooldownGemCount}</strong></div>
 		    <div class="metric atk">기본 공격력 <strong>+${baseAtkPercent.toFixed(2)}%</strong></div>
 		  </div>
@@ -367,7 +394,7 @@ export function showCharacterDetails(characterName) {
 	            <div class="item-icon gem-icon grade-${grade}">
 	              <img src="${gem.Icon}" />
 	            </div>
-	            <div class="item-sub gem-center">${level}${type}</div>
+	            <div class="item-sub gem-center"><span class="gem-tag">${level}${type}</span></div>
 	          </div>
 	        `;
 	      }).join('')}

@@ -1,12 +1,11 @@
-/* 캐릭터 상세 모달 전용 스타일 */
-
+/* === 아이템 등급별 배경 === */
 .item-icon.grade-ancient { background-color: #dcc999 !important; }
-.item-icon.grade-relic   { background-color: #a24006 !important; }
+.item-icon.grade-relic { background-color: #a24006 !important; }
 .item-icon.grade-legendary { background-color: #9e5f04 !important; }
-.item-icon.grade-epic    { background-color: #480d5d !important; }
-.item-icon.grade-rare    { background-color: #3a62ab !important; }
+.item-icon.grade-epic { background-color: #480d5d !important; }
+.item-icon.grade-rare { background-color: #3a62ab !important; }
 
-/* 아이콘 컨테이너 */
+/* === 기본 아이콘 스타일 === */
 .item-icon {
   border: 2px solid #fff;
   padding: 3px;
@@ -23,8 +22,6 @@
   height: 32px;
   object-fit: cover;
 }
-
-/* 텍스트 */
 .item-sub {
   font-size: 0.85rem;
   color: #ccc;
@@ -32,30 +29,24 @@
   line-height: 1.2;
 }
 
-/* 전체 레이아웃 */
+/* === 전체 레이아웃 === */
 .equipment-columns {
   display: flex;
   justify-content: space-between;
   gap: 20px;
 }
-
-/* 왼쪽: 캐릭터 정보 */
 .equipment-left {
-  flex: 0 0 35%;
+  flex: 0 0 34%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
-/* 오른쪽: 장비/악세/보석 */
 .equipment-right {
-  flex: 0 0 65%;
+  flex: 0 0 64%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
-/* 장비/악세 사이: 수평 정렬 */
 .equipment-right > .equipment-columns {
   display: flex;
   gap: 10px;
@@ -67,7 +58,7 @@
   gap: 4px;
 }
 
-/* 장비/악세 아이템 행 */
+/* === 장비 아이템 === */
 .equipment-item {
   display: flex;
   align-items: center;
@@ -76,14 +67,12 @@
   padding: 6px 8px;
   height: 68px;
 }
-
-/* 아이콘 + 텍스트 */
 .item-icon-text {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.item-icon-text .item-info {
+.item-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -95,17 +84,73 @@
   font-weight: 600;
 }
 
-/* 보석 */
-.gem-container {
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
+/* === 보석 카드 === */
+.gem-card {
+  margin-top: 14px;
+  padding: 10px;
+  background-color: #2a2a2a;
+  border-radius: 10px;
+}
+.gem-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c2c2c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.gem-metrics {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.gem-metrics .metric {
+  background-color: #1f1f1f;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #ddd;
+  display: flex;
+  align-items: center;
   gap: 6px;
-  margin-top: 10px;
+  border: 1px solid #444;
+}
+.gem-metrics .metric strong {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.gem-summary .toggle-btn {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+  margin-right: 0;
+}
+.gem-summary .gem-toggle-icon {
+  font-size: 1.2rem;
+}
+
+/* === 보석 목록 === */
+.gem-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 6px;
+  margin-top: 12px;
+  width: 100%;
 }
 .gem-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 44px;
+  min-width: 44px;
 }
 .gem-item .item-icon {
   width: 40px;
@@ -116,47 +161,118 @@
   width: 100%;
   height: 100%;
 }
+.gem-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 20px;
+  text-align: center;
+}
 .gem-item .item-sub {
   font-size: 0.8rem;
   color: #ccc;
   margin-top: 4px;
-  text-align: center;
 }
 .gem-icon {
   border-radius: 4px;
-  box-shadow:
-    inset 0 0 3px rgba(255,255,255,0.3),
-    0 1px 3px rgba(0,0,0,0.5);
+  box-shadow: inset 0 0 3px rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.5);
+  width: 40px;
+  height: 40px;
+  border: 2px solid #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gem-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-/* 보석 등급별 그라데이션 */
-.gem-icon.grade-ancient {
-  background: linear-gradient(135deg, #5c4a1f, #dcc999);
+/* 등급별 그라데이션 */
+.gem-icon.grade-ancient { background: linear-gradient(135deg, #5c4a1f, #dcc999); }
+.gem-icon.grade-relic   { background: linear-gradient(135deg, #341a09, #a24006); }
+.gem-icon.grade-legendary { background: linear-gradient(135deg, #3f2205, #d19112); }
+.gem-icon.grade-epic    { background: linear-gradient(135deg, #1f042e, #8039a6); }
+.gem-icon.grade-rare    { background: linear-gradient(135deg, #082840, #3f7fb7); }
+.gem-icon.grade-uncommon { background: linear-gradient(135deg, #1a2d0e, #7bbf3b); }
+
+/* 상세보석 설명 */
+.gem-detail-panel {
+  max-height: unset;
+  overflow-y: unset;
 }
-.gem-icon.grade-relic {
-  background: linear-gradient(135deg, #341a09, #a24006);
+.gem-detail-panel.collapsed {
+  display: none;
 }
-.gem-icon.grade-legendary {
-  background: linear-gradient(135deg, #3f2205, #d19112);
+.gem-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
 }
-.gem-icon.grade-epic {
-  background: linear-gradient(135deg, #1f042e, #8039a6);
+.gem-detail-icon {
+  width: 32px;
+  height: 32px;
 }
-.gem-icon.grade-rare {
-  background: linear-gradient(135deg, #082840, #3f7fb7);
+.gem-detail-text {
+  font-size: 0.85rem;
+  color: #ddd;
+  line-height: 1.4;
 }
-.gem-icon.grade-uncommon {
-  background: linear-gradient(135deg, #1a2d0e, #7bbf3b);
+.gem-detail-text .gem-tag {
+  display: inline-block;
+  background-color: #444;
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-right: 6px;
+}
+.gem-tag {
+  display: inline-block;
+  background-color: #444;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 5px;
+  line-height: 1;
 }
 
-/* 스탯 블록 스타일 */
+/* === 캐릭터 정보 카드 === */
 .character-info-card {
+  position: relative;
   background-color: #2c2c2c;
   border-radius: 10px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+.toggle-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #bbb;
+  cursor: pointer;
+  z-index: 2;
+}
+.toggle-btn:hover { color: #fff; }
+
+.stat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.stat-panel.collapsed {
+  display: none;
 }
 .level-block {
   display: flex;
@@ -202,64 +318,6 @@
   color: #eee;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
-  .equipment-columns {
-    flex-direction: column;
-  }
-  .equipment-left,
-  .equipment-right {
-    flex: 1 1 100%;
-  }
-  .equipment-right > .equipment-columns {
-    flex-direction: column;
-  }
-  .equipment-right > .equipment-columns > .equipment-column {
-    flex: 1 1 100%;
-  }
-  .gem-container {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-.engraving-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 12px;
-}
-.engraving-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #222;
-  padding: 6px 10px;
-  border-radius: 6px;
-}
-.engraving-icon {
-  width: 24px;
-  height: 24px;
-}
-.engraving-name {
-  font-weight: bold;
-  color: #fff;
-}
-.engraving-tier {
-  font-size: 0.85rem;
-  color: #ccc;
-}
-.engraving-stone {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #99c;
-}
-.stone-icon {
-  width: 18px;
-  height: 18px;
-}
-
 .engraving-card {
   background-color: #2a2a2a;
   padding: 14px 16px;
@@ -269,27 +327,22 @@
   gap: 10px;
 }
 
-.engraving-status {
-  font-weight: bold;
-  color: #ccc;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #444;
-  padding-bottom: 4px;
-}
-
+/* 각인 */
 .engraving-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-top: 12px;
 }
-
 .engraving-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 6px;
+  background-color: #222;
+  padding: 6px 10px;
+  border-radius: 6px;
 }
-
 .engraving-left {
   display: flex;
   align-items: center;
@@ -297,14 +350,12 @@
   flex: 1;
   min-width: 0;
 }
-
 .engraving-right {
   display: flex;
   align-items: center;
   gap: 4px;
   white-space: nowrap;
 }
-
 .engraving-icon {
   width: 22px;
   height: 22px;
@@ -312,7 +363,6 @@
   background-color: #444;
   object-fit: cover;
 }
-
 .engraving-name {
   font-size: 0.9rem;
   color: #eee;
@@ -321,7 +371,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .engraving-stone-icon {
   width: 21px;
   height: 21px;
@@ -330,138 +379,60 @@
   vertical-align: middle;
   margin-left: 4px;
 }
-
 .engraving-stone-lv {
   font-size: 0.85rem;
   color: #ccc;
   margin-left: 2px;
 }
-
-.engraving-right img {
-  width: 21px;
-  height: 21px;
-  object-fit: none;
-  vertical-align: middle;
-}
-
 .engraving-grade-lv {
   font-size: 0.85rem;
   color: #ccc;
 }
 
-.character-info-card {
-  position: relative; /* 🔑 화살표 위치를 위한 기준 */
-  background-color: #2c2c2c;
-  border-radius: 10px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+/* === 모달 자체 스크롤 === */
+.modal-content.character-detail-content {
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 30px 30px;  /* 좌우 균등 패딩 */
+  scrollbar-gutter: stable;  /* ✅ 스크롤 생겨도 너비 유지 */
 }
 
-/* 화살표 버튼 우측 상단 고정 */
-.toggle-btn {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #bbb;
-  cursor: pointer;
-  z-index: 2;
+/* 반응형 */
+@media (max-width: 768px) {
+  .equipment-columns {
+    flex-direction: column;
+  }
+  .equipment-left, .equipment-right {
+    flex: 1 1 100%;
+  }
+  .equipment-right > .equipment-columns {
+    flex-direction: column;
+  }
+  .equipment-right > .equipment-columns > .equipment-column {
+    flex: 1 1 100%;
+  }
+  .gem-container {
+    justify-content: center;
+    gap: 4px;
+  }
 }
 
-.toggle-btn:hover {
-  color: #fff;
+.modal-content.character-detail-content::-webkit-scrollbar {
+  width: 8px;
 }
 
-.stat-panel.collapsed {
-  display: none;
+.modal-content.character-detail-content::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 4px;
 }
 
-.stat-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.gem-card {
-  margin-top: 14px;
-  padding: 10px;
-  background-color: #2a2a2a;
-  border-radius: 10px;
-}
-.gem-summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #2c2c2c;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  position: relative;
-}
-
-.gem-metrics {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.gem-metrics .metric {
-  background-color: #1f1f1f;
-  padding: 6px 10px;
+.modal-content.character-detail-content::-webkit-scrollbar-thumb {
+  background-color: #666;
   border-radius: 6px;
-  font-size: 0.85rem;
-  color: #ddd;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid #444;
+  border: 2px solid #2a2a2a;
 }
 
-.gem-metrics .metric strong {
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.9rem;
+.modal-content.character-detail-content::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
 }
-
-.gem-summary .toggle-btn {
-  background: none;
-  border: none;
-  color: #ccc;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 4px;
-  margin-left: auto;
-  margin-right: 0;
-}
-.gem-summary .gem-toggle-icon {
-  font-size: 1.2rem;
-}
-.gem-detail-panel {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.gem-detail-panel.collapsed {
-  display: none;
-}
-.gem-detail-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.gem-detail-icon {
-  width: 32px;
-  height: 32px;
-}
-.gem-detail-text {
-  font-size: 0.85rem;
-  color: #ccc;
-  line-height: 1.4;
-}
-
