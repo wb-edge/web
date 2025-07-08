@@ -331,14 +331,17 @@ export function showCharacterDetails(characterName) {
 	
 	    // 기본 공격력 % 합산
 	    const atkBoosts = Object.values(tooltip)
-	      .map(e => e?.value?.Element_001 || '')
-	      .filter(s => s.includes('기본 공격력'))
-	      .map(s => s.replace(/<[^>]+>/g, '').match(/([\d.]+)%/))
-	      .filter(Boolean)
-	      .map(match => parseFloat(match[1]));
-	
-	    const atkSum = atkBoosts.reduce((acc, val) => acc + val, 0);
-	    baseAtkPercent += atkSum;
+		  .map(e => e?.value?.Element_001 || '')
+		  .map(str => {
+		    const match = str.split(/추가 효과<\/FONT><BR>/i)[1];
+		    if (!match) return null;
+		    const atkMatch = match.match(/기본 공격력\s*([\d.]+)%\s*증가/);
+		    return atkMatch ? parseFloat(atkMatch[1]) : null;
+		  })
+		  .filter(v => v !== null);
+		
+		const atkSum = atkBoosts.reduce((acc, val) => acc + val, 0);
+		baseAtkPercent += atkSum;
 	
 	    return `
 	      <div class="gem-detail-item">
