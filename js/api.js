@@ -484,12 +484,34 @@ export function showCharacterDetails(characterName) {
 			    </button>
 			    <div class="gem-container">${gemHtml}</div>
 			    <div class="gem-detail-panel collapsed">
-			      ${gems.Gems.map(gem => {
-			        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '-';
-			        const name = gem.Name.replace(/<[^>]+>/g, '');
-			        return `<div class="gem-detail-line">Lv.${level} - ${name}</div>`;
-			      }).join('')}
-			    </div>
+				  ${gems.Gems.map(gem => {
+				    try {
+				      const tooltip = JSON.parse(gem.Tooltip);
+				      const icon = gem.Icon;
+				      const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
+				      const short = gem.Name.replace(/<[^>]+>/g, '').replace(/의 보석/, '').trim();
+				      const skillName = tooltip?.Element_007?.value?.Element_000?.contentStr?.replace(/<[^>]+>/g, '') || '-';
+				      const desc = tooltip?.Element_007?.value?.Element_001?.replace(/<[^>]+>/g, '') || '';
+				      const extraText = Object.values(tooltip)
+				        .map(e => e?.value?.Element_001 || '')
+				        .filter(s => s.includes('기본 공격력'))
+				        .map(s => s.replace(/<[^>]+>/g, ''))
+				        .join(', ');
+				
+				      const line = `
+				        <div class="gem-detail-item">
+				          <img class="gem-detail-icon" src="${icon}" />
+				          <div class="gem-detail-text">
+				            ${level}광 ${skillName} ${desc}${extraText ? `, ${extraText}` : ''}
+				          </div>
+				        </div>
+				      		`;
+				      return line;
+				    } catch {
+				      return '';
+				    }
+				  }).join('')}
+				</div>
 			  </div>
 			` : ''}
         </div>
