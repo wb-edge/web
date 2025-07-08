@@ -388,59 +388,80 @@
 }
 
 .gem-card {
-  background-color: #2c2c2c;
-  border-radius: 10px;
-  padding: 12px 16px;
-  position: relative;
   margin-top: 14px;
+  padding: 10px;
+  background-color: #2a2a2a;
+  border-radius: 10px;
+}
+.gem-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c2c2c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  position: relative;
 }
 
-.gem-card .toggle-btn {
-  position: absolute;
-  top: 8px;
-  right: 12px;
+.gem-metrics {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.gem-metrics .metric {
+  background-color: #1f1f1f;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #ddd;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #444;
+}
+
+.gem-metrics .metric strong {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.gem-summary .toggle-btn {
   background: none;
   border: none;
-  font-size: 20px;
-  color: #bbb;
+  color: #ccc;
+  font-size: 1rem;
   cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+  margin-right: 0;
 }
-
+.gem-summary .gem-toggle-icon {
+  font-size: 1.2rem;
+}
 .gem-detail-panel {
   margin-top: 10px;
-  font-size: 0.85rem;
-  color: #ccc;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
-
 .gem-detail-panel.collapsed {
   display: none;
 }
-
-.gem-detail-line {
-  padding: 4px 8px;
-  background-color: #1e1e1e;
-  border-radius: 4px;
-}
-
 .gem-detail-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 6px;
 }
-
 .gem-detail-icon {
   width: 32px;
   height: 32px;
-  border-radius: 4px;
 }
-
 .gem-detail-text {
-  flex: 1;
   font-size: 0.85rem;
   color: #ccc;
   line-height: 1.4;
 }
+

@@ -278,37 +278,105 @@ export function showCharacterDetails(characterName) {
       }
     }
 
-    // 보석 처리
-    const gemHtml = (gems?.Gems || [])
-      .filter(gem => gem.Name && gem.Icon)
-      .sort((a, b) => {
-        const lvA = parseInt(a.Name.match(/(\d+)레벨/)?.[1] || '0');
-        const lvB = parseInt(b.Name.match(/(\d+)레벨/)?.[1] || '0');
-        return lvB - lvA;
-      })
-      .slice(0, 11)
-      .map(gem => {
-        const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
-        const type = gem.Name.includes('겁화') ? '겁'
-                    : gem.Name.includes('작열') ? '작'
-                    : gem.Name.includes('홍염') ? '홍'
-                    : gem.Name.includes('멸화') ? '멸'
-                    : gem.Name.includes('광휘') ? '광'
-                    : '?';
-        const grade =
-          (type === '겁' || type === '작' || type === '광')
-            ? (level >= 10 ? 'ancient' : level >= 8 ? 'relic' : level >= 5 ? 'legendary' : level >= 3 ? 'epic' : 'rare')
-            : (level >= 10 ? 'relic' : level >= 7 ? 'legendary' : level >= 5 ? 'epic' : level >= 3 ? 'rare' : 'uncommon');
+    // 보석 통계
+    let damageGemCount = 0;
+	let cooldownGemCount = 0;
+	let baseAtkPercent = 0;
+	
+	const gemDetailHTML = gems.Gems.map(gem => {
+	  try {
+	    const tooltip = JSON.parse(gem.Tooltip);
+	    const level = parseInt(gem.Name.match(/(\d+)레벨/)?.[1] || '0', 10);
+	
+	    const type = gem.Name.includes('겁화') ? '겁'
+	      : gem.Name.includes('작열') ? '작'
+	      : gem.Name.includes('홍염') ? '홍'
+	      : gem.Name.includes('멸화') ? '멸'
+	      : gem.Name.includes('광휘') ? '광'
+	      : '?';
+	
+	    const skillName = tooltip?.Element_007?.value?.Element_000?.contentStr?.replace(/<[^>]+>/g, '') || '-';
+	    const desc = tooltip?.Element_007?.value?.Element_001?.replace(/<[^>]+>/g, '') || '';
+	    const extraText = Object.values(tooltip)
+	      .map(e => e?.value?.Element_001 || '')
+	      .filter(s => s.includes('기본 공격력'))
+	      .map(s => s.replace(/<[^>]+>/g, ''))
+	      .join(', ');
+	
+	    if (desc.includes('피해')) damageGemCount++;
+	    if (desc.includes('재사용 대기시간')) cooldownGemCount++;
+	
+	    const rawHtml = Object.values(tooltip).map(e => e?.value?.Element_001 || '').join('\n');
+	    const atkMatches = rawHtml.match(/기본 공격력\s([\d.]+)% 증가/g);
+	    if (atkMatches) {
+	      atkMatches.forEach(line => {
+	        const val = parseFloat(line.match(/([\d.]+)%/)[1]);
+	        baseAtkPercent += val;
+	      });
+	    }
+	
+	    return `
+	      <div class="gem-detail-item">
+	        <img class="gem-detail-icon" src="${gem.Icon}" />
+	        <div class="gem-detail-text">
+	          ${level}${type} ${skillName} ${desc}${extraText ? `, ${extraText}` : ''}
+	        </div>
+	      </div>
+	    `;
+	  } catch {
+	    return '';
+	  }
+	}).join('');
 
-        return `
-          <div class="gem-item">
-            <div class="item-icon gem-icon grade-${grade}">
-              <img src="${gem.Icon}" />
-            </div>
-            <div class="item-sub gem-center">${level}${type}</div>
-          </div>
-        `;
-      }).join('');
+
+    const gemHtml = `
+	  <div class="gem-card">
+	    <div class="gem-summary">
+		  <div class="gem-metrics">
+		    <div class="metric damage">피해 증가 <strong>${damageGemCount}</strong></div>
+		    <div class="metric cooldown">쿨감 <strong>${cooldownGemCount}</strong></div>
+		    <div class="metric atk">기본 공격력 <strong>+${baseAtkPercent.toFixed(2)}%</strong></div>
+		  </div>
+		  <button class="toggle-btn" onclick="toggleGemPanel()">
+		    <span class="gem-toggle-icon">▼</span>
+		  </button>
+		</div>
+	    <div class="gem-container">
+	      ${gems.Gems.slice(0, 11).map(gem => {
+	        const level = parseInt(gem.Name.match(/(\d+)레벨/)?.[1] || '0', 10);
+	        const type = gem.Name.includes('겁화') ? '겁'
+	          : gem.Name.includes('작열') ? '작'
+	          : gem.Name.includes('홍염') ? '홍'
+	          : gem.Name.includes('멸화') ? '멸'
+	          : gem.Name.includes('광휘') ? '광'
+	          : '?';
+	
+	        const grade =
+	          (['겁', '작', '광'].includes(type))
+	            ? (level >= 10 ? 'ancient'
+	              : level >= 8 ? 'relic'
+	              : level >= 5 ? 'legendary'
+	              : level >= 3 ? 'epic' : 'rare')
+	            : (level >= 10 ? 'relic'
+	              : level >= 7 ? 'legendary'
+	              : level >= 5 ? 'epic'
+	              : level >= 3 ? 'rare' : 'uncommon');
+	
+	        return `
+	          <div class="gem-item">
+	            <div class="item-icon gem-icon grade-${grade}">
+	              <img src="${gem.Icon}" />
+	            </div>
+	            <div class="item-sub gem-center">${level}${type}</div>
+	          </div>
+	        `;
+	      }).join('')}
+	    </div>
+	    <div class="gem-detail-panel collapsed">
+	      ${gemDetailHTML}
+	    </div>
+	  </div>
+	`;
 
     // 팔찌 툴팁 처리
     if (bracelet) {
@@ -477,43 +545,7 @@ export function showCharacterDetails(characterName) {
             </div>
           </div>
 
-          ${gemHtml ? `
-			  <div class="gem-card">
-			    <button class="toggle-btn" onclick="toggleGemPanel()">
-			      <span class="gem-toggle-icon">▼</span>
-			    </button>
-			    <div class="gem-container">${gemHtml}</div>
-			    <div class="gem-detail-panel collapsed">
-				  ${gems.Gems.map(gem => {
-				    try {
-				      const tooltip = JSON.parse(gem.Tooltip);
-				      const icon = gem.Icon;
-				      const level = gem.Name.match(/(\d+)레벨/)?.[1] || '';
-				      const short = gem.Name.replace(/<[^>]+>/g, '').replace(/의 보석/, '').trim();
-				      const skillName = tooltip?.Element_007?.value?.Element_000?.contentStr?.replace(/<[^>]+>/g, '') || '-';
-				      const desc = tooltip?.Element_007?.value?.Element_001?.replace(/<[^>]+>/g, '') || '';
-				      const extraText = Object.values(tooltip)
-				        .map(e => e?.value?.Element_001 || '')
-				        .filter(s => s.includes('기본 공격력'))
-				        .map(s => s.replace(/<[^>]+>/g, ''))
-				        .join(', ');
-				
-				      const line = `
-				        <div class="gem-detail-item">
-				          <img class="gem-detail-icon" src="${icon}" />
-				          <div class="gem-detail-text">
-				            ${level}광 ${skillName} ${desc}${extraText ? `, ${extraText}` : ''}
-				          </div>
-				        </div>
-				      		`;
-				      return line;
-				    } catch {
-				      return '';
-				    }
-				  }).join('')}
-				</div>
-			  </div>
-			` : ''}
+          ${gemHtml}
         </div>
       </div>
     `;
